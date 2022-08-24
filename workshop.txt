@@ -1,3 +1,10 @@
 version=1
-title=Shops
-description=[BETA TESTING] In-game configurable shops.
+id=2853615523
+title=Shops and Traders
+description=[h2][BETA TESTING] In-game configurable shops.[/h2]
+description=
+description=[img]https://i.imgur.com/p7Fv1Z6.gif[/img]
+description=
+description=[url=https://ko-fi.com/chuckleberryfinn][img]https://i.imgur.com/GxZ38nz.png[/img] [b]Consider supporting Chuck![/b][/url] [url=https://www.patreon.com/bePatron?u=17239488][img]https://raw.githubusercontent.com/ChuckTheSheep/Vanilla-Weapons-Expanded/main/Contents/mods/VanillaWeaponsExpanded/patreon/Patreon%20Logo.png[/img][/url]
+tags=Build 41;Misc;Multiplayer
+visibility=private
