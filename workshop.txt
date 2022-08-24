@@ -1,0 +1,3 @@
+version=1
+title=Shops
+description=[BETA TESTING] In-game configurable shops.
