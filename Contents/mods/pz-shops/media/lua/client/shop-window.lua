@@ -1,5 +1,5 @@
 require "ISUI/ISPanelJoypad"
-require "shop-main"
+require "shop-globalModDataClient"
 
 ---@class storeWindow : ISPanel
 storeWindow = ISPanelJoypad:derive("storeWindow")
@@ -428,17 +428,6 @@ function storeWindow:getOrderTotal()
     return totalForTransaction
 end
 
-function storeWindow:getWalletBalance()
-    local walletBalance = 0
-    if self.player and self.player:getModData() then
-        local pID = self.player:getModData().wallet_UUID
-        if pID then
-            local wallet = CLIENT_WALLETS[pID]
-            if wallet then walletBalance = wallet.amount or 0 end
-        end
-    end
-    return walletBalance
-end
 
 function storeWindow:displayOrderTotal()
     local x = self.yourCartData.x
@@ -465,7 +454,7 @@ function storeWindow:displayOrderTotal()
     self:drawRectBorder(x, y+4, w, h, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
 
     self:drawRect(x, y+h+8, w, h, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
-    local walletBalance = self:getWalletBalance()
+    local walletBalance = getWalletBalance(self.player)
     local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": "..getText("IGUI_CURRENCY")..tostring(walletBalance)
     local bColor = balanceColor.normal
     if (walletBalance-totalForTransaction) < 0 then bColor = balanceColor.red end
@@ -659,7 +648,7 @@ function storeWindow:render()
     self.addStockQuantity:isEditable(not blocked)
     self.addStockBuyBackRate:isEditable(not blocked)
 
-    local purchaseValid = (self:getWalletBalance()-self:getOrderTotal()) >= 0
+    local purchaseValid = (getWalletBalance(self.player)-self:getOrderTotal()) >= 0
     self.purchase.enable = (not managed and not blocked and #self.yourCartData.items>0 and purchaseValid)
     local gb = 1
     if not purchaseValid then gb = 0 end

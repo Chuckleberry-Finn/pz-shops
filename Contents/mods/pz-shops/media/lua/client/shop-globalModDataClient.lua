@@ -35,3 +35,17 @@ local function receiveGlobalModData(name, data)
     end
 end
 Events.OnReceiveGlobalModData.Add(receiveGlobalModData)
+
+
+function getWalletBalance(player)
+    local walletBalance = 0
+    if player and player:getModData() then
+        local pID = player:getModData().wallet_UUID
+        if pID then
+            triggerEvent("SHOPPING_ClientModDataReady", true)
+            local wallet = CLIENT_WALLETS[pID]
+            if wallet then walletBalance = wallet.amount or 0 end
+        end
+    end
+    return walletBalance
+end

@@ -51,26 +51,13 @@ function ISTradingUI:initialise()
     self.setOfferedAmount = 0
 end
 
---tradingUISendAddItem(self.player, self.otherPlayer, item);
-
-function ISTradingUI:getWalletBalance()
-    local walletBalance = 0
-    if self.player and self.player:getModData() then
-        local pID = self.player:getModData().wallet_UUID
-        if pID then
-            local wallet = CLIENT_WALLETS[pID]
-            if wallet then walletBalance = wallet.amount or 0 end
-        end
-    end
-    return walletBalance
-end
 
 local ISTradingUI_render = ISTradingUI.render
 function ISTradingUI:render()
 
     local color = {r=1, g=1, b=1, a=0.9}
 
-    local walletBalance = self:getWalletBalance()
+    local walletBalance = getWalletBalance(self.player)
     local walletBalanceLine = getText("IGUI_CURRENCY")..tostring(walletBalance)
     self.walletFunds:drawText(walletBalanceLine, 10, 2, color.r, color.g, color.b, color.a, self.font)
 
@@ -101,7 +88,7 @@ function ISTradingUI:updateButtons()
 
     if self.sealOffer.selected[1] and self.otherSealedOffer then
 
-        local walletBalance = self:getWalletBalance()
+        local walletBalance = getWalletBalance(self.player)
         local offeredAmount = tonumber(self.transferFunds:getInternalText()) or 0
         offeredAmount = math.min(walletBalance, math.max(0,offeredAmount))
 

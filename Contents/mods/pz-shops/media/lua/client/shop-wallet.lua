@@ -1,4 +1,5 @@
 require "client/XpSystem/ISUI/ISCharacterInfo"
+require "shop-globalModDataClient"
 
 ---@param playerObj IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
 function getOrSetWalletID(playerID,playerObj)
@@ -26,23 +27,10 @@ end
 Events.OnPlayerDeath.Add(getOrSetWalletID)
 
 
-function ISCharacterScreen:getWalletBalance()
-    local walletBalance = 0
-    if self.char and self.char:getModData() then
-        local pID = self.char:getModData().wallet_UUID
-        if pID then
-            triggerEvent("SHOPPING_ClientModDataReady", true)
-            local wallet = CLIENT_WALLETS[pID]
-            if wallet then walletBalance = wallet.amount or 0 end
-        end
-    end
-    return walletBalance
-end
-
 local ISCharacterScreen_render = ISCharacterScreen.render
 function ISCharacterScreen:render()
     ISCharacterScreen_render(self)
-    local walletBalance = self:getWalletBalance()
+    local walletBalance = getWalletBalance(self.char)
     local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": "..getText("IGUI_CURRENCY")..tostring(walletBalance)
     self:drawText(walletBalanceLine, self.avatarX+self.avatarWidth+25, 50, 1, 1, 1, 1, UIFont.Small)
 end
