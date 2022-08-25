@@ -160,8 +160,8 @@ function ISCharacterScreen:create()
     self.withdraw = ISButton:new(self.width+20, 50, 20, 20, string.lower(getText("IGUI_WITHDRAW")), self, onSplitStack, nil, nil)
     self.withdraw:setX(self.width-self.withdraw.width-10)
     self.withdraw.font = UIFont.NewSmall
-    self.withdraw.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
-    self.withdraw.borderColor = { r = 1, g = 0, b = 0, a = 0.7 }
+    self.withdraw.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
+    self.withdraw.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
     self.withdraw:initialise()
     self.withdraw:instantiate()
     self:addChild(self.withdraw)
