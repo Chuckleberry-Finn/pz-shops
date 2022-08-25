@@ -60,9 +60,12 @@ function store_listing:new(item,price,stock,buybackRate,oldListing)
         newListing.price = price
     end
     if stock then
+        local stockDiff = 0
+        if oldListing then stockDiff = (oldListing.available-oldListing.stock) end
+        newListing.available = math.max(0,stock+stockDiff)
+
         if stock < -1 then stock = -1 end
         newListing.stock = stock
-        newListing.available = stock
     end
     if buybackRate then
         if buybackRate > 100 then buybackRate = 100 end
