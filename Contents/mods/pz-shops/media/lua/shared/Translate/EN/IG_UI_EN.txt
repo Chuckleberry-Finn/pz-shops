@@ -1,18 +1,21 @@
 IGUI_EN = {
     IGUI_MANAGESTORE = "Manage Store",
     IGUI_STORESTOCK = "Store Stock",
-    IGUI_STOCK = "#"
-    IGUI_CURRENCY = "$"
-    IGUI_RATE = "%"
+    IGUI_STOCK = "#",
+    IGUI_CURRENCY = "$",
+    IGUI_RATE = "%",
     IGUI_YOURCART = "Your Cart",
-    IGUI_PURCHASE = "Trade"
-    IGUI_STOREBEINGMANAGED = "This store is not accessible at this time."
-    IGUI_CONNECTPRESET = "Connect Store"
-    IGUI_COPYPRESET = "Make a Copy"
-    IGUI_DELETEPRESET = "Delete"
-    IGUI_FREE = "FREE"
-    IGUI_WALLETBALANCE = "Wallet Balance"
-    IGUI_TOTAL = "Total"
-    IGUI_OFFERING = "Offering"
-    IGUI_RESTOCK_HR = "Restocking in: %1 Hrs"
+    IGUI_PURCHASE = "Trade",
+    IGUI_STOREBEINGMANAGED = "This store is not accessible at this time.",
+    IGUI_CONNECTPRESET = "Connect Store",
+    IGUI_COPYPRESET = "Make a Copy",
+    IGUI_DELETEPRESET = "Delete",
+    IGUI_FREE = "FREE",
+    IGUI_WALLETBALANCE = "Wallet Balance",
+    IGUI_TOTAL = "Total",
+    IGUI_OFFERING = "Offering",
+    IGUI_RESTOCK_HR = "Restocking in: %1 Hrs",
+
+    IGUI_SPLIT = "Split Money",
+    IGUI_WITHDRAW = "Withdraw",
 }

@@ -1,0 +1,9 @@
+Sandbox_EN = {
+	Sandbox_ShopsAndTraders = "Skill Recovery Journal",
+	Sandbox_ShopsAndTraders_PercentageDropOnDeath = "Money-Drop Percentage",
+	Sandbox_ShopsAndTraders_PercentageDropOnDeath_tooltip = "This percentage will be how much money is dropped when a player dies.",
+
+	Sandbox_ShopsAndTraders_MoneyWeight = "Money Weight",
+	Sandbox_ShopsAndTraders_MoneyWeight_tooltip = "How much each 'unit' of currency weighs."
+
+	}

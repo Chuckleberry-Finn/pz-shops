@@ -114,28 +114,28 @@ function storeWindow:initialise()
     self:addChild(self.addStockEntry)
 
     self.addStockPrice = ISTextEntryBox:new("0", self.addStockEntry.x+10, self.addStockEntry.y+self.addStockEntry.height+3, 30, self.addStockBtn.height)
+    self.addStockPrice.font = UIFont.Small
     self.addStockPrice:initialise()
     self.addStockPrice:instantiate()
-    self.addStockPrice.font = UIFont.Small
     self:addChild(self.addStockPrice)
 
     self.addStockQuantity = ISTextEntryBox:new("0", self.addStockPrice.x+self.addStockPrice.width+20, self.addStockPrice.y, 30, self.addStockBtn.height)
+    self.addStockQuantity.font = UIFont.Small
     self.addStockQuantity:initialise()
     self.addStockQuantity:instantiate()
-    self.addStockQuantity.font = UIFont.Small
     self:addChild(self.addStockQuantity)
 
     self.addStockBuyBackRate = ISTextEntryBox:new("0", self.addStockQuantity.x+self.addStockQuantity.width+20, self.addStockQuantity.y, 30, self.addStockBtn.height)
+    self.addStockBuyBackRate.font = UIFont.Small
     self.addStockBuyBackRate:initialise()
     self.addStockBuyBackRate:instantiate()
-    self.addStockBuyBackRate.font = UIFont.Small
     self:addChild(self.addStockBuyBackRate)
 
     self.purchase = ISButton:new(self.storeStockData.x + self.storeStockData.width - (math.max(btnWid, getTextManager():MeasureStringX(UIFont.Small, getText("IGUI_PURCHASE")) + 10)), self:getHeight() - padBottom - btnHgt, btnWid, btnHgt - 3, getText("IGUI_PURCHASE"), self, storeWindow.onClick)
     self.purchase.internal = "PURCHASE"
+    self.purchase.borderColor = {r=1, g=1, b=1, a=0.4}
     self.purchase:initialise()
     self.purchase:instantiate()
-    self.purchase.borderColor = {r=1, g=1, b=1, a=0.4}
     self:addChild(self.purchase)
 
     self.manageBtn = ISButton:new((self.width/2)-45, 70-btnHgt, 70, 25, getText("IGUI_MANAGESTORE"), self, storeWindow.onClick)
@@ -147,10 +147,10 @@ function storeWindow:initialise()
     local restockHours = ""
     if self.storeObj then restockHours = tostring(self.storeObj.restockHrs) end
     self.restockHours = ISTextEntryBox:new(restockHours, self.width-60, 70-btnHgt, 50, self.addStockBtn.height)
-    self.restockHours:initialise()
-    self.restockHours:instantiate()
     self.restockHours.font = UIFont.Medium
     self.restockHours.borderColor = { r = 1, g = 0, b = 0, a = 0.7 }
+    self.restockHours:initialise()
+    self.restockHours:instantiate()
     self:addChild(self.restockHours)
 
     self.clearStore = ISButton:new(self.manageBtn.x+self.manageBtn.width+4, self.manageBtn.y+6, 10, 14, "X", self, storeWindow.onClick)

@@ -21,15 +21,22 @@ local function onClientCommand(_module, _command, _player, _data)
         triggerEvent("SHOPPING_ServerModDataReady")
     end
 
-    if _command == "finalizeTrade" then
+    if _command == "transferFunds" then
         local giverID, give, receiverID, receive = _data.giver, _data.give, _data.receiver, _data.receive
-
-        local giverWallet = WALLET_HANDLER.getOrSetPlayerWallet(giverID)
-        giverWallet.amount = giverWallet.amount-give
-        giverWallet.amount = giverWallet.amount+receive
-        local receiverWallet = WALLET_HANDLER.getOrSetPlayerWallet(receiverID)
-        receiverWallet.amount = receiverWallet.amount+give
-        receiverWallet.amount = receiverWallet.amount-receive
+        if giverID then
+            local giverWallet = WALLET_HANDLER.getOrSetPlayerWallet(giverID)
+            if giverWallet then
+                if give then giverWallet.amount = giverWallet.amount-give end
+                if receive then giverWallet.amount = giverWallet.amount+receive end
+            end
+        end
+        if receiverID then
+            local receiverWallet = WALLET_HANDLER.getOrSetPlayerWallet(receiverID)
+            if receiverWallet then
+                if give then  receiverWallet.amount = receiverWallet.amount+give end
+                if receive then receiverWallet.amount = receiverWallet.amount-receive end
+            end
+        end
 
         triggerEvent("SHOPPING_ServerModDataReady")
     end
