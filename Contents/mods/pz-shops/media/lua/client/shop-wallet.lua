@@ -68,30 +68,45 @@ ISSliderBox = ISTextBox:derive("ISSliderBox")
 
 function ISSliderBox:initialise()
     ISTextBox.initialise(self)
+    print("ISSliderBox:new: item:"..tostring(item).." player:"..tostring(player))
     local x,y,w,margin = 10,10,self.width-30,5
-
     local maxValue = 0
-    if self.item then maxValue = item:getModData().value
+    if self.item then maxValue = self.item:getModData().value
     else maxValue = getWalletBalance(self.player) end
 
-    self.slider = ISSliderPanel:new (x, y, w-margin, self.height-margin, self, nil, nil)
-    self.slider:setValues( 1, maxValue/2, 1, 10, true)
-
+    self.slider = ISSliderPanel:new(self.entry.x, self.entry.y, w-margin, 20, self)
+    self.slider:setValues( 1, maxValue, 1, 10, true)
+    self.slider:setCurrentValue(math.floor(maxValue/2),true)
     self.slider:initialise()
     self.slider:instantiate()
     self:addChild(self.slider)
-    modal.entry:setVisible(false)
+    self.slider:setVisible(true)
+    self.entry:setVisible(false)
 end
 
-function ISSliderBox:new(x, y, width, height, text, onclick, player, item, param2, param3, param4)
+
+function ISSliderBox:new(x, y, width, height, text, onclick, player, item)
     local o = {}
-    o = ISTextBox:new(x, y, width, height, text, "", o, onclick, player, item, param2, param3, param4)
+    print("ISSliderBox:new: item:"..tostring(item).." player:"..tostring(player))
+    o = ISTextBox:new(x, y, width, height, text, "", o, onclick, nil, player, item)
+    setmetatable(o, self)
+    self.__index = self
     o.item = item
+    o.player = player
+    if ISSliderBox.instance and ISSliderBox.instance:isVisible() then
+        ISSliderBox.instance:setVisible(false)
+        ISSliderBox.instance:removeFromUIManager()
+    end
+
+    ISSliderBox.instance = o
     return o
 end
 
 
 local function onSplitStackClick(button, player, item)
+
+    print("onSplitStackClick: item:"..tostring(item).." player:"..tostring(player))
+
     if button.internal == "OK" and button.parent.entry:getText() and button.parent.entry:getText() ~= "" then
         local transferValue = self.slider:getCurrentValue()
 
@@ -115,15 +130,15 @@ end
 
 ---@param item InventoryItem|Literature
 local function onSplitStack(item, player)
-    if not player then player = getPlayer() end
+    print("onSplitStack: item:"..tostring(item).." player:"..tostring(player))
+
     local title = "IGUI_SPLIT"
     if not item then title = "IGUI_WITHDRAW" end
 
-    local slider = ISSliderBox:new(0, 0, 280, 100, title, onSplitStackClick, player, item)
+    local slider = ISSliderBox:new(0, 0, 280, 100, getText(title), onSplitStackClick, player, item)
     slider:initialise()
     slider:addToUIManager()
 end
-
 
 
 local _refreshContainer = ISInventoryPane.refreshContainer
@@ -147,18 +162,22 @@ local function addContext(player, context, items)
 
         if _moneyTypes[item:getType()] then
             local itemValue = item:getModData().value
-            if itemValue and itemValue>1 then context:addOption(getText("IGUI_SPLIT"), item, onSplitStack, player) end
+            if itemValue and itemValue>1 then
+                print("onSplitStack: item:"..tostring(item).." player:"..tostring(player))
+                context:addOption(getText("IGUI_SPLIT"), item, onSplitStack, player)
+            end
         end
     end
 end
 Events.OnPreFillInventoryObjectContextMenu.Add(addContext)
 
 
-local ISCharacterScreen_create = ISCharacterScreen.create
-function ISCharacterScreen:create()
-    ISCharacterScreen_create(self)
-    self.withdraw = ISButton:new(self.width+20, 50, 20, 20, string.lower(getText("IGUI_WITHDRAW")), self, onSplitStack, nil, nil)
-    self.withdraw:setX(self.width-self.withdraw.width-10)
+function ISCharacterScreen:withdraw(button) onSplitStack(nil, self.char) end
+
+local ISCharacterScreen_initialise = ISCharacterScreen.initialise
+function ISCharacterScreen:initialise()
+    ISCharacterScreen_initialise(self)
+    self.withdraw = ISButton:new(0, 0, 20, 20, string.lower(getText("IGUI_WITHDRAW")), self, ISCharacterScreen.withdraw)
     self.withdraw.font = UIFont.NewSmall
     self.withdraw.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
     self.withdraw.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
@@ -170,7 +189,9 @@ end
 local ISCharacterScreen_render = ISCharacterScreen.render
 function ISCharacterScreen:render()
     ISCharacterScreen_render(self)
+    self.withdraw:setX(self.avatarX+self.avatarWidth+25)
+    self.withdraw:setY(self.literatureButton.y+52)
     local walletBalance = getWalletBalance(self.char)
     local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": "..getText("IGUI_CURRENCY")..tostring(walletBalance)
-    self:drawText(walletBalanceLine, self.avatarX+self.avatarWidth+25, 50, 1, 1, 1, 1, UIFont.Small)
+    self:drawText(walletBalanceLine, self.withdraw.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
 end
