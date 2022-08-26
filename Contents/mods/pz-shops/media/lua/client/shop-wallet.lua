@@ -97,7 +97,7 @@ function ISSliderBox:initialise()
 
     local x,y,w,margin = 10,10,self.width-30,5
     local maxValue = 0
-    if self.item then maxValue = self.item:getModData().value
+    if self.item then maxValue = self.item:getModData().value-0.01
     else maxValue = getWalletBalance(self.playerObj) end
 
     local halfMax = _internal.floorCurrency(maxValue/2)
@@ -119,7 +119,6 @@ function ISSliderBox:new(x, y, width, height, text, onclick, playerObj, item)
         ISSliderBox.instance:removeFromUIManager()
     end
     local o = {}
-    print("ISSliderBox:new: item:"..tostring(item).." player:"..tostring(playerObj))
     o = ISTextBox:new(x, y, width, height, text, "", o, onclick, nil, playerObj, item)
     setmetatable(o, self)
     self.__index = self
@@ -135,7 +134,8 @@ function ISSliderBox:onClick(button, playerObj, item)
         local transferValue = button.parent.slider:getCurrentValue()
 
         if item and _moneyTypes[item:getType()] and item:getModData() and item:getModData().value > 0 then
-            item:getModData().value = item:getModData().value-transferValue
+            local newValue = item:getModData().value-transferValue
+            generateMoneyValue(item, newValue, true)
         end
 
         if not item then
@@ -154,6 +154,8 @@ end
 
 ---@param item InventoryItem|Literature
 local function onSplitStack(item, player, x, y)
+    x = x or getMouseX()
+    y = y or getMouseY()
     local slider = ISSliderBox:new(x, y, 280, 100, "", ISSliderBox.onClick, player, item)
     slider:initialise()
     slider:addToUIManager()
@@ -163,8 +165,9 @@ local _refreshContainer = ISInventoryPane.refreshContainer
 function ISInventoryPane:refreshContainer()
     _refreshContainer(self)
     for _, entry in ipairs(self.itemslist) do
-        local item = entry.items[1]
-        if item ~= nil and _moneyTypes[item:getType()] then generateMoneyValue(item) end
+        for _,item in pairs(entry.items) do
+            if item ~= nil and _moneyTypes[item:getType()] then generateMoneyValue(item) end
+        end
     end
 end
 
@@ -233,15 +236,20 @@ function ISInventoryPane:onMouseUp(x, y)
 
     local draggingOld = ISMouseDrag.dragging
     local draggingFocusOld = ISMouseDrag.draggingFocus
+    local runExtra = true
+    self.previousMouseUp = self.mouseOverOption
+    if (not isShiftKeyDown()and not isCtrlKeyDown() and x >= self.column2 and  x == self.downX and y == self.downY) and  self.mouseOverOption ~= 0 and self.items[self.mouseOverOption] ~= nil then
+        runExtra = false
+    end
 
     local result = ISInventoryPane_onMouseUp(self, x, y)
     if not result then return end
 
-    if self.player ~= 0 then return end
-    local playerObj = getSpecificPlayer(self.player)
-    local moneyFound = {}
+    if (draggingOld ~= nil) and (draggingFocusOld == self) and (draggingFocusOld ~= nil) and runExtra then
+        if self.player ~= 0 then return end
+        local playerObj = getSpecificPlayer(self.player)
+        local moneyFound = {}
 
-    if draggingOld ~= nil and draggingFocusOld == self and draggingFocusOld ~= nil then
         local doWalk = true
         local dragging = ISInventoryPane.getActualItems(draggingOld)
         for i,v in ipairs(dragging) do
@@ -257,23 +265,26 @@ function ISInventoryPane:onMouseUp(x, y)
         self.selected = {}
         getPlayerLoot(self.player).inventoryPane.selected = {}
         getPlayerInventory(self.player).inventoryPane.selected = {}
-    end
 
-    local pushTo = self.items[self.mouseOverOption]
-    if not pushTo then return end
+        local pushTo = self.items[self.mouseOverOption]
+        if not pushTo then return end
 
-    local pushToActual
-    if instanceof(pushTo, "InventoryItem") then pushToActual = pushTo else pushToActual = pushTo.items[1] end
-    if pushToActual and _moneyTypes[pushToActual:getType()] then
-        local ptValue = pushToActual:getModData().value
-        local consolidatedValue = 0
-        for _,money in pairs(moneyFound) do
-            local valueFound = (money:getModData().value or 0)
-            consolidatedValue = consolidatedValue+valueFound
-            local container = money:getContainer()
-            container:Remove(money)
+        local pushToActual
+        if instanceof(pushTo, "InventoryItem") then pushToActual = pushTo else pushToActual = pushTo.items[1] end
+
+        for _,money in pairs(moneyFound) do if money==pushToActual then return end end
+
+        if pushToActual and _moneyTypes[pushToActual:getType()] then
+            local ptValue = pushToActual:getModData().value
+            local consolidatedValue = 0
+            for _,money in pairs(moneyFound) do
+                local valueFound = (money:getModData().value or 0)
+                consolidatedValue = consolidatedValue+valueFound
+                local container = money:getContainer()
+                container:Remove(money)
+            end
+            generateMoneyValue(pushToActual, ptValue+consolidatedValue, true)
         end
-        generateMoneyValue(pushToActual, ptValue+consolidatedValue, true)
     end
 end
 
@@ -322,7 +333,7 @@ function ISCharacterScreen:depositMoney(moneyItem)
     sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=playerModData.wallet_UUID, receive=nil})
     local container = moneyItem:getContainer()
     container:Remove(moneyItem)
-    self:setTitle(string.lower(getText("IGUI_WITHDRAW")))
+    self.withdraw:setTitle(string.lower(getText("IGUI_WITHDRAW")))
 end
 
 
