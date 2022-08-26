@@ -7,4 +7,8 @@ option ShopsAndTraders.MoneyWeight
 {type = double, min = 0.001, max = 1000, default = 0.001, page = ShopsAndTraders, translation = ShopsAndTraders_MoneyWeight,}
 
 
+option ShopsAndTraders.MoneySpawnMin
+{type = double, min = 0.01, max = 1000, default = 1.50, page = ShopsAndTraders, translation = ShopsAndTraders_MoneySpawnMin,}
 
+option ShopsAndTraders.MoneySpawnMax
+{type = double, min = 0.01, max = 1000, default = 25.00, page = ShopsAndTraders, translation = ShopsAndTraders_MoneySpawnMax,}

@@ -41,10 +41,14 @@ Events.OnCreatePlayer.Add(getOrSetWalletID)
 
 local valuedMoney = {}
 ---@param item InventoryItem
-local function generateMoneyValue(item, value)
-    if item ~= nil and _moneyTypes[item:getType()] and not valuedMoney[item] then
-        if (not item:getModData().value) then
-            value = value or math.floor(((ZombRand(150,2600)/100) * 100) / 100)
+local function generateMoneyValue(item, value, force)
+    if item ~= nil and _moneyTypes[item:getType()] and (not valuedMoney[item] or force) then
+        if (not item:getModData().value) or force then
+
+            local min = (SandboxVars.ShopsAndTraders.MoneySpawnMin or 1.5)*100
+            local max = (SandboxVars.ShopsAndTraders.MoneySpawnMax or 25)*100
+
+            value = value or ((ZombRand(min,max+100)/100)*100)/100
             item:getModData().value = value
             item:setName(getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(value).." "..getText("IGUI_CURRENCY_SUFFIX"))
         end
@@ -56,6 +60,7 @@ end
 
 ---@param playerObj IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
 local function onPlayerDeath(playerObj)
+
     local playerModData = playerObj:getModData()
     if not playerModData then print("WARN: Player without modData.") return end
     if not playerModData.wallet_UUID then print("- No Player wallet_UUID.") return end
@@ -154,13 +159,121 @@ local function onSplitStack(item, player, x, y)
     slider:addToUIManager()
 end
 
-
 local _refreshContainer = ISInventoryPane.refreshContainer
 function ISInventoryPane:refreshContainer()
     _refreshContainer(self)
     for _, entry in ipairs(self.itemslist) do
         local item = entry.items[1]
         if item ~= nil and _moneyTypes[item:getType()] then generateMoneyValue(item) end
+    end
+end
+
+--[[
+local _refreshContainer = ISInventoryPane.refreshContainer
+function ISInventoryPane:refreshContainer()
+    _refreshContainer(self)
+
+    local scrubThese = {}
+
+    for _, entry in ipairs(self.itemslist) do
+        for _,item in pairs(entry.items) do
+            if item ~= nil and _moneyTypes[item:getType()] then
+                print(" item:getType():"..item:getType())
+                generateMoneyValue(item)
+                scrubThese[item:getName()] = true
+                local itemName = item:getScriptItem():getDisplayName()
+                if self.itemindex[itemName] == nil then self.itemindex[itemName] = {items = {}, count = 0} end
+                local ind = self.itemindex[itemName]
+                ind.count = ind.count + 1
+                ind.items[ind.count] = item
+            end
+        end
+    end
+
+    for k,entry in pairs(self.itemindex) do
+        if entry ~= nil and scrubThese[k] then
+            print("  -- k:"..entry.name)
+            self.itemindex[k] = nil
+        end
+    end
+
+    for k, v in pairs(self.itemindex) do
+        if v ~= nil then
+            table.insert(self.itemslist, v);
+            local count = 1;
+            local weight = 0;
+            for k2, v2 in ipairs(v.items) do
+                if v2 == nil then table.remove(v.items, k2);
+                else
+                    count = count + 1;
+                    weight = weight + v2:getUnequippedWeight();
+                end
+            end
+            v.count = count;
+            v.invPanel = self;
+            v.name = k -- v.items[1]:getName();
+            v.cat = v.items[1]:getDisplayCategory() or v.items[1]:getCategory();
+            v.weight = weight;
+            if self.collapsed[v.name] == nil then self.collapsed[v.name] = true; end
+        end
+    end
+
+    for k,entry in pairs(self.itemslist) do
+        if entry ~= nil and scrubThese[entry.name] then
+            print("  -- entry.name:"..entry.name)
+            self.itemslist[k] = nil
+        end
+    end
+end
+--]]
+
+local ISInventoryPane_onMouseUp = ISInventoryPane.onMouseUp
+function ISInventoryPane:onMouseUp(x, y)
+    if not self:getIsVisible() then return end
+
+    local draggingOld = ISMouseDrag.dragging
+    local draggingFocusOld = ISMouseDrag.draggingFocus
+
+    local result = ISInventoryPane_onMouseUp(self, x, y)
+    if not result then return end
+
+    if self.player ~= 0 then return end
+    local playerObj = getSpecificPlayer(self.player)
+    local moneyFound = {}
+
+    if draggingOld ~= nil and draggingFocusOld == self and draggingFocusOld ~= nil then
+        local doWalk = true
+        local dragging = ISInventoryPane.getActualItems(draggingOld)
+        for i,v in ipairs(dragging) do
+            if _moneyTypes[v:getType()] then
+                local transfer = v:getContainer() and not self.inventory:isInside(v)
+                if v:isFavorite() and not self.inventory:isInCharacterInventory(playerObj) then transfer = false end
+                if transfer then
+                    if doWalk then if not luautils.walkToContainer(self.inventory, self.player) then break end doWalk = false end
+                    table.insert(moneyFound, v)
+                end
+            end
+        end
+        self.selected = {}
+        getPlayerLoot(self.player).inventoryPane.selected = {}
+        getPlayerInventory(self.player).inventoryPane.selected = {}
+    end
+
+    local pushTo = self.items[self.mouseOverOption]
+    if not pushTo then return end
+
+    local pushToActual
+    if instanceof(pushTo, "InventoryItem") then pushToActual = pushTo else pushToActual = pushTo.items[1] end
+    if pushToActual and _moneyTypes[pushToActual:getType()] then
+        local ptValue = pushToActual:getModData().value
+        local consolidatedValue = 0
+        for _,money in pairs(moneyFound) do
+            local valueFound = (money:getModData().value or 0)
+            consolidatedValue = consolidatedValue+valueFound
+            local container = money:getContainer()
+            container:Remove(money)
+        end
+        generateMoneyValue(pushToActual, ptValue+consolidatedValue, true)
     end
 end
 
@@ -202,11 +315,14 @@ function ISCharacterScreen:moneyMouseOver(x, y)
 end
 
 
+---@param moneyItem InventoryItem
 function ISCharacterScreen:depositMoney(moneyItem)
     local playerModData = self.char:getModData()
     local value = moneyItem:getModData().value
     sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=playerModData.wallet_UUID, receive=nil})
-    self.char:getInventory():Remove(moneyItem)
+    local container = moneyItem:getContainer()
+    container:Remove(moneyItem)
+    self:setTitle(string.lower(getText("IGUI_WITHDRAW")))
 end
 
 
@@ -227,8 +343,8 @@ function ISCharacterScreen:depositOnMouseUp(x, y)
                 end
             end
         end
+        self:setTitle(string.lower(getText("IGUI_WITHDRAW")))
     else
-        print("click?")
         ISButton.onMouseUp(self, x, y)
         --self.parent:withdraw(self)
     end
