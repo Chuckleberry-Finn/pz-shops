@@ -22,6 +22,7 @@ local function onClientCommand(_module, _command, _player, _data)
     end
 
     if _command == "transferFunds" then
+
         local giverID, give, receiverID, receive = _data.giver, _data.give, _data.receiver, _data.receive
         if giverID then
             local giverWallet = WALLET_HANDLER.getOrSetPlayerWallet(giverID)
@@ -37,7 +38,7 @@ local function onClientCommand(_module, _command, _player, _data)
                 if receive then receiverWallet.amount = receiverWallet.amount-receive end
             end
         end
-
+        
         triggerEvent("SHOPPING_ServerModDataReady")
     end
 

@@ -304,6 +304,8 @@ Events.OnPreFillInventoryObjectContextMenu.Add(addContext)
 
 
 function ISCharacterScreen:withdraw(button)
+    local walletBalance = getWalletBalance(self.char)
+    if walletBalance <= 0 then return end
     onSplitStack(nil, self.char, ISCharacterInfoWindow.instance.x+button.x+button.width+10, ISCharacterInfoWindow.instance.y+button.y+button.height+15)
 end
 
@@ -383,6 +385,7 @@ function ISCharacterScreen:render()
     self.withdraw:setX(self.avatarX+self.avatarWidth+25)
     self.withdraw:setY(self.literatureButton.y+52)
     local walletBalance = getWalletBalance(self.char)
+    self.withdraw.enable = (walletBalance > 0)
     local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": "..getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(walletBalance).." "..getText("IGUI_CURRENCY_SUFFIX")
     self:drawText(walletBalanceLine, self.withdraw.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
 end

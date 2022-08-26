@@ -459,7 +459,7 @@ function storeWindow:displayOrderTotal()
     local walletBalanceAfter = walletBalance-totalForTransaction
     local sign = " "
     if walletBalanceAfter < 0 then sign = "-" end
-    local wbaText = sign..getText("IGUI_CURRENCY_PREFIX")..tostring(math.abs(walletBalanceAfter)).." "..getText("IGUI_CURRENCY_SUFFIX")
+    local wbaText = sign..getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(math.abs(walletBalanceAfter)).." "..getText("IGUI_CURRENCY_SUFFIX")
     local xOffset2 = getTextManager():MeasureStringX(self.font, wbaText)+15
     self:drawText(wbaText, w-xOffset2+5, y+h+4+(fontH/2), 0.7, 0.7, 0.7, 0.7, self.font)
     self:drawRectBorder(x, y+h+8, w, h, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
