@@ -16,6 +16,7 @@ IGUI_EN = {
     IGUI_OFFERING = "Offering",
     IGUI_RESTOCK_HR = "Restocking in: %1 Hrs",
 
-    IGUI_SPLIT = "Split Money",
+    IGUI_SPLIT = "Split",
     IGUI_WITHDRAW = "Withdraw",
+    IGUI_DEPOSIT = "Deposit",
 }

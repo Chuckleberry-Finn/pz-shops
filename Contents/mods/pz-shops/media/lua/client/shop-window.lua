@@ -353,20 +353,16 @@ function storeWindow:yourOfferMouseUp(x, y)
     if ISMouseDrag.dragging then
         for i,v in ipairs(ISMouseDrag.dragging) do
             counta = 1
-            if instanceof(v, "InventoryItem") then
-                self.parent:addItemToYourCart(v)
+            if instanceof(v, "InventoryItem") then self.parent:addItemToYourCart(v)
             else
                 if v.invPanel.collapsed[v.name] then
                     counta = 1
                     for i2,v2 in ipairs(v.items) do
-                        if counta > 1 then
-                            self.parent:addItemToYourCart(v2)
-                        end
+                        if counta > 1 then self.parent:addItemToYourCart(v2) end
                         counta = counta + 1
                     end
                 end
             end
-
         end
     end
 end
