@@ -1,6 +1,9 @@
 ---internal functions for handling tables more object-like (copy/new/etc)
 _internal = {}
 
+function _internal.floorCurrency(n) return math.floor(n*100)/100 end
+function _internal.numToCurrency(n) return string.format("%.2f", _internal.floorCurrency(n)) end
+
 function _internal.copyAgainst(tableA,tableB)
     if not tableA or not tableB then return end
 

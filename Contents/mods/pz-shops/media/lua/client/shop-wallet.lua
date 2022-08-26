@@ -39,6 +39,21 @@ end
 Events.OnCreatePlayer.Add(getOrSetWalletID)
 
 
+local valuedMoney = {}
+---@param item InventoryItem
+local function generateMoneyValue(item, value)
+    if item ~= nil and _moneyTypes[item:getType()] and not valuedMoney[item] then
+        if (not item:getModData().value) then
+            value = value or math.floor(((ZombRand(150,2600)/100) * 100) / 100)
+            item:getModData().value = value
+            item:setName(getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(value).." "..getText("IGUI_CURRENCY_SUFFIX"))
+        end
+        item:setActualWeight(SandboxVars.ShopsAndTraders.MoneyWeight*item:getModData().value)
+    end
+    valuedMoney[item] = true
+end
+
+
 ---@param playerObj IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
 local function onPlayerDeath(playerObj)
     local playerModData = playerObj:getModData()
@@ -53,7 +68,7 @@ local function onPlayerDeath(playerObj)
         local type = moneyTypes[ZombRand(#moneyTypes)+1]
 
         local money = InventoryItemFactory.CreateItem(type)
-        money:getModData().value = transferAmount
+        generateMoneyValue(money, transferAmount)
         if money then playerObj:getInventory():AddItem(money)
         else print("ERROR: Split/Withdraw Wallet: No money object created.") end
     end
@@ -69,8 +84,7 @@ ISSliderBox = ISTextBox:derive("ISSliderBox")
 function ISSliderBox:onValueChange(val)
     local title = "IGUI_SPLIT"
     if not self.item then title = "IGUI_WITHDRAW" end
-    local value = math.floor(((val) * 100)/100)
-    self.text = getText(title)..": "..getText("IGUI_CURRENCY")..tostring(val)
+    self.text = getText(title)..": "..getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(val).." "..getText("IGUI_CURRENCY_SUFFIX")
 end
 
 function ISSliderBox:initialise()
@@ -81,9 +95,9 @@ function ISSliderBox:initialise()
     if self.item then maxValue = self.item:getModData().value
     else maxValue = getWalletBalance(self.playerObj) end
 
-    local halfMax = math.floor(((maxValue/2)*100)/100)
+    local halfMax = _internal.floorCurrency(maxValue/2)
     self.slider = ISSliderPanel:new(self.entry.x, self.entry.y, w-margin, 20, self, ISSliderBox.onValueChange)
-    self.slider:setValues( 0.01, maxValue, 0.01, 0.1, true)
+    self.slider:setValues( 0.01, maxValue, 0.01, 0.5, true)
     self.slider:setCurrentValue(halfMax)
     self.slider:initialise()
     self.slider:instantiate()
@@ -126,7 +140,7 @@ function ISSliderBox:onClick(button, playerObj, item)
 
         local type = moneyTypes[ZombRand(#moneyTypes)+1]
         local money = InventoryItemFactory.CreateItem(type)
-        money:getModData().value = transferValue
+        generateMoneyValue(money, transferValue)
         if money then playerObj:getInventory():AddItem(money)
         else print("ERROR: Split/Withdraw Wallet: No money object created.") end
     end
@@ -146,10 +160,7 @@ function ISInventoryPane:refreshContainer()
     _refreshContainer(self)
     for _, entry in ipairs(self.itemslist) do
         local item = entry.items[1]
-        if item ~= nil and _moneyTypes[item:getType()] and item:getModData() and (not item:getModData().value) then
-            local value = math.floor(((ZombRand(150,2600)/100) * 100) / 100)
-            item:getModData().value = value
-        end
+        if item ~= nil and _moneyTypes[item:getType()] then generateMoneyValue(item) end
     end
 end
 
@@ -217,7 +228,9 @@ function ISCharacterScreen:depositOnMouseUp(x, y)
             end
         end
     else
-        self.parent:withdraw(self)
+        print("click?")
+        ISButton.onMouseUp(self, x, y)
+        --self.parent:withdraw(self)
     end
 end
 
@@ -225,7 +238,7 @@ end
 local ISCharacterScreen_initialise = ISCharacterScreen.initialise
 function ISCharacterScreen:initialise()
     ISCharacterScreen_initialise(self)
-    self.withdraw = ISButton:new(0, 0, 20, 20, string.lower(getText("IGUI_WITHDRAW")), self, nil)
+    self.withdraw = ISButton:new(0, 0, 20, 20, string.lower(getText("IGUI_WITHDRAW")), self, ISCharacterScreen.withdraw)
     self.withdraw.font = UIFont.NewSmall
     self.withdraw.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
     self.withdraw.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
@@ -243,6 +256,6 @@ function ISCharacterScreen:render()
     self.withdraw:setX(self.avatarX+self.avatarWidth+25)
     self.withdraw:setY(self.literatureButton.y+52)
     local walletBalance = getWalletBalance(self.char)
-    local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": "..getText("IGUI_CURRENCY")..tostring(walletBalance)
-    self:drawTextCentre(walletBalanceLine, self.withdraw.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
+    local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": "..getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(walletBalance).." "..getText("IGUI_CURRENCY_SUFFIX")
+    self:drawText(walletBalanceLine, self.withdraw.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
 end

@@ -58,7 +58,7 @@ function ISTradingUI:render()
     local color = {r=1, g=1, b=1, a=0.9}
 
     local walletBalance = getWalletBalance(self.player)
-    local walletBalanceLine = getText("IGUI_CURRENCY")..tostring(walletBalance)
+    local walletBalanceLine = getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(walletBalance).." "..getText("IGUI_CURRENCY_SUFFIX")
     self.walletFunds:drawText(walletBalanceLine, 10, 2, color.r, color.g, color.b, color.a, self.font)
 
     local offerAmount = tonumber(self.transferFunds:getInternalText()) or 0
@@ -67,7 +67,7 @@ function ISTradingUI:render()
 
     sendClientCommand("shop", "changeTransferOffer", {onlineID=self.otherPlayer:getOnlineID(), amount=offerAmount})
 
-    local offerText = getText("IGUI_OFFERING")..": "..getText("IGUI_CURRENCY")..tostring(self.setOfferedAmount)
+    local offerText = getText("IGUI_OFFERING")..": "..getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(self.setOfferedAmount).." "..getText("IGUI_CURRENCY_SUFFIX")
     self.offeredFunds:drawText(offerText, 10, 2, color.r, color.g, color.b, color.a, self.font)
 
     ISTradingUI_render(self)
