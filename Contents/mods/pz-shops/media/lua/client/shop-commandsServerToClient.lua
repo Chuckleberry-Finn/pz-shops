@@ -24,10 +24,7 @@ local function onServerCommand(_module, _command, _data)
 
     if _command == "severModData_received" then onClientModDataReady() end
 
-    if _command == "transmitItem" then
-        print("transmitItem-transmitItem")
-        getPlayer():getInventory():AddItem(_data.item)
-    end
+    if _command == "transmitItem" then getPlayer():getInventory():AddItem(_data.item) end
 
     if _command == "updateTransferOffer" then
         if ISTradingUI.instance and ISTradingUI.instance:isVisible() then ISTradingUI.instance.setOfferedAmount = _data.amount end

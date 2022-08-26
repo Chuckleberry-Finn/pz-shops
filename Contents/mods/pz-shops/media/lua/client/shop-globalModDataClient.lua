@@ -26,8 +26,6 @@ Events.OnInitGlobalModData.Add(initGlobalModData)
 ---@param name string
 ---@param data table
 local function receiveGlobalModData(name, data)
-    print("- Received ModData " .. name)
-
     if name == "STORES" then
         _internal.copyAgainst(CLIENT_STORES,data)
     elseif name == "WALLETS" then

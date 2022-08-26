@@ -4,7 +4,7 @@ LuaEventManager.AddEvent("SHOPPING_ServerModDataReady")
 
 local function onClientCommand(_module, _command, _player, _data)
 
-    if getDebug() then print("Received command from " .. _player:getUsername() .." [".._module..".".._command.."]") end
+    --if getDebug() then print("Received command from " .. _player:getUsername() .." [".._module..".".._command.."]") end
 
     if _module ~= "shop" then return end
     _data = _data or {}
@@ -140,7 +140,7 @@ Events.OnClientCommand.Add(onClientCommand)--/client/ to server
 
 
 local function onServerModDataReady()
-    if getDebug() then print(" -- triggering all clients to pull updated ModData.") end
+    --if getDebug() then print(" -- triggering all clients to pull updated ModData.") end
     sendServerCommand("shop", "severModData_received", {})
 end
 Events.SHOPPING_ServerModDataReady.Add(onServerModDataReady)
