@@ -237,7 +237,7 @@ function storeWindow:drawCart(y, item, alt)
         local script = getScriptManager():getItem(item.item)
         texture = script:getNormalTexture()
     else
-        itemType = item.item:getType()
+        itemType = item.item:getFullType()
         texture = item.item:getTex()
     end
 
@@ -382,7 +382,7 @@ function storeWindow:update()
                 self:removeItem(v)
                 break
             end
-            if self.storeObj and not self.storeObj.listings[v.item:getType()] then
+            if self.storeObj and not self.storeObj.listings[v.item:getFullType()] then
                 self:removeItem(v)
                 break
             end
@@ -414,7 +414,7 @@ function storeWindow:getOrderTotal()
     local totalForTransaction = 0
     for i,v in ipairs(self.yourCartData.items) do
         if type(v.item) ~= "string" then
-            local itemListing = self.storeObj.listings[v.item:getType()]
+            local itemListing = self.storeObj.listings[v.item:getFullType()]
             if itemListing then totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100)) end
         else
             local itemListing = self.storeObj.listings[v.item]
@@ -741,6 +741,8 @@ function storeWindow:onClick(button)
             local script = getScriptManager():getItem(newItem)
             if script then
 
+                newItem = script:getFullName()
+
                 local price = 0
                 if self.addStockPrice.enable and self.addStockPrice:getInternalText() then price = tonumber(self.addStockPrice:getInternalText()) end
 
@@ -778,7 +780,7 @@ function storeWindow:finalizeDeal()
         if type(v.item) == "string" then
             table.insert(itemToPurchase, v.item) --listing
         else
-            table.insert(itemsToSell, v.item:getType()) --selling
+            table.insert(itemsToSell, v.item:getFullType()) --selling
             ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
             self.player:getInventory():Remove(v.item)
         end
