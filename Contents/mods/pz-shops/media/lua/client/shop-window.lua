@@ -451,7 +451,7 @@ function storeWindow:displayOrderTotal()
 
     self:drawRect(x, y+h+8, w, h, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
     local walletBalance = getWalletBalance(self.player)
-    local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": "..getText("IGUI_CURRENCY_PREFIX")..tostring(walletBalance).." "..getText("IGUI_CURRENCY_SUFFIX")
+    local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": "..getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(walletBalance).." "..getText("IGUI_CURRENCY_SUFFIX")
     local bColor = balanceColor.normal
     if (walletBalance-totalForTransaction) < 0 then bColor = balanceColor.red end
     self:drawText(walletBalanceLine, x+10, y+h+4+(fontH/2), bColor.r, bColor.g, bColor.b, bColor.a, self.font)
