@@ -1,5 +1,6 @@
 require "ISUI/ISPanelJoypad"
 require "shop-globalModDataClient"
+require "luautils"
 
 ---@class storeWindow : ISPanel
 storeWindow = ISPanelJoypad:derive("storeWindow")
@@ -223,21 +224,23 @@ function storeWindow:populateComboList()
     self.assignComboBox.selected = 1
 end
 
+
 function storeWindow:isBeingManaged()
     if self.storeObj and self.storeObj.isBeingManaged then return true end
     return false
 end
 
+
 function storeWindow:rtrnTypeIfValid(item)
     local itemType
-    if type(item.item) == "string" then
-        itemType = item.item
+    if type(item) == "string" then
+        itemType = item
     else
-        if luautils.haveToBeTransfered(self.player, item.item) then return false, "IGUI_NOTRADE_OUTSIDEINV" end
-        if (item.item:getCondition()/item.item:getConditionMax())<0.75 or item.item:isBroken() then return false, "IGUI_NOTRADE_DAMAGED" end
-        itemType = item.item:getFullType()
+        if luautils.haveToBeTransfered(self.player, item) then return false, "IGUI_NOTRADE_OUTSIDEINV" end
+        if (item:getCondition()/item:getConditionMax())<0.75 or item:isBroken() then return false, "IGUI_NOTRADE_DAMAGED" end
+        itemType = item:getFullType()
     end
-    local storeObj = self.parent.storeObj
+    local storeObj = self.storeObj
     if storeObj then
         if storeObj.listings[itemType] then
             return itemType
@@ -251,7 +254,7 @@ end
 
 function storeWindow:drawCart(y, item, alt)
     local texture
-    local itemType, reason = self:rtrnTypeIfValid(item)
+    local itemType, reason = self.parent:rtrnTypeIfValid(item.item)
     if type(item.item) == "string" then texture = getScriptManager():getItem(item.item):getNormalTexture()
     else texture = item.item:getTex() end
 
@@ -268,15 +271,17 @@ function storeWindow:drawCart(y, item, alt)
     self:drawText(item.text or "", 32, y+6, color.r, color.g, color.b, color.a, self.font)
 
     if noList then
-        local nlW = (self:getWidth()/6)+10
+        local nlW = (self:getWidth()/6)+20
         if reason then
             reason = getText(reason)
-            nlW = math.max(nlW, (getTextManager():MeasureStringX(self.font,reason)+10))
+            nlW = math.max(nlW, (getTextManager():MeasureStringX(self.font,reason)+20))
         end
         local nlH = (self.itemheight-1)/2
-        self:drawRect(0, y, nlW, nlH, 1, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
-        self:drawText(reason or "", self:getWidth()/2, y+6, color.r, color.g, color.b, color.a, self.font)
-        self:drawRectBorder(0, y, nlW, nlH, 0.9, color.r, color.g, color.b)
+        local nlX = (self:getWidth())-(nlW)-10
+        local nlY = y+(nlH/2)
+        self:drawRect(nlX, nlY, nlW, nlH, 1, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
+        self:drawText(reason or "", nlX+10, nlY, color.r, color.g, color.b, color.a, self.font)
+        self:drawRectBorder(nlX, nlY, nlW, nlH, 0.9, color.r, color.g, color.b)
     end
 
     local balanceDiff = 0
@@ -404,15 +409,15 @@ function storeWindow:update()
         self:removeFromUIManager()
         return
     end
-
+--[[
     for i,v in ipairs(self.yourCartData.items) do
         if type(v.item) ~= "string" then
-            if not self:rtrnTypeIfValid(v) then
+            if not self:rtrnTypeIfValid(v.item) then
                 self:removeItem(v)
                 break
             end
         end
-    end
+    end--]]
 end
 
 
@@ -805,7 +810,8 @@ function storeWindow:finalizeDeal()
         if type(v.item) == "string" then
             table.insert(itemToPurchase, v.item) --listing
         else
-            if self:rtrnTypeIfValid(v.item) then
+            local valid, _ = self:rtrnTypeIfValid(v.item)
+            if valid then
                 table.insert(itemsToSell, v.item:getFullType()) --selling
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
                 self.player:getInventory():Remove(v.item)
@@ -820,6 +826,9 @@ function storeWindow:finalizeDeal()
     if not isClient() then self:refresh() end
 end
 
+
+function storeWindow:RestoreLayout(name, layout) ISLayoutManager.DefaultRestoreWindow(self, layout) end
+function storeWindow:SaveLayout(name, layout) ISLayoutManager.DefaultSaveWindow(self, layout) end
 
 function storeWindow:new(x, y, width, height, player, storeObj, mapObj)
     local o = {}
@@ -837,7 +846,7 @@ function storeWindow:new(x, y, width, height, player, storeObj, mapObj)
     o.player = player
     o.mapObject = mapObj
     o.storeObj = storeObj
-    o.moveWithMouse = false
+    o.moveWithMouse = true
     o.selectedItem = nil
     o.pendingRequest = false
     storeWindow.instance = o

@@ -2,6 +2,7 @@ require "client/XpSystem/ISUI/ISCharacterInfo"
 require "shop-globalModDataClient"
 require "ISUI/ISInventoryPaneContextMenu"
 require "ISUI/ISTextBox"
+require "luautils"
 
 local moneyTypes = {"Money"}
 
