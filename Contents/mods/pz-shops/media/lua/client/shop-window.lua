@@ -236,7 +236,7 @@ function storeWindow:rtrnTypeIfValid(item)
     if type(item) == "string" then
         itemType = item
     else
-        if luautils.haveToBeTransfered(self.player, item) then return false, "IGUI_NOTRADE_OUTSIDEINV" end
+        if self.player and luautils.haveToBeTransfered(self.player, item) then return false, "IGUI_NOTRADE_OUTSIDEINV" end
         if (item:getCondition()/item:getConditionMax())<0.75 or item:isBroken() then return false, "IGUI_NOTRADE_DAMAGED" end
         itemType = item:getFullType()
     end
@@ -443,7 +443,7 @@ end
 function storeWindow:getOrderTotal()
     local totalForTransaction = 0
     for i,v in ipairs(self.yourCartData.items) do
-        local valid, _ = storeWindow:rtrnTypeIfValid(v.item)
+        local valid, _ = self:rtrnTypeIfValid(v.item)
         if valid then
             if type(v.item) ~= "string" then
                 local itemListing = self.storeObj.listings[v.item:getFullType()]
