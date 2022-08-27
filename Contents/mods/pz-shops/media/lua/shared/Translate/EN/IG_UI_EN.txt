@@ -20,4 +20,8 @@ IGUI_EN = {
     IGUI_SPLIT = "Split",
     IGUI_WITHDRAW = "Withdraw",
     IGUI_DEPOSIT = "Deposit",
+
+    IGUI_NOTRADE_INVALIDTYPE = "I don't buy these."
+    IGUI_NOTRADE_DAMAGED = "This is too damaged."
+    IGUI_NOTRADE_OUTSIDEINV = "You have to be holding it."
 }

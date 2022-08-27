@@ -228,27 +228,56 @@ function storeWindow:isBeingManaged()
     return false
 end
 
-
-function storeWindow:drawCart(y, item, alt)
-    local texture
+function storeWindow:rtrnTypeIfValid(item)
     local itemType
     if type(item.item) == "string" then
         itemType = item.item
-        local script = getScriptManager():getItem(item.item)
-        texture = script:getNormalTexture()
     else
+        if luautils.haveToBeTransfered(self.player, item.item) then return false, "IGUI_NOTRADE_OUTSIDEINV" end
+        if (item.item:getCondition()/item.item:getConditionMax())<0.75 or item.item:isBroken() then return false, "IGUI_NOTRADE_DAMAGED" end
         itemType = item.item:getFullType()
-        texture = item.item:getTex()
     end
+    local storeObj = self.parent.storeObj
+    if storeObj then
+        if storeObj.listings[itemType] then
+            return itemType
+        else
+            return false, "IGUI_NOTRADE_INVALIDTYPE"
+        end
+    end
+    return false, nil
+end
+
+
+function storeWindow:drawCart(y, item, alt)
+    local texture
+    local itemType, reason = self:rtrnTypeIfValid(item)
+    if type(item.item) == "string" then texture = getScriptManager():getItem(item.item):getNormalTexture()
+    else texture = item.item:getTex() end
 
     local color = {r=1, g=1, b=1, a=0.9}
     local storeObj = self.parent.storeObj
+    local noList = false
+    if not itemType then
+        color = {r=1, g=0, b=0, a=0.6}
+        noList = true
+    end
 
-    if storeObj and not storeObj.listings[itemType] then color = {r=1, g=0, b=0, a=0.6} end
-
-    self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+    self:drawRectBorder(0, y, self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
     self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b)
-    self:drawText(item.text, 32, y+6, color.r, color.g, color.b, color.a, self.font)
+    self:drawText(item.text or "", 32, y+6, color.r, color.g, color.b, color.a, self.font)
+
+    if noList then
+        local nlW = (self:getWidth()/6)+10
+        if reason then
+            reason = getText(reason)
+            nlW = math.max(nlW, (getTextManager():MeasureStringX(self.font,reason)+10))
+        end
+        local nlH = (self.itemheight-1)/2
+        self:drawRect(0, y, nlW, nlH, 1, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
+        self:drawText(reason or "", self:getWidth()/2, y+6, color.r, color.g, color.b, color.a, self.font)
+        self:drawRectBorder(0, y, nlW, nlH, 0.9, color.r, color.g, color.b)
+    end
 
     local balanceDiff = 0
     if storeObj and storeObj.listings[itemType] then
@@ -378,11 +407,7 @@ function storeWindow:update()
 
     for i,v in ipairs(self.yourCartData.items) do
         if type(v.item) ~= "string" then
-            if luautils.haveToBeTransfered(self.player, v.item) then
-                self:removeItem(v)
-                break
-            end
-            if self.storeObj and not self.storeObj.listings[v.item:getFullType()] then
+            if not self:rtrnTypeIfValid(v) then
                 self:removeItem(v)
                 break
             end
@@ -780,9 +805,11 @@ function storeWindow:finalizeDeal()
         if type(v.item) == "string" then
             table.insert(itemToPurchase, v.item) --listing
         else
-            table.insert(itemsToSell, v.item:getFullType()) --selling
-            ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
-            self.player:getInventory():Remove(v.item)
+            if self:rtrnTypeIfValid(v.item) then
+                table.insert(itemsToSell, v.item:getFullType()) --selling
+                ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
+                self.player:getInventory():Remove(v.item)
+            end
         end
     end
 
