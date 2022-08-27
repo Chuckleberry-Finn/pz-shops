@@ -443,12 +443,15 @@ end
 function storeWindow:getOrderTotal()
     local totalForTransaction = 0
     for i,v in ipairs(self.yourCartData.items) do
-        if type(v.item) ~= "string" then
-            local itemListing = self.storeObj.listings[v.item:getFullType()]
-            if itemListing then totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100)) end
-        else
-            local itemListing = self.storeObj.listings[v.item]
-            if itemListing then totalForTransaction = totalForTransaction+itemListing.price end
+        local valid, _ = storeWindow:rtrnTypeIfValid(v.item)
+        if valid then
+            if type(v.item) ~= "string" then
+                local itemListing = self.storeObj.listings[v.item:getFullType()]
+                if itemListing then totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100)) end
+            else
+                local itemListing = self.storeObj.listings[v.item]
+                if itemListing then totalForTransaction = totalForTransaction+itemListing.price end
+            end
         end
     end
     return totalForTransaction
