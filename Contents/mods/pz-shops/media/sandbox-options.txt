@@ -6,9 +6,17 @@ option ShopsAndTraders.PercentageDropOnDeath
 option ShopsAndTraders.MoneyWeight
 {type = double, min = 0.001, max = 1000, default = 0.001, page = ShopsAndTraders, translation = ShopsAndTraders_MoneyWeight,}
 
+option ShopsAndTraders.StartingWallet
+{type = double, min = 0.01, max = 1000000, default = 25, page = ShopsAndTraders, translation = ShopsAndTraders_StartingWallet,}
 
 option ShopsAndTraders.MoneySpawnMin
 {type = double, min = 0.01, max = 1000, default = 1.50, page = ShopsAndTraders, translation = ShopsAndTraders_MoneySpawnMin,}
 
 option ShopsAndTraders.MoneySpawnMax
 {type = double, min = 0.01, max = 1000, default = 25.00, page = ShopsAndTraders, translation = ShopsAndTraders_MoneySpawnMax,}
+
+option ShopsAndTraders.TradersResellItems
+{type = boolean, default = true, page = ShopsAndTraders, translation = ShopsAndTraders_TradersResellItems,}
+
+option ShopsAndTraders.TradersResetStock
+{type = boolean, default = false, page = ShopsAndTraders, translation = ShopsAndTraders_TradersResetStock,}
