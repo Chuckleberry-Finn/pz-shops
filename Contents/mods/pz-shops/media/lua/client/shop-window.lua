@@ -356,12 +356,15 @@ function storeWindow:drawStock(y, item, alt)
     local storeObj = self.parent.storeObj
     if storeObj then
         local listing = storeObj.listings[item.item]
-        if listing and ((listing.reselling==true and (listing.available ~= 0)) or (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug()))) then
+        if listing and (listing.reselling==true and listing.available ~= 0) or (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())) then
 
-            local inCart = 0
-            for k,v in pairs(self.parent.yourCartData.items) do if v.item == item.item then inCart = inCart+1 end end
-            local availableTemp = listing.available-inCart
-            if availableTemp == 0 then color = {r=0.7, g=0.7, b=0.7, a=0.3} end
+            if not string.match(item.item, "category:") then
+                local inCart = 0
+                for k,v in pairs(self.parent.yourCartData.items) do if v.item == item.item then inCart = inCart+1 end end
+                local availableTemp = listing.available-inCart
+                if availableTemp == 0 then color = {r=0.7, g=0.7, b=0.7, a=0.3} end
+            end
+
             self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
             if texture then self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b) end
             self:drawText(item.text, 32, y+6, color.r, color.g, color.b, color.a, self.font)
@@ -563,7 +566,7 @@ function storeWindow:prerender()
         local catX = getTextManager():MeasureStringX(UIFont.Small, cat)+4
 
         if self.categorySet.selected[1] == true then
-            self:drawText(cat, self.storeStockData.x+2, self.addStockEntry.y, 0.9, 0.9, 0.9, 0.9, UIFont.Small)
+            self:drawText(cat, self.storeStockData.x+1, self.addStockEntry.y-1, 0.9, 0.1, 0.1, 0.9, UIFont.Small)
             self.addStockEntry:setX(self.storeStockData.x+catX)
             self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3-catX)
         else
