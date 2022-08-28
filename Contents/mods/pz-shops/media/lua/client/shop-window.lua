@@ -822,11 +822,11 @@ function storeWindow:finalizeDeal()
 
     for i,v in ipairs(self.yourCartData.items) do
         if type(v.item) == "string" then
-            table.insert(itemToPurchase, v.item) --listing
+            table.insert(itemToPurchase, v.item)
         else
             local valid, _ = self:rtrnTypeIfValid(v.item)
             if valid then
-                table.insert(itemsToSell, v.item:getFullType()) --selling
+                if not isMoneyType(valid) then table.insert(itemsToSell, v.item:getFullType()) end
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
                 self.player:getInventory():Remove(v.item)
             end

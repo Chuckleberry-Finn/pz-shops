@@ -45,7 +45,7 @@ Events.OnCreatePlayer.Add(getOrSetWalletID)
 local valuedMoney = {}
 ---@param item InventoryItem
 local function generateMoneyValue(item, value, force)
-    if item ~= nil and _moneyTypes[item:getType()] and (not valuedMoney[item] or force) then
+    if item ~= nil and _moneyTypes[item:getFullType()] and (not valuedMoney[item] or force) then
         if (not item:getModData().value) or force then
 
             local min = (SandboxVars.ShopsAndTraders.MoneySpawnMin or 1.5)*100
@@ -136,7 +136,7 @@ function ISSliderBox:onClick(button, playerObj, item)
     if button.internal == "OK" then
         local transferValue = button.parent.slider:getCurrentValue()
 
-        if item and _moneyTypes[item:getType()] and item:getModData() and item:getModData().value > 0 then
+        if item and _moneyTypes[item:getFullType()] and item:getModData() and item:getModData().value > 0 then
             local newValue = item:getModData().value-transferValue
             generateMoneyValue(item, newValue, true)
         end
@@ -169,7 +169,7 @@ function ISInventoryPane:refreshContainer()
     _refreshContainer(self)
     for _, entry in ipairs(self.itemslist) do
         for _,item in pairs(entry.items) do
-            if item ~= nil and _moneyTypes[item:getType()] then generateMoneyValue(item) end
+            if item ~= nil and _moneyTypes[item:getFullType()] then generateMoneyValue(item) end
         end
     end
 end
@@ -256,7 +256,7 @@ function ISInventoryPane:onMouseUp(x, y)
         local doWalk = true
         local dragging = ISInventoryPane.getActualItems(draggingOld)
         for i,v in ipairs(dragging) do
-            if _moneyTypes[v:getType()] then
+            if _moneyTypes[v:getFullType()] then
                 local transfer = v:getContainer() and not self.inventory:isInside(v)
                 if v:isFavorite() and not self.inventory:isInCharacterInventory(playerObj) then transfer = false end
                 if transfer then
@@ -277,7 +277,7 @@ function ISInventoryPane:onMouseUp(x, y)
 
         for _,money in pairs(moneyFound) do if money==pushToActual then return end end
 
-        if pushToActual and _moneyTypes[pushToActual:getType()] then
+        if pushToActual and _moneyTypes[pushToActual:getFullType()] then
             local ptValue = pushToActual:getModData().value
             local consolidatedValue = 0
             for _,money in pairs(moneyFound) do
@@ -297,7 +297,7 @@ local function addContext(playerID, context, items)
     for _, v in ipairs(items) do
         local item = v
         if not instanceof(v, "InventoryItem") then item = v.items[1] end
-        if _moneyTypes[item:getType()] then
+        if _moneyTypes[item:getFullType()] then
             local itemValue = item:getModData().value
             if itemValue and itemValue>1 then context:addOption(getText("IGUI_SPLIT"), item, onSplitStack, playerObj) end
         end
@@ -322,8 +322,8 @@ function ISCharacterScreen:moneyMouseOver(x, y)
     local money = false
     if ISMouseDrag.dragging then
         for i,v in ipairs(ISMouseDrag.dragging) do
-            if instanceof(v, "InventoryItem") and _moneyTypes[v:getType()] then money = true break
-            else if v.invPanel.collapsed[v.name] then for i2,v2 in ipairs(v.items) do if _moneyTypes[v2:getType()] then money = true break end end end
+            if instanceof(v, "InventoryItem") and _moneyTypes[v:getFullType()] then money = true break
+            else if v.invPanel.collapsed[v.name] then for i2,v2 in ipairs(v.items) do if _moneyTypes[v2:getFullType()] then money = true break end end end
             end
         end
         if money then self.withdraw:setTitle(string.lower(getText("IGUI_DEPOSIT"))) end
@@ -348,12 +348,12 @@ function ISCharacterScreen:depositOnMouseUp(x, y)
     if ISMouseDrag.dragging then
         for i,v in ipairs(ISMouseDrag.dragging) do
             counta = 1
-            if instanceof(v, "InventoryItem") and _moneyTypes[v:getType()] then self.parent:depositMoney(v)
+            if instanceof(v, "InventoryItem") and _moneyTypes[v:getFullType()] then self.parent:depositMoney(v)
             else
                 if v.invPanel.collapsed[v.name] then
                     counta = 1
                     for i2,v2 in ipairs(v.items) do
-                        if counta > 1 and _moneyTypes[v2:getType()] then self.parent:depositMoney(v2) end
+                        if counta > 1 and _moneyTypes[v2:getFullType()] then self.parent:depositMoney(v2) end
                         counta = counta + 1
                     end
                 end
