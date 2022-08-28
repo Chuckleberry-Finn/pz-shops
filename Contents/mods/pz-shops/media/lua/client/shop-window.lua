@@ -2,6 +2,7 @@ require "ISUI/ISPanelJoypad"
 require "shop-globalModDataClient"
 require "shop-wallet"
 require "luautils"
+require "shop-itemLookup"
 
 ---@class storeWindow : ISPanel
 storeWindow = ISPanelJoypad:derive("storeWindow")
@@ -242,20 +243,25 @@ end
 
 function storeWindow:rtrnTypeIfValid(item)
     local itemType
+    local itemCat
     if type(item) == "string" then
         itemType = item
     else
         if self.player and luautils.haveToBeTransfered(self.player, item) then return false, "IGUI_NOTRADE_OUTSIDEINV" end
         if (item:getCondition()/item:getConditionMax())<0.75 or item:isBroken() then return false, "IGUI_NOTRADE_DAMAGED" end
         itemType = item:getFullType()
+        if (isMoneyType(itemType) and item:getModData().value) then return itemType end
+
+        itemCat = item:getDisplayCategory()
     end
+
     local storeObj = self.storeObj
     if storeObj then
+        if itemCat and not storeObj.listings[itemType] then itemType = "category:"..itemCat end
         if storeObj.listings[itemType] then
             if (storeObj.listings[itemType].buybackRate > 0) then return itemType
             else return false, "IGUI_NOTRADE_ONLYSELL"
             end
-        elseif (isMoneyType(itemType) and item:getModData().value) then return itemType
         else return false, "IGUI_NOTRADE_INVALIDTYPE"
         end
     end
@@ -417,21 +423,12 @@ end
 
 
 function storeWindow:update()
-
     if not self.player or not self.mapObject or (math.abs(self.player:getX()-self.mapObject:getX())>2) or (math.abs(self.player:getY()-self.mapObject:getY())>2) then
         self:setVisible(false)
         self:removeFromUIManager()
         return
     end
---[[
-    for i,v in ipairs(self.yourCartData.items) do
-        if type(v.item) ~= "string" then
-            if not self:rtrnTypeIfValid(v.item) then
-                self:removeItem(v)
-                break
-            end
-        end
-    end--]]
+--[[ for i,v in ipairs(self.yourCartData.items) do if type(v.item) ~= "string" then if not self:rtrnTypeIfValid(v.item) then self:removeItem(v) break end end end--]]
 end
 
 
@@ -462,7 +459,7 @@ function storeWindow:getOrderTotal()
             if type(v.item) ~= "string" then
                 if isMoneyType(valid) then totalForTransaction = totalForTransaction-(v.item:getModData().value)
                 else
-                    local itemListing = self.storeObj.listings[v.item:getFullType()]
+                    local itemListing = self.storeObj.listings[valid]
                     if itemListing then totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100)) end
                 end
             else
@@ -534,6 +531,17 @@ function storeWindow:prerender()
         end
 
     else
+        local cat = "category:"
+        local catX = getTextManager():MeasureStringX(UIFont.Small, cat)+4
+
+        if self.categorySet.selected[1] == true then
+            self:drawText(cat, self.storeStockData.x+2, self.addStockEntry.y+3, 0.9, 0.9, 0.9, 0.9, UIFont.Small)
+            self.addStockEntry:setX(self.storeStockData.x+catX)
+            self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3-catX)
+        else
+            self.addStockEntry:setX(self.storeStockData.x)
+            self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3)
+        end
 
         self:validateElementColor(self.addStockPrice)
         local color = self.addStockPrice.textColor
@@ -644,6 +652,17 @@ function storeWindow:updateButtons()
 end
 
 
+function storeWindow:validateAddStockEntry()
+    local entryText = self.addStockEntry:getInternalText()
+    if not entryText or entryText=="" then return false end
+    local itemDict = getItemDictionary()
+    if self.categorySet.selected[1] == true then if itemDict.categories[entryText] then return true end
+    else if getScriptManager():getItem(entryText) then return true end
+    end
+    return false
+end
+
+
 function storeWindow:render()
 
     if self.mapObject and self.mapObject:getModData().storeObjID then self.storeObj = CLIENT_STORES[self.mapObject:getModData().storeObjID] end
@@ -707,9 +726,7 @@ function storeWindow:render()
 
         local elements = {self.addStockBtn, self.addStockEntry, self.addStockPrice, self.addStockQuantity, self.addStockBuyBackRate}
 
-        self.addStockEntry.enable = not (self.addStockEntry:getInternalText()=="" or not getScriptManager():getItem(self.addStockEntry:getInternalText()))
-        --local newItem = self.addStockEntry:getInternalText()
-        --if self.storeObj.listings[newItem] then self.addStockEntry.enable = false end
+        self.addStockEntry.enable = self:validateAddStockEntry()
 
         self.addStockPrice.enable = (self.addStockPrice:getInternalText()=="" or tonumber(self.addStockPrice:getInternalText()))
         self.addStockQuantity.enable = (self.addStockQuantity:getInternalText()=="" or tonumber(self.addStockQuantity:getInternalText()))
@@ -786,28 +803,30 @@ function storeWindow:onClick(button)
         if not self:isBeingManaged() then return end
         if not self.addStockBtn.enable then return end
 
-        local newItem = self.addStockEntry:getInternalText()
-        if newItem then
+        if not self:validateAddStockEntry() then return end
 
-            local script = getScriptManager():getItem(newItem)
-            if script then
+        local newEntry = self.addStockEntry:getInternalText()
+        if not newEntry then return end
 
-                newItem = script:getFullName()
-
-                local price = 0
-                if self.addStockPrice.enable and self.addStockPrice:getInternalText() then price = tonumber(self.addStockPrice:getInternalText()) end
-
-                local quantity = 0
-                if self.addStockQuantity.enable and self.addStockQuantity:getInternalText() then quantity = tonumber(self.addStockQuantity:getInternalText()) end
-
-                local buybackRate = 0
-                if self.addStockBuyBackRate.enable and self.addStockBuyBackRate:getInternalText() then buybackRate = tonumber(self.addStockBuyBackRate:getInternalText()) end
-
-                sendClientCommand("shop", "listNewItem", { isBeingManaged=store.isBeingManaged,
-                item=newItem, price=price, quantity=quantity, buybackRate=buybackRate, storeID=store.ID, x=x, y=y, z=z, mapObjName=mapObjName })
-                if not isClient() then self:refresh() end
-            end
+        if self.categorySet.selected[1] == true then
+            newEntry = "category:"..newEntry
+        else
+            local script = getScriptManager():getItem(newEntry)
+            if script then newEntry = script:getFullName() end
         end
+
+        local price = 0
+        if self.addStockPrice.enable and self.addStockPrice:getInternalText() then price = tonumber(self.addStockPrice:getInternalText()) end
+
+        local quantity = 0
+        if self.addStockQuantity.enable and self.addStockQuantity:getInternalText() then quantity = tonumber(self.addStockQuantity:getInternalText()) end
+
+        local buybackRate = 0
+        if self.addStockBuyBackRate.enable and self.addStockBuyBackRate:getInternalText() then buybackRate = tonumber(self.addStockBuyBackRate:getInternalText()) end
+
+        sendClientCommand("shop", "listNewItem", { isBeingManaged=store.isBeingManaged,
+        item=newEntry, price=price, quantity=quantity, buybackRate=buybackRate, storeID=store.ID, x=x, y=y, z=z, mapObjName=mapObjName })
+        if not isClient() then self:refresh() end
     end
 
     if button.internal == "CANCEL" then
@@ -837,7 +856,7 @@ function storeWindow:finalizeDeal()
                     local pID = self.player:getModData().wallet_UUID
                     sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=pID, receive=nil})
                 else
-                    table.insert(itemsToSell, v.item:getFullType())
+                    table.insert(itemsToSell, valid)
                 end
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
                 self.player:getInventory():Remove(v.item)
