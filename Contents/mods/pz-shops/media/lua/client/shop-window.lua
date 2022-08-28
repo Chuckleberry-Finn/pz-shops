@@ -257,13 +257,15 @@ function storeWindow:rtrnTypeIfValid(item)
 
     local storeObj = self.storeObj
     if storeObj then
-        if itemCat and not storeObj.listings[itemType] then itemType = "category:"..itemCat end
-        if storeObj.listings[itemType] then
-            if (storeObj.listings[itemType].buybackRate > 0) then return itemType
-            else return false, "IGUI_NOTRADE_ONLYSELL"
-            end
-        else return false, "IGUI_NOTRADE_INVALIDTYPE"
+
+        local listing = storeObj.listings[itemType]
+        if not listing and itemCat then listing = storeObj.listings["category:"..tostring(itemCat)] end
+        if not listing then return false, "IGUI_NOTRADE_INVALIDTYPE" end
+        if listing then
+            if listing.buybackRate > 0 then return itemType, false, itemCat
+            else return false, "IGUI_NOTRADE_ONLYSELL" end
         end
+
     end
     return false, nil
 end
@@ -271,7 +273,7 @@ end
 
 function storeWindow:drawCart(y, item, alt)
     local texture
-    local itemType, reason = self.parent:rtrnTypeIfValid(item.item)
+    local itemType, reason, itemCat = self.parent:rtrnTypeIfValid(item.item)
     if type(item.item) == "string" then texture = getScriptManager():getItem(item.item):getNormalTexture()
     else texture = item.item:getTex() end
 
@@ -303,28 +305,31 @@ function storeWindow:drawCart(y, item, alt)
     end
 
     local balanceDiff = 0
-    if storeObj and storeObj.listings[itemType] then
-        if type(item.item) == "string" then balanceDiff = storeObj.listings[itemType].price
-        else
-            if isMoneyType(itemType) then balanceDiff = 0-item.item:getModData().value
-            else balanceDiff = 0-(storeObj.listings[itemType].price*(storeObj.listings[itemType].buybackRate/100))
+    if storeObj then
+        local listing = storeObj.listings[itemType] or storeObj.listings["category:"..tostring(itemCat)]
+        if listing then
+            if type(item.item) == "string" then balanceDiff = listing.price
+            else
+                if isMoneyType(itemType) then balanceDiff = 0-item.item:getModData().value
+                else balanceDiff = 0-(listing.price*(listing.buybackRate/100))
+                end
             end
+
+            local balanceColor = {r=1, g=1, b=1, a=0.9}
+            if balanceDiff > 0 then
+                balanceDiff = "-".._internal.numToCurrency(balanceDiff)
+                balanceColor = {r=1, g=0.2, b=0.2, a=0.9}
+
+            elseif balanceDiff < 0 then
+                balanceDiff = "+".._internal.numToCurrency(math.abs(balanceDiff))
+                balanceColor = {r=0.2, g=1, b=0.2, a=0.9}
+            else
+                balanceDiff = " ".._internal.numToCurrency(balanceDiff)
+            end
+
+            local costDiff_x = getTextManager():MeasureStringX(self.font,balanceDiff)+30
+            self:drawText(balanceDiff, (self.x+self.width)-costDiff_x, y+6, balanceColor.r, balanceColor.g, balanceColor.b, balanceColor.a, self.font)
         end
-
-        local balanceColor = {r=1, g=1, b=1, a=0.9}
-        if balanceDiff > 0 then
-            balanceDiff = "-".._internal.numToCurrency(balanceDiff)
-            balanceColor = {r=1, g=0.2, b=0.2, a=0.9}
-
-        elseif balanceDiff < 0 then
-            balanceDiff = "+".._internal.numToCurrency(math.abs(balanceDiff))
-            balanceColor = {r=0.2, g=1, b=0.2, a=0.9}
-        else
-            balanceDiff = " ".._internal.numToCurrency(balanceDiff)
-        end
-
-        local costDiff_x = getTextManager():MeasureStringX(self.font,balanceDiff)+30
-        self:drawText(balanceDiff, (self.x+self.width)-costDiff_x, y+6, balanceColor.r, balanceColor.g, balanceColor.b, balanceColor.a, self.font)
     end
 
     return y + self.itemheight
@@ -354,8 +359,10 @@ function storeWindow:drawStock(y, item, alt)
             if texture then self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b) end
 
             local displayText = item.text
-            if (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())) then
-                displayText = displayText.." [x"..storeObj.listings[item.item].stock.."]".." ["..storeObj.listings[item.item].buybackRate.."%]"
+            if (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())) and (not string.match(item.item, "category:")) then
+                local stock = " [x"..storeObj.listings[item.item].stock.."]"
+                local buyBackRate = " ["..storeObj.listings[item.item].buybackRate.."%]"
+                displayText = displayText..stock..buyBackRate
             end
 
             self:drawText(displayText, 32, y+6, color.r, color.g, color.b, color.a, self.font)
@@ -376,8 +383,10 @@ function storeWindow:displayStoreStock()
     local scriptManager = getScriptManager()
 
     for _,listing in pairs(storeObj.listings) do
+
         local script = scriptManager:getItem(listing.item)
-        local scriptName = script:getDisplayName()
+        local itemDisplayName = listing.item
+        if script then itemDisplayName = script:getDisplayName() end
 
         local price = _internal.numToCurrency(listing.price)
         if listing.price <= 0 then price = getText("IGUI_FREE") end
@@ -387,9 +396,9 @@ function storeWindow:displayStoreStock()
         local availableTemp = listing.available-inCart
 
         local stock = " ("..availableTemp.."/"..math.max(listing.available, listing.stock)..")"
-        if listing.stock == -1 then stock = "" end
+        if listing.stock == -1 or string.match(listing.item, "category:") then stock = "" end
 
-        self.storeStockData:addItem(price.." "..scriptName..stock, listing.item)
+        self.storeStockData:addItem(price.." "..itemDisplayName..stock, listing.item)
     end
 end
 
@@ -436,6 +445,13 @@ function storeWindow:removeItem(item) self.yourCartData:removeItem(item.text) en
 
 
 function storeWindow:validateElementColor(e)
+    if not e then return end
+    if e==self.addStockQuantity and self.categorySet.selected[1] == true then
+        e.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
+        e.textColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
+        return
+    end
+
     if e.enable then
         if not self.addStockEntry.enable then
             e.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
@@ -446,7 +462,7 @@ function storeWindow:validateElementColor(e)
         end
     else
         e.borderColor = { r = 1, g = 0, b = 0, a = 0.8 }
-        e.textColor = { r = 1, g = 0, b = 0, a = 0.9 }
+        e.textColor = { r = 1, g = 0, b = 0, a = 0.8 }
     end
 end
 
@@ -454,12 +470,12 @@ end
 function storeWindow:getOrderTotal()
     local totalForTransaction = 0
     for i,v in ipairs(self.yourCartData.items) do
-        local valid, _ = self:rtrnTypeIfValid(v.item)
-        if valid then
+        local itemType, _, itemCat = self:rtrnTypeIfValid(v.item)
+        if itemType then
             if type(v.item) ~= "string" then
-                if isMoneyType(valid) then totalForTransaction = totalForTransaction-(v.item:getModData().value)
+                if isMoneyType(itemType) then totalForTransaction = totalForTransaction-(v.item:getModData().value)
                 else
-                    local itemListing = self.storeObj.listings[valid]
+                    local itemListing = self.storeObj.listings[itemType] or self.storeObj.listings["category:"..tostring(itemCat)]
                     if itemListing then totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100)) end
                 end
             else
@@ -547,12 +563,8 @@ function storeWindow:prerender()
         self:drawText(getText("IGUI_CURRENCY_PREFIX"), self.addStockPrice.x-12, self.addStockPrice.y, color.r,color.g,color.b,color.a, UIFont.Small)
         self:drawText(" "..getText("IGUI_CURRENCY_SUFFIX"), self.addStockPrice.x+self.addStockPrice.width+12, self.addStockPrice.y, color.r,color.g,color.b,color.a, UIFont.Small)
 
-        if (self.categorySet.selected[1] == false) then
-            self:validateElementColor(self.addStockQuantity)
-            color = self.addStockQuantity.textColor
-        else
-            color = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
-        end
+        self:validateElementColor(self.addStockQuantity)
+        color = self.addStockQuantity.textColor
         self:drawText(getText("IGUI_STOCK"), self.addStockQuantity.x-12, self.addStockQuantity.y, color.r,color.g,color.b,color.a, UIFont.Small)
 
         self:validateElementColor(self.addStockBuyBackRate)
@@ -715,7 +727,7 @@ function storeWindow:render()
     self.manageStoreName:isEditable(not blocked)
     self.addStockEntry:isEditable(not blocked)
     self.addStockPrice:isEditable(not blocked)
-    self.addStockQuantity:isEditable(not blocked)
+    self.addStockQuantity:isEditable(not blocked and (self.categorySet.selected[1] == false))
     self.addStockBuyBackRate:isEditable(not blocked)
 
     local purchaseValid = (getWalletBalance(self.player)-self:getOrderTotal()) >= 0
@@ -732,7 +744,9 @@ function storeWindow:render()
         self.addStockEntry.enable = self:validateAddStockEntry()
 
         self.addStockPrice.enable = (self.addStockPrice:getInternalText()=="" or tonumber(self.addStockPrice:getInternalText()))
-        self.addStockQuantity.enable = (self.addStockQuantity:getInternalText()=="" or tonumber(self.addStockQuantity:getInternalText())) and (self.categorySet.selected[1] == false)
+        self.addStockQuantity.enable = (self.addStockQuantity:getInternalText()=="" or tonumber(self.addStockQuantity:getInternalText()))
+
+        if self.categorySet.selected[1] == true then self.addStockQuantity:setText("") end
 
         local convertedBuyBackRate = tonumber(self.addStockBuyBackRate:getInternalText())
         self.addStockBuyBackRate.enable = (self.addStockBuyBackRate:getInternalText()=="" or (convertedBuyBackRate and (convertedBuyBackRate < 100 or convertedBuyBackRate > 0)))
@@ -852,14 +866,14 @@ function storeWindow:finalizeDeal()
         if type(v.item) == "string" then
             table.insert(itemToPurchase, v.item)
         else
-            local valid, _ = self:rtrnTypeIfValid(v.item)
-            if valid then
-                if isMoneyType(valid) then
+            local itemType, _, _ = self:rtrnTypeIfValid(v.item)
+            if itemType then
+                if isMoneyType(itemType) then
                     local value = v.item:getModData().value
                     local pID = self.player:getModData().wallet_UUID
                     sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=pID, receive=nil})
                 else
-                    table.insert(itemsToSell, valid)
+                    table.insert(itemsToSell, itemType)
                 end
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
                 self.player:getInventory():Remove(v.item)

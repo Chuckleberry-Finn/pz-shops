@@ -201,8 +201,12 @@ function STORE_HANDLER.validateItemType(storeID,itemType)
     if not storeObj then print("ERROR: validatePurchases: No storeObj") return end
     local validItem = getScriptManager():getItem(itemType)
     if not validItem then print("ERROR: no script found for \'"..itemType.."\'") return end
-    if not storeObj.listings[itemType] then print("ERROR: \'"..itemType.."\' not a listed for \'"..storeObj.name.."\'") return end
-    return true
+
+    local listing = storeObj.listings[itemType]
+    if not listing then listing = storeObj.listings["category:"..validItem:getDisplayCategory()] end
+
+    if not listing then print("ERROR: \'"..itemType.."\' not a listed for \'"..storeObj.name.."\'") return end
+    return listing
 end
 
 
@@ -216,17 +220,25 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
     local playerWallet = WALLET_HANDLER.getOrSetPlayerWallet(playerID)
 
     for _,itemType in pairs(selling) do
-        if STORE_HANDLER.validateItemType(storeID,itemType) then
-            local listing = storeObj.listings[itemType]
+        local listing = STORE_HANDLER.validateItemType(storeID,itemType)
+        if listing then
             local adjustedPrice = listing.price*(listing.buybackRate/100)
             playerWallet.amount = playerWallet.amount+adjustedPrice
-            if SandboxVars.ShopsAndTraders.TradersResellItems == true then listing.available = listing.available+1 end
+            if SandboxVars.ShopsAndTraders.TradersResellItems == true then
+                if listing.item ~= itemType then
+                    local newListing = STORE_HANDLER.newListing(storeObj,itemType,listing.price,0,listing.buybackRate)
+                    newListing.available = newListing.available+1
+                else
+                    listing.available = listing.available+1
+                end
+            end
         end
+
     end
 
     for _,itemType in pairs(buying) do
-        if STORE_HANDLER.validateItemType(storeID,itemType) then
-            local listing = storeObj.listings[itemType]
+        local listing = STORE_HANDLER.validateItemType(storeID,itemType)
+        if listing then
             if playerWallet.amount-listing.price < 0 then break end
             playerWallet.amount = playerWallet.amount-listing.price
             if listing.available > 0 then
