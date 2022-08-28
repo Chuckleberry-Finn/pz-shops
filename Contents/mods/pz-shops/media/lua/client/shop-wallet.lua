@@ -4,7 +4,7 @@ require "ISUI/ISInventoryPaneContextMenu"
 require "ISUI/ISTextBox"
 require "luautils"
 
-local moneyTypes = {"Money"}
+local moneyTypes = {"Base.Money"}
 
 local trueKeyed, _moneyTypes
 if not trueKeyed then
@@ -12,6 +12,8 @@ if not trueKeyed then
     for _,type in pairs(moneyTypes) do _moneyTypes[type] = true end
     trueKeyed = true
 end
+
+function isMoneyType(itemType) return _moneyTypes[itemType] end
 
 local function modifyScript()
     for type,_ in pairs(_moneyTypes) do
@@ -33,7 +35,7 @@ function getOrSetWalletID(playerID,playerObj)
         print("- No Player wallet_UUID - generating now.")
         playerModData.wallet_UUID = getRandomUUID()
     end
-    print("playerModData.wallet_UUID: "..playerModData.wallet_UUID)
+    --print("playerModData.wallet_UUID: "..playerModData.wallet_UUID)
     sendClientCommand("shop", "getOrSetWallet", {playerID=playerModData.wallet_UUID,steamID=playerObj:getSteamID()})
     return playerModData.wallet_UUID
 end
