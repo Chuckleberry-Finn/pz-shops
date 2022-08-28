@@ -826,7 +826,13 @@ function storeWindow:finalizeDeal()
         else
             local valid, _ = self:rtrnTypeIfValid(v.item)
             if valid then
-                if not isMoneyType(valid) then table.insert(itemsToSell, v.item:getFullType()) end
+                if isMoneyType(valid) then
+                    local value = v.item:getModData().value
+                    local pID = self.player:getModData().wallet_UUID
+                    sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=pID, receive=nil})
+                else
+                    table.insert(itemsToSell, v.item:getFullType())
+                end
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
                 self.player:getInventory():Remove(v.item)
             end
