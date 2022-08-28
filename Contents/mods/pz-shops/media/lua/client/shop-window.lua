@@ -265,7 +265,7 @@ function storeWindow:drawCart(y, item, alt)
     local storeObj = self.parent.storeObj
     local noList = false
     if not itemType then
-        color = {r=1, g=0, b=0, a=0.6}
+        color = {r=0.75, g=0, b=0, a=0.45}
         noList = true
     end
 
@@ -282,6 +282,7 @@ function storeWindow:drawCart(y, item, alt)
         local nlH = (self.itemheight-1)/2
         local nlX = (self:getWidth())-(nlW)-10
         local nlY = y+(nlH/2)
+        color = {r=1, g=0, b=0, a=0.6}
         self:drawRect(nlX, nlY, nlW, nlH, 1, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
         self:drawText(reason or "", nlX+10, nlY, color.r, color.g, color.b, color.a, self.font)
         self:drawRectBorder(nlX, nlY, nlW, nlH, 0.9, color.r, color.g, color.b)
