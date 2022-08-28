@@ -1,4 +1,5 @@
 IGUI_EN = {
+    IGUI_ItemCat_Money = "Money",
     IGUI_MANAGESTORE = "Manage Store",
     IGUI_STORESTOCK = "Store Stock",
     IGUI_STOCK = "#",

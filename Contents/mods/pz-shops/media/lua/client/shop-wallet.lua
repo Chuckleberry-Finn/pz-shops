@@ -20,7 +20,10 @@ local function modifyScript()
         ---@type Item
         local script = getScriptManager():getItem(type)
         local weight = SandboxVars.ShopsAndTraders.MoneyWeight
-        if script then script:setActualWeight(weight) end
+        if script then
+            script:setActualWeight(weight)
+            script:DoParam("DisplayCategory = Money")
+        end
     end
 end
 Events.OnGameBoot.Add(modifyScript)
