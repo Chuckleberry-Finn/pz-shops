@@ -314,7 +314,7 @@ function storeWindow:drawCart(y, item, alt)
 
     local balanceDiff = 0
     if storeObj and (not noList) then
-        local listing = storeObj.listings[itemType] or storeObj.listings["category:"..tostring(itemCat)]
+        local listing = storeObj.listings[itemType] or storeObj.listings["category:"..tostring(itemCat)] or isMoneyType(itemType)
         if listing then
             if type(item.item) == "string" then balanceDiff = listing.price
             else
