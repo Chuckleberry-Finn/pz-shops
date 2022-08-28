@@ -23,8 +23,8 @@ function storeWindow:storeItemRowAt(y)
     local listings = self.storeObj.listings
     for i,v in ipairs(self.storeStockData.items) do
         if not v.height then v.height = self.storeStockData.itemheight end
-        
-        if (listings.reselling==true and listings[v.item].available ~= 0) or self:isBeingManaged() then
+
+        if (listings[v.item].reselling==true and listings[v.item].available ~= 0) or self:isBeingManaged() then
             if y >= y0 and y < y0 + v.height then return i end
             y0 = y0 + v.height
         end
@@ -63,7 +63,7 @@ function storeWindow:initialise()
     local btnWid = 100
     local btnHgt = 25
     local padBottom = 10
-    local listWidh = (self.width / 2) - 15
+    local listWidh = (self.width / 2)-15
     local listHeight = (self.height*0.6)
 
     local storeName = "new store"
@@ -945,7 +945,7 @@ function storeWindow:onBrowse(storeObj, mapObj)
     triggerEvent("SHOPPING_ClientModDataReady", true)
 
     reopenNextTick = nil
-    local ui = storeWindow:new(50,50,550,550, getPlayer(), storeObj, mapObj)
+    local ui = storeWindow:new(50,50,555,555, getPlayer(), storeObj, mapObj)
     ui:initialise()
     ui:addToUIManager()
 end
