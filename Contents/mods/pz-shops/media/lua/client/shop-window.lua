@@ -134,7 +134,7 @@ function storeWindow:initialise()
     self:addChild(self.addStockBuyBackRate)
 
     self.categorySet = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.addStockBuyBackRate.y, 18, 18, "", self, nil)
-    self.clearStore.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
+    self.categorySet.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
     self.categorySet:initialise()
     self.categorySet:instantiate()
     self.categorySet.selected[1] = false
