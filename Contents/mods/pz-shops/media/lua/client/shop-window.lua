@@ -335,7 +335,7 @@ function storeWindow:drawStock(y, item, alt)
     local texture
     if type(item.item) == "string" then
         local script = getScriptManager():getItem(item.item)
-        texture = script:getNormalTexture()
+        if script then texture = script:getNormalTexture() end
     else texture = item.item:getTex() end
 
     local color = {r=1, g=1, b=1, a=0.9}
@@ -351,7 +351,7 @@ function storeWindow:drawStock(y, item, alt)
 
             self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
 
-            self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b)
+            if texture then self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b) end
 
             local displayText = item.text
             if (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())) then
@@ -534,7 +534,7 @@ function storeWindow:prerender()
         local catX = getTextManager():MeasureStringX(UIFont.Small, cat)+4
 
         if self.categorySet.selected[1] == true then
-            self:drawText(cat, self.storeStockData.x+2, self.addStockEntry.y+3, 0.9, 0.9, 0.9, 0.9, UIFont.Small)
+            self:drawText(cat, self.storeStockData.x+2, self.addStockEntry.y, 0.9, 0.9, 0.9, 0.9, UIFont.Small)
             self.addStockEntry:setX(self.storeStockData.x+catX)
             self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3-catX)
         else
@@ -547,8 +547,11 @@ function storeWindow:prerender()
         self:drawText(getText("IGUI_CURRENCY_PREFIX"), self.addStockPrice.x-12, self.addStockPrice.y, color.r,color.g,color.b,color.a, UIFont.Small)
         self:drawText(" "..getText("IGUI_CURRENCY_SUFFIX"), self.addStockPrice.x+self.addStockPrice.width+12, self.addStockPrice.y, color.r,color.g,color.b,color.a, UIFont.Small)
 
-        self:validateElementColor(self.addStockQuantity)
-        color = self.addStockQuantity.textColor
+        if (self.categorySet.selected[1] == false) then
+            self:validateElementColor(self.addStockQuantity)
+            color = self.addStockQuantity.textColor
+        else color = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
+        end
         self:drawText(getText("IGUI_STOCK"), self.addStockQuantity.x-12, self.addStockQuantity.y, color.r,color.g,color.b,color.a, UIFont.Small)
 
         self:validateElementColor(self.addStockBuyBackRate)
@@ -623,7 +626,7 @@ function storeWindow:updateButtons()
     self.manageBtn.enable = false
     self.clearStore.enable = false
     self.addStockBtn.enable = false
-    self.categorySet.enable = fasle
+    self.categorySet.enable = false
 
     self.assignComboBox.enable = false
     self.aBtnCopy.enable = false
@@ -702,7 +705,7 @@ function storeWindow:render()
     self.manageStoreName:setVisible(managed and not blocked)
     self.addStockEntry:setVisible(managed and not blocked)
     self.addStockPrice:setVisible(managed and not blocked)
-    self.addStockQuantity:setVisible(managed and not blocked)
+    self.addStockQuantity:setVisible(managed and not blocked and self.categorySet.selected[1] == false)
     self.addStockBuyBackRate:setVisible(managed and not blocked)
     self.clearStore:setVisible(managed and not blocked)
     self.restockHours:setVisible(managed and not blocked)
@@ -728,11 +731,11 @@ function storeWindow:render()
         self.addStockEntry.enable = self:validateAddStockEntry()
 
         self.addStockPrice.enable = (self.addStockPrice:getInternalText()=="" or tonumber(self.addStockPrice:getInternalText()))
-        self.addStockQuantity.enable = (self.addStockQuantity:getInternalText()=="" or tonumber(self.addStockQuantity:getInternalText()))
+        self.addStockQuantity.enable = (self.addStockQuantity:getInternalText()=="" or tonumber(self.addStockQuantity:getInternalText())) and (self.categorySet.selected[1] == false)
 
         local convertedBuyBackRate = tonumber(self.addStockBuyBackRate:getInternalText())
         self.addStockBuyBackRate.enable = (self.addStockBuyBackRate:getInternalText()=="" or (convertedBuyBackRate and (convertedBuyBackRate < 100 or convertedBuyBackRate > 0)))
-        self.addStockBtn.enable = (self.addStockEntry.enable and self.addStockPrice.enable and self.addStockQuantity.enable and self.addStockBuyBackRate.enable)
+        self.addStockBtn.enable = (self.addStockEntry.enable and self.addStockPrice.enable and (self.addStockQuantity.enable or self.categorySet.selected[1] == true) and self.addStockBuyBackRate.enable)
 
         for _,e in pairs(elements) do self:validateElementColor(e) end
     end
