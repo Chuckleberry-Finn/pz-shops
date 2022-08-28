@@ -241,16 +241,17 @@ function ISInventoryPane:onMouseUp(x, y)
 
     local draggingOld = ISMouseDrag.dragging
     local draggingFocusOld = ISMouseDrag.draggingFocus
-    local runExtra = true
+    local busy = false
     self.previousMouseUp = self.mouseOverOption
-    if (not isShiftKeyDown() and not isCtrlKeyDown() and x >= self.column2 and  x == self.downX and y == self.downY) and self.mouseOverOption ~= 0 and self.items[self.mouseOverOption] ~= nil then
-        runExtra = false
+    if (x >= self.column2 and  x == self.downX and y == self.downY) and self.mouseOverOption ~= 0 and self.items[self.mouseOverOption] ~= nil then
+        busy = true
     end
 
     local result = ISInventoryPane_onMouseUp(self, x, y)
     if not result then return end
+    if busy then return end
 
-    if (draggingOld ~= nil) and (draggingFocusOld == self) and (draggingFocusOld ~= nil) and runExtra then
+    if (draggingOld ~= nil) and (draggingFocusOld == self) and (draggingFocusOld ~= nil) then
         if self.player ~= 0 then return end
         local playerObj = getSpecificPlayer(self.player)
         local moneyFound = {}
