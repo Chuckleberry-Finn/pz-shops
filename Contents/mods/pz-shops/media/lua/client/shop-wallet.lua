@@ -243,7 +243,7 @@ function ISInventoryPane:onMouseUp(x, y)
     local draggingFocusOld = ISMouseDrag.draggingFocus
     local runExtra = true
     self.previousMouseUp = self.mouseOverOption
-    if (not isShiftKeyDown()and not isCtrlKeyDown() and x >= self.column2 and  x == self.downX and y == self.downY) and  self.mouseOverOption ~= 0 and self.items[self.mouseOverOption] ~= nil then
+    if (not isShiftKeyDown() and not isCtrlKeyDown() and x >= self.column2 and  x == self.downX and y == self.downY) and self.mouseOverOption ~= 0 and self.items[self.mouseOverOption] ~= nil then
         runExtra = false
     end
 

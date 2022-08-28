@@ -404,11 +404,8 @@ function storeWindow:displayStoreStock()
 
         if self:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug()) then
             local displayText = ""
-            if not string.match(listedItem.item, "category:") then
-                local stock = " [x"..listing.stock.."]"
-                local buyBackRate = " ["..listing.buybackRate.."%]"
-                displayText = displayText..stock..buyBackRate
-            end
+            if not string.match(listedItem.item, "category:") then displayText = displayText.." [restock x"..listing.stock.."]" end
+            displayText = displayText.." [buyback "..listing.buybackRate.."%]"
 
             local resell = listing.reselling
             if resell~=SandboxVars.ShopsAndTraders.TradersResellItems then if resell then displayText = displayText.." [resell]" else displayText = displayText.." [no resell]" end end

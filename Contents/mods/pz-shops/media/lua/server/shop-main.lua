@@ -75,7 +75,7 @@ function store_listing:new(item,price,stock,buybackRate,reselling,oldListing)
         newListing.buybackRate = buybackRate
     end
 
-    if reselling then newListing.reselling = true end
+    if reselling then newListing.reselling = true else newListing.reselling = false end
 
     return newListing
 end
