@@ -17,6 +17,7 @@ function wallet:new(playerID,steamID)
     local newWallet = copyTable(wallet)
     newWallet.playerUUID = playerID
     newWallet.steamID = steamID
+    newWallet.amount = SandboxVars.ShopsAndTraders.StartingWallet or newWallet.amount
     GLOBAL_WALLETS[newWallet.playerUUID] = newWallet
 end
 
@@ -107,15 +108,14 @@ function STORE_HANDLER.restocking()
     for ID,_ in pairs(GLOBAL_STORES) do
         if not GLOBAL_STORES[ID].restockHrs then GLOBAL_STORES[ID].restockHrs = 48 end
         GLOBAL_STORES[ID].nextRestock = (GLOBAL_STORES[ID].nextRestock or GLOBAL_STORES[ID].restockHrs)-1
-
         if GLOBAL_STORES[ID].nextRestock > GLOBAL_STORES[ID].restockHrs then GLOBAL_STORES[ID].nextRestock = GLOBAL_STORES[ID].restockHrs-1 end
-
         if GLOBAL_STORES[ID].nextRestock < 0 then
             GLOBAL_STORES[ID].nextRestock = GLOBAL_STORES[ID].restockHrs
             for type,_ in pairs(GLOBAL_STORES[ID].listings) do
                 local listing = GLOBAL_STORES[ID].listings[type]
                 if listing.stock ~= -1 then
-                    listing.available = math.max(listing.available,listing.stock)
+                    if SandboxVars.ShopsAndTraders.TradersResetStock == true then listing.available = listing.stock
+                    else listing.available = math.max(listing.available,listing.stock) end
                 end
             end
         end
@@ -220,7 +220,7 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
             local listing = storeObj.listings[itemType]
             local adjustedPrice = listing.price*(listing.buybackRate/100)
             playerWallet.amount = playerWallet.amount+adjustedPrice
-            listing.available = listing.available+1
+            if SandboxVars.ShopsAndTraders.TradersResellItems == true then listing.available = listing.available+1 end
         end
     end
 
