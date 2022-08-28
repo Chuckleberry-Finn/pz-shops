@@ -401,7 +401,7 @@ function storeWindow:displayStoreStock()
 
         if self:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug()) then
             local displayText = ""
-            if not string.match(item.item, "category:") then
+            if not string.match(listedItem.item, "category:") then
                 local stock = " [x"..listing.stock.."]"
                 local buyBackRate = " ["..listing.buybackRate.."%]"
                 displayText = displayText..stock..buyBackRate
