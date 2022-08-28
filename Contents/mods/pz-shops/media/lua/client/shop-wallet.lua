@@ -56,7 +56,7 @@ local function generateMoneyValue(item, value, force)
 
             value = value or ((ZombRand(min,max+100)/100)*100)/100
             item:getModData().value = value
-            item:setName(getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(value).." "..getText("IGUI_CURRENCY_SUFFIX"))
+            item:setName(_internal.numToCurrency(value))
         end
         item:setActualWeight(SandboxVars.ShopsAndTraders.MoneyWeight*item:getModData().value)
     end
@@ -94,7 +94,7 @@ ISSliderBox = ISTextBox:derive("ISSliderBox")
 function ISSliderBox:onValueChange(val)
     local title = "IGUI_SPLIT"
     if not self.item then title = "IGUI_WITHDRAW" end
-    self.text = getText(title)..": "..getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(val).." "..getText("IGUI_CURRENCY_SUFFIX")
+    self.text = getText(title)..": ".._internal.numToCurrency(val)
 end
 
 function ISSliderBox:initialise()
@@ -391,6 +391,6 @@ function ISCharacterScreen:render()
     self.withdraw:setY(self.literatureButton.y+52)
     local walletBalance = getWalletBalance(self.char)
     self.withdraw.enable = (walletBalance > 0)
-    local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": "..getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(walletBalance).." "..getText("IGUI_CURRENCY_SUFFIX")
+    local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
     self:drawText(walletBalanceLine, self.withdraw.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
 end
