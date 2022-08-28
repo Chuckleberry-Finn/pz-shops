@@ -313,14 +313,14 @@ function storeWindow:drawCart(y, item, alt)
 
         local balanceColor = {r=1, g=1, b=1, a=0.9}
         if balanceDiff > 0 then
-            balanceDiff = "-"..getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(balanceDiff).." "..getText("IGUI_CURRENCY_SUFFIX")
+            balanceDiff = "-".._internal.numToCurrency(balanceDiff)
             balanceColor = {r=1, g=0.2, b=0.2, a=0.9}
 
         elseif balanceDiff < 0 then
-            balanceDiff = "+"..getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(math.abs(balanceDiff)).." "..getText("IGUI_CURRENCY_SUFFIX")
+            balanceDiff = "+".._internal.numToCurrency(math.abs(balanceDiff))
             balanceColor = {r=0.2, g=1, b=0.2, a=0.9}
         else
-            balanceDiff = " "..getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(balanceDiff).." "..getText("IGUI_CURRENCY_SUFFIX")
+            balanceDiff = " ".._internal.numToCurrency(balanceDiff)
         end
 
         local costDiff_x = getTextManager():MeasureStringX(self.font,balanceDiff)+30
@@ -379,7 +379,7 @@ function storeWindow:displayStoreStock()
         local script = scriptManager:getItem(listing.item)
         local scriptName = script:getDisplayName()
 
-        local price = getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(listing.price).." "..getText("IGUI_CURRENCY_SUFFIX")
+        local price = _internal.numToCurrency(listing.price)
         if listing.price <= 0 then price = getText("IGUI_FREE") end
 
         local inCart = 0
@@ -488,7 +488,6 @@ function storeWindow:displayOrderTotal()
     local totalForTransaction = self:getOrderTotal()
     local textForTotal = _internal.numToCurrency(math.abs(totalForTransaction))
     local tColor = balanceColor.normal
-    textForTotal = getText("IGUI_CURRENCY_PREFIX")..textForTotal.." "..getText("IGUI_CURRENCY_SUFFIX")
     if totalForTransaction < 0 then tColor, textForTotal = balanceColor.green, "+"..textForTotal
     elseif totalForTransaction > 0 then tColor, textForTotal = balanceColor.red, "-"..textForTotal
     else textForTotal = " "..textForTotal end
@@ -498,7 +497,7 @@ function storeWindow:displayOrderTotal()
 
     self:drawRect(x, y+h+8, w, h, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
     local walletBalance = getWalletBalance(self.player)
-    local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": "..getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(walletBalance).." "..getText("IGUI_CURRENCY_SUFFIX")
+    local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
     local bColor = balanceColor.normal
     if (walletBalance-totalForTransaction) < 0 then bColor = balanceColor.red end
     self:drawText(walletBalanceLine, x+10, y+h+4+(fontH/2), bColor.r, bColor.g, bColor.b, bColor.a, self.font)
@@ -506,7 +505,7 @@ function storeWindow:displayOrderTotal()
     local walletBalanceAfter = walletBalance-totalForTransaction
     local sign = " "
     if walletBalanceAfter < 0 then sign = "-" end
-    local wbaText = sign..getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(math.abs(walletBalanceAfter)).." "..getText("IGUI_CURRENCY_SUFFIX")
+    local wbaText = sign.._internal.numToCurrency(math.abs(walletBalanceAfter))
     local xOffset2 = getTextManager():MeasureStringX(self.font, wbaText)+15
     self:drawText(wbaText, w-xOffset2+5, y+h+4+(fontH/2), 0.7, 0.7, 0.7, 0.7, self.font)
     self:drawRectBorder(x, y+h+8, w, h, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
