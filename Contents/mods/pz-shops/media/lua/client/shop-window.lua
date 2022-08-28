@@ -1,5 +1,6 @@
 require "ISUI/ISPanelJoypad"
 require "shop-globalModDataClient"
+require "shop-wallet"
 require "luautils"
 
 ---@class storeWindow : ISPanel
@@ -243,9 +244,11 @@ function storeWindow:rtrnTypeIfValid(item)
     local storeObj = self.storeObj
     if storeObj then
         if storeObj.listings[itemType] then
-            return itemType
-        else
-            return false, "IGUI_NOTRADE_INVALIDTYPE"
+            if (storeObj.listings[itemType].buybackRate > 0) then return itemType
+            else return false, "IGUI_NOTRADE_ONLYSELL"
+            end
+        elseif (isMoneyType(itemType) and item:getModData().value) then return itemType
+        else return false, "IGUI_NOTRADE_INVALIDTYPE"
         end
     end
     return false, nil
@@ -287,7 +290,11 @@ function storeWindow:drawCart(y, item, alt)
     local balanceDiff = 0
     if storeObj and storeObj.listings[itemType] then
         if type(item.item) == "string" then balanceDiff = storeObj.listings[itemType].price
-        else balanceDiff = 0-(storeObj.listings[itemType].price*(storeObj.listings[itemType].buybackRate/100)) end
+        else
+            if isMoneyType(itemType) then balanceDiff = 0-item.item:getModData().value
+            else balanceDiff = 0-(storeObj.listings[itemType].price*(storeObj.listings[itemType].buybackRate/100))
+            end
+        end
 
         local balanceColor = {r=1, g=1, b=1, a=0.9}
         if balanceDiff > 0 then
@@ -446,8 +453,12 @@ function storeWindow:getOrderTotal()
         local valid, _ = self:rtrnTypeIfValid(v.item)
         if valid then
             if type(v.item) ~= "string" then
-                local itemListing = self.storeObj.listings[v.item:getFullType()]
-                if itemListing then totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100)) end
+                if isMoneyType(valid) then
+
+                else
+                    local itemListing = self.storeObj.listings[v.item:getFullType()]
+                    if itemListing then totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100)) end
+                end
             else
                 local itemListing = self.storeObj.listings[v.item]
                 if itemListing then totalForTransaction = totalForTransaction+itemListing.price end
