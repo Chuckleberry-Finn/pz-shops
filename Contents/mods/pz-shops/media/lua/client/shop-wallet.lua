@@ -80,10 +80,9 @@ local function onPlayerDeath(playerObj)
         if money then playerObj:getInventory():AddItem(money)
         else print("ERROR: Split/Withdraw Wallet: No money object created.") end
     end
+    sendClientCommand("shop", "scrubWallet", {playerID=playerModData.wallet_UUID})
 end
 Events.OnPlayerDeath.Add(onPlayerDeath)
-
-
 
 
 ---@class ISSliderBox : ISTextBox
