@@ -454,8 +454,7 @@ function storeWindow:getOrderTotal()
         local valid, _ = self:rtrnTypeIfValid(v.item)
         if valid then
             if type(v.item) ~= "string" then
-                if isMoneyType(valid) then
-
+                if isMoneyType(valid) then totalForTransaction = totalForTransaction-(v.item:getModData().value)
                 else
                     local itemListing = self.storeObj.listings[v.item:getFullType()]
                     if itemListing then totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100)) end
