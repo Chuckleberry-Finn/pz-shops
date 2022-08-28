@@ -550,7 +550,8 @@ function storeWindow:prerender()
         if (self.categorySet.selected[1] == false) then
             self:validateElementColor(self.addStockQuantity)
             color = self.addStockQuantity.textColor
-        else color = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
+        else
+            color = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
         end
         self:drawText(getText("IGUI_STOCK"), self.addStockQuantity.x-12, self.addStockQuantity.y, color.r,color.g,color.b,color.a, UIFont.Small)
 
@@ -705,7 +706,7 @@ function storeWindow:render()
     self.manageStoreName:setVisible(managed and not blocked)
     self.addStockEntry:setVisible(managed and not blocked)
     self.addStockPrice:setVisible(managed and not blocked)
-    self.addStockQuantity:setVisible(managed and not blocked and self.categorySet.selected[1] == false)
+    self.addStockQuantity:setVisible(managed and not blocked)
     self.addStockBuyBackRate:setVisible(managed and not blocked)
     self.clearStore:setVisible(managed and not blocked)
     self.restockHours:setVisible(managed and not blocked)
