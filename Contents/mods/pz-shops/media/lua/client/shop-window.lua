@@ -313,7 +313,7 @@ function storeWindow:drawCart(y, item, alt)
     end
 
     local balanceDiff = 0
-    if storeObj then
+    if storeObj and (not noList) then
         local listing = storeObj.listings[itemType] or storeObj.listings["category:"..tostring(itemCat)]
         if listing then
             if type(item.item) == "string" then balanceDiff = listing.price
@@ -362,19 +362,9 @@ function storeWindow:drawStock(y, item, alt)
             for k,v in pairs(self.parent.yourCartData.items) do if v.item == item.item then inCart = inCart+1 end end
             local availableTemp = listing.available-inCart
             if availableTemp == 0 then color = {r=0.7, g=0.7, b=0.7, a=0.3} end
-
             self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
-
             if texture then self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b) end
-
-            local displayText = item.text
-            if (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())) and (not string.match(item.item, "category:")) then
-                local stock = " [x"..listing.stock.."]"
-                local buyBackRate = " ["..listing.buybackRate.."%]"
-                displayText = displayText..stock..buyBackRate
-            end
-
-            self:drawText(displayText, 32, y+6, color.r, color.g, color.b, color.a, self.font)
+            self:drawText(item.text, 32, y+6, color.r, color.g, color.b, color.a, self.font)
 
             return y + self.itemheight
         end
@@ -404,10 +394,24 @@ function storeWindow:displayStoreStock()
         for k,v in pairs(self.yourCartData.items) do if v.item == listing.item then inCart = inCart+1 end end
         local availableTemp = listing.available-inCart
 
-        local stock = " ("..availableTemp.."/"..math.max(listing.available, listing.stock)..")"
-        if listing.stock == -1 or string.match(listing.item, "category:") then stock = "" end
+        local stockText = " ("..availableTemp.."/"..math.max(listing.available, listing.stock)..")"
+        if listing.stock == -1 or string.match(listing.item, "category:") then stockText = "" end
 
-        self.storeStockData:addItem(price.."  "..itemDisplayName..stock, listing.item)
+        local listedItem = self.storeStockData:addItem(price.."  "..itemDisplayName..stockText, listing.item)
+
+        if self:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug()) then
+            local displayText = ""
+            if not string.match(item.item, "category:") then
+                local stock = " [x"..listing.stock.."]"
+                local buyBackRate = " ["..listing.buybackRate.."%]"
+                displayText = displayText..stock..buyBackRate
+            end
+
+            local resell = listing.reselling
+            if resell~=SandboxVars.ShopsAndTraders.TradersResellItems then if resell then displayText = displayText.." [resell]" else displayText = displayText.." [no resell]" end end
+            if displayText ~= "" then listedItem.tooltip = displayText end
+        end
+
     end
 end
 
@@ -853,7 +857,7 @@ function storeWindow:onClick(button)
         local buybackRate = 0
         if self.addStockBuyBackRate.enable and self.addStockBuyBackRate:getInternalText() then buybackRate = tonumber(self.addStockBuyBackRate:getInternalText()) end
 
-        local reselling = self.resell.selected[1] or SandboxVars.ShopsAndTraders.TradersResellItems
+        local reselling = self.resell.selected[1]
 
         sendClientCommand("shop", "listNewItem", { isBeingManaged=store.isBeingManaged,
         item=newEntry, price=price, quantity=quantity, buybackRate=buybackRate, reselling=reselling, storeID=store.ID, x=x, y=y, z=z, mapObjName=mapObjName })
