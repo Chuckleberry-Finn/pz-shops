@@ -23,7 +23,8 @@ function storeWindow:storeItemRowAt(y)
     local listings = self.storeObj.listings
     for i,v in ipairs(self.storeStockData.items) do
         if not v.height then v.height = self.storeStockData.itemheight end
-        if (listings[v.item].available ~= 0) or self:isBeingManaged() then
+        
+        if (listings.reselling==true and listings[v.item].available ~= 0) or self:isBeingManaged() then
             if y >= y0 and y < y0 + v.height then return i end
             y0 = y0 + v.height
         end
