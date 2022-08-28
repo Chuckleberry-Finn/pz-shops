@@ -133,6 +133,14 @@ function storeWindow:initialise()
     self.addStockBuyBackRate:instantiate()
     self:addChild(self.addStockBuyBackRate)
 
+    self.categorySet = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.addStockBuyBackRate.y, 18, 18, "", self, nil)
+    self.clearStore.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
+    self.categorySet:initialise()
+    self.categorySet:instantiate()
+    self.categorySet.selected[1] = false
+    self.categorySet:addOption(getText("IGUI_STOCKCATEGORY"))
+    self:addChild(self.categorySet)
+
     self.purchase = ISButton:new(self.storeStockData.x + self.storeStockData.width - (math.max(btnWid, getTextManager():MeasureStringX(UIFont.Small, getText("IGUI_PURCHASE")) + 10)), self:getHeight() - padBottom - btnHgt, btnWid, btnHgt - 3, getText("IGUI_PURCHASE"), self, storeWindow.onClick)
     self.purchase.internal = "PURCHASE"
     self.purchase.borderColor = {r=1, g=1, b=1, a=0.4}
@@ -522,7 +530,7 @@ function storeWindow:prerender()
 
         if self.storeObj then
             local restockingIn = tostring(self.storeObj.nextRestock)
-            if restockingIn then self:drawTextRight(getText("IGUI_RESTOCK_HR", restockingIn), self.width-10, 10, 1,1,1,0.8, UIFont.NewSmall) end
+            if restockingIn then self:drawTextRight(getText("IGUI_RESTOCK_HR", restockingIn), self.width-10, 10, 0.9,0.9,0.9,0.8, UIFont.NewSmall) end
         end
 
     else
@@ -608,6 +616,7 @@ function storeWindow:updateButtons()
     self.manageBtn.enable = false
     self.clearStore.enable = false
     self.addStockBtn.enable = false
+    self.categorySet.enable = fasle
 
     self.assignComboBox.enable = false
     self.aBtnCopy.enable = false
@@ -628,9 +637,8 @@ function storeWindow:updateButtons()
         self.manageBtn.enable = true
         if self:isBeingManaged() then
             self.clearStore.enable = true
-            --local newItem = self.addStockEntry:getInternalText()
-            --if self.storeObj.listings[newItem] then return end
             self.addStockBtn.enable = true
+            self.categorySet.enable = true
         end
     end
 end
@@ -680,6 +688,7 @@ function storeWindow:render()
     self.addStockBuyBackRate:setVisible(managed and not blocked)
     self.clearStore:setVisible(managed and not blocked)
     self.restockHours:setVisible(managed and not blocked)
+    self.categorySet:setVisible(managed and not blocked)
 
     self.manageStoreName:isEditable(not blocked)
     self.addStockEntry:isEditable(not blocked)
