@@ -39,7 +39,7 @@ local function onClientCommand(_module, _command, _player, _data)
         end
         triggerEvent("SHOPPING_ServerModDataReady")
     end
-    
+
     if _command == "changeTransferOffer" then
         local amount, onlineID = _data.amount, _data.onlineID
         local player

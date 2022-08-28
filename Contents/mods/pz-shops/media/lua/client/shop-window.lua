@@ -361,13 +361,11 @@ function storeWindow:displayStoreStock()
     if not storeObj then return end
     local scriptManager = getScriptManager()
 
-    local currency = getText("IGUI_CURRENCY_PREFIX").." "..getText("IGUI_CURRENCY_SUFFIX")
-
     for _,listing in pairs(storeObj.listings) do
         local script = scriptManager:getItem(listing.item)
         local scriptName = script:getDisplayName()
 
-        local price = currency.._internal.numToCurrency(listing.price)
+        local price = getText("IGUI_CURRENCY_PREFIX").._internal.numToCurrency(listing.price).." "..getText("IGUI_CURRENCY_SUFFIX")
         if listing.price <= 0 then price = getText("IGUI_FREE") end
 
         local inCart = 0
@@ -781,7 +779,7 @@ function storeWindow:onClick(button)
 
         local newItem = self.addStockEntry:getInternalText()
         if newItem then
-            --if self.storeObj.listings[newItem] then return end
+
             local script = getScriptManager():getItem(newItem)
             if script then
 
@@ -796,7 +794,6 @@ function storeWindow:onClick(button)
                 local buybackRate = 0
                 if self.addStockBuyBackRate.enable and self.addStockBuyBackRate:getInternalText() then buybackRate = tonumber(self.addStockBuyBackRate:getInternalText()) end
 
-                --self.storeStockData:addItem("$"..price.." "..newItem.." (x"..quantity..")", newItem)
                 sendClientCommand("shop", "listNewItem", { isBeingManaged=store.isBeingManaged,
                 item=newItem, price=price, quantity=quantity, buybackRate=buybackRate, storeID=store.ID, x=x, y=y, z=z, mapObjName=mapObjName })
                 if not isClient() then self:refresh() end
