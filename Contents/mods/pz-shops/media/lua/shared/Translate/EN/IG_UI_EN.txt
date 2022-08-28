@@ -3,6 +3,7 @@ IGUI_EN = {
     IGUI_MANAGESTORE = "Manage Store",
     IGUI_STORESTOCK = "Store Stock",
     IGUI_STOCKCATEGORY = "is category"
+    IGUI_RESELL = "allow resale"
     IGUI_STOCK = "#",
     IGUI_CURRENCY_PREFIX = "$",
     IGUI_CURRENCY_SUFFIX = "",

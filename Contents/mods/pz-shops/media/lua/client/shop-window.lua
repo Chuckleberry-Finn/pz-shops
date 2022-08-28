@@ -142,6 +142,14 @@ function storeWindow:initialise()
     self.categorySet:addOption(getText("IGUI_STOCKCATEGORY"))
     self:addChild(self.categorySet)
 
+    self.resell = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.addStockBuyBackRate.y+self.categorySet.height+4, 18, 18, "", self, nil)
+    self.resell.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
+    self.resell:initialise()
+    self.resell:instantiate()
+    self.resell.selected[1] = SandboxVars.ShopsAndTraders.TradersResellItems
+    self.resell:addOption(getText("IGUI_RESELL"))
+    self:addChild(self.resell)
+
     self.purchase = ISButton:new(self.storeStockData.x + self.storeStockData.width - (math.max(btnWid, getTextManager():MeasureStringX(UIFont.Small, getText("IGUI_PURCHASE")) + 10)), self:getHeight() - padBottom - btnHgt, btnWid, btnHgt - 3, getText("IGUI_PURCHASE"), self, storeWindow.onClick)
     self.purchase.internal = "PURCHASE"
     self.purchase.borderColor = {r=1, g=1, b=1, a=0.4}
@@ -263,7 +271,7 @@ function storeWindow:rtrnTypeIfValid(item)
         if not listing then return false, "IGUI_NOTRADE_INVALIDTYPE" end
         if listing then
             if listing.buybackRate > 0 then return itemType, false, itemCat
-            else return false, "IGUI_NOTRADE_ONLYSELL" end
+            else return itemType, "IGUI_NOTRADE_ONLYSELL" end
         end
 
     end
@@ -280,7 +288,7 @@ function storeWindow:drawCart(y, item, alt)
     local color = {r=1, g=1, b=1, a=0.9}
     local storeObj = self.parent.storeObj
     local noList = false
-    if not itemType then
+    if reason and type(item.item) ~= "string" then
         color = {r=0.75, g=0, b=0, a=0.45}
         noList = true
     end
@@ -346,12 +354,13 @@ function storeWindow:drawStock(y, item, alt)
     local color = {r=1, g=1, b=1, a=0.9}
 
     local storeObj = self.parent.storeObj
-    if storeObj and storeObj.listings[item.item] then
-        if (storeObj.listings[item.item].available ~= 0) or (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())) then
+    if storeObj then
+        local listing = storeObj.listings[item.item]
+        if listing and ((listing.reselling==true and (listing.available ~= 0)) or (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug()))) then
 
             local inCart = 0
             for k,v in pairs(self.parent.yourCartData.items) do if v.item == item.item then inCart = inCart+1 end end
-            local availableTemp = storeObj.listings[item.item].available-inCart
+            local availableTemp = listing.available-inCart
             if availableTemp == 0 then color = {r=0.7, g=0.7, b=0.7, a=0.3} end
 
             self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
@@ -360,8 +369,8 @@ function storeWindow:drawStock(y, item, alt)
 
             local displayText = item.text
             if (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())) and (not string.match(item.item, "category:")) then
-                local stock = " [x"..storeObj.listings[item.item].stock.."]"
-                local buyBackRate = " ["..storeObj.listings[item.item].buybackRate.."%]"
+                local stock = " [x"..listing.stock.."]"
+                local buyBackRate = " ["..listing.buybackRate.."%]"
                 displayText = displayText..stock..buyBackRate
             end
 
@@ -398,7 +407,7 @@ function storeWindow:displayStoreStock()
         local stock = " ("..availableTemp.."/"..math.max(listing.available, listing.stock)..")"
         if listing.stock == -1 or string.match(listing.item, "category:") then stock = "" end
 
-        self.storeStockData:addItem(price.." "..itemDisplayName..stock, listing.item)
+        self.storeStockData:addItem(price.."  "..itemDisplayName..stock, listing.item)
     end
 end
 
@@ -640,6 +649,7 @@ function storeWindow:updateButtons()
     self.clearStore.enable = false
     self.addStockBtn.enable = false
     self.categorySet.enable = false
+    self.resell.enable = false
 
     self.assignComboBox.enable = false
     self.aBtnCopy.enable = false
@@ -662,6 +672,7 @@ function storeWindow:updateButtons()
             self.clearStore.enable = true
             self.addStockBtn.enable = true
             self.categorySet.enable = true
+            self.resell.enable = true
         end
     end
 end
@@ -723,6 +734,7 @@ function storeWindow:render()
     self.clearStore:setVisible(managed and not blocked)
     self.restockHours:setVisible(managed and not blocked)
     self.categorySet:setVisible(managed and not blocked)
+    self.resell:setVisible(managed and not blocked)
 
     self.manageStoreName:isEditable(not blocked)
     self.addStockEntry:isEditable(not blocked)
@@ -841,8 +853,10 @@ function storeWindow:onClick(button)
         local buybackRate = 0
         if self.addStockBuyBackRate.enable and self.addStockBuyBackRate:getInternalText() then buybackRate = tonumber(self.addStockBuyBackRate:getInternalText()) end
 
+        local reselling = self.resell.selected[1] or SandboxVars.ShopsAndTraders.TradersResellItems
+
         sendClientCommand("shop", "listNewItem", { isBeingManaged=store.isBeingManaged,
-        item=newEntry, price=price, quantity=quantity, buybackRate=buybackRate, storeID=store.ID, x=x, y=y, z=z, mapObjName=mapObjName })
+        item=newEntry, price=price, quantity=quantity, buybackRate=buybackRate, reselling=reselling, storeID=store.ID, x=x, y=y, z=z, mapObjName=mapObjName })
         if not isClient() then self:refresh() end
     end
 

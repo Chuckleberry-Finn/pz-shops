@@ -52,8 +52,9 @@ store_listing.buybackRate = 0
 store_listing.stock = 0
 store_listing.available = 0
 store_listing.storeID = false
+store_listing.reselling = true
 
-function store_listing:new(item,price,stock,buybackRate,oldListing)
+function store_listing:new(item,price,stock,buybackRate,reselling,oldListing)
     local newListing = oldListing or copyTable(store_listing)
     newListing.item = item
     if price then
@@ -73,6 +74,9 @@ function store_listing:new(item,price,stock,buybackRate,oldListing)
         if buybackRate < 0 then buybackRate = 0 end
         newListing.buybackRate = buybackRate
     end
+
+    if reselling then newListing.reselling = true end
+
     return newListing
 end
 
@@ -113,7 +117,7 @@ function STORE_HANDLER.restocking()
             GLOBAL_STORES[ID].nextRestock = GLOBAL_STORES[ID].restockHrs
             for type,_ in pairs(GLOBAL_STORES[ID].listings) do
                 local listing = GLOBAL_STORES[ID].listings[type]
-                if listing.stock ~= -1 then
+                if listing and listing.stock ~= -1 then
                     if SandboxVars.ShopsAndTraders.TradersResetStock == true then listing.available = listing.stock
                     else listing.available = math.max(listing.available,listing.stock) end
                 end
@@ -188,8 +192,8 @@ function STORE_HANDLER.removeListing(storeObj,item)
     end
 end
 
-function STORE_HANDLER.newListing(storeObj,item,price,stock,buybackRate)
-    local newListing = store_listing:new(item,price,stock,buybackRate,storeObj.listings[item])
+function STORE_HANDLER.newListing(storeObj,item,price,stock,buybackRate,reselling)
+    local newListing = store_listing:new(item,price,stock,buybackRate,reselling,storeObj.listings[item])
     storeObj.listings[item] = newListing
     return newListing
 end
@@ -224,9 +228,10 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
         if listing then
             local adjustedPrice = listing.price*(listing.buybackRate/100)
             playerWallet.amount = playerWallet.amount+adjustedPrice
-            if SandboxVars.ShopsAndTraders.TradersResellItems == true then
+
+            if SandboxVars.ShopsAndTraders.TradersResellItems == true or listing.reselling == true then
                 if listing.item ~= itemType then
-                    local newListing = STORE_HANDLER.newListing(storeObj,itemType,listing.price,0,listing.buybackRate)
+                    local newListing = STORE_HANDLER.newListing(storeObj,itemType,listing.price,0,listing.buybackRate,listing.reselling)
                     newListing.available = newListing.available+1
                 else
                     listing.available = listing.available+1
@@ -254,3 +259,16 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
         end
     end
 end
+
+
+--TODO: REMOVE THIS LATER
+function STORE_HANDLER.repairOldStores()
+    if not GLOBAL_STORES then print("WARN: repairOldStores: No GLOBAL_STORES Found?") return end
+    for ID,_ in pairs(GLOBAL_STORES) do
+        for type,_ in pairs(GLOBAL_STORES[ID].listings) do
+            local listing = GLOBAL_STORES[ID].listings[type]
+            if listing and listing.reselling == nil then listing.reselling = SandboxVars.ShopsAndTraders.TradersResellItems end
+        end
+    end
+end
+Events.OnGameStart.Add(STORE_HANDLER.repairOldStores)
