@@ -879,7 +879,7 @@ function storeWindow:onBrowse(storeObj, mapObj)
     triggerEvent("SHOPPING_ClientModDataReady", true)
 
     reopenNextTick = nil
-    local ui = storeWindow:new(50,50,500,500, getPlayer(), storeObj, mapObj)
+    local ui = storeWindow:new(50,50,550,550, getPlayer(), storeObj, mapObj)
     ui:initialise()
     ui:addToUIManager()
 end
