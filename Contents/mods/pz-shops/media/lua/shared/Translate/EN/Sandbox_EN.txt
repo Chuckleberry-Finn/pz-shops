@@ -9,8 +9,8 @@ Sandbox_EN = {
 	Sandbox_ShopsAndTraders_MoneyWeight = "Money Weight",
 	Sandbox_ShopsAndTraders_MoneyWeight_tooltip = "How much each 'unit' of currency weighs."
 
-    Sandbox_ShopsAndTraders_TradersResellItems = "Traders Resell Items",
-    Sandbox_ShopsAndTraders_TradersResellItems_tooltip = "Traders stock items old to them.",
+    Sandbox_ShopsAndTraders_TradersResellItems = "Traders Resell Option Default",
+    Sandbox_ShopsAndTraders_TradersResellItems_tooltip = "This setting changes the default setting when creating listings.\nIf toggled on traders will stock items sold to them.",
 
     Sandbox_ShopsAndTraders_TradersResetStock = "Restocking Traders Reset Their Stock",
     Sandbox_ShopsAndTraders_TradersResellItems_tooltip = "When traders restock they clear out items sold to them.",
