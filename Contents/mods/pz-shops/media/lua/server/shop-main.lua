@@ -229,7 +229,7 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
             local adjustedPrice = listing.price*(listing.buybackRate/100)
             playerWallet.amount = playerWallet.amount+adjustedPrice
 
-            if SandboxVars.ShopsAndTraders.TradersResellItems == true or listing.reselling == true then
+            if (SandboxVars.ShopsAndTraders.TradersResellItems ~= listing.reselling) and (SandboxVars.ShopsAndTraders.TradersResellItems == true or listing.reselling == true) then
                 if listing.item ~= itemType then
                     local newListing = STORE_HANDLER.newListing(storeObj,itemType,listing.price,0,listing.buybackRate,listing.reselling)
                     newListing.available = newListing.available+1
