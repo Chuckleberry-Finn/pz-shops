@@ -238,7 +238,6 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
                 end
             end
         end
-
     end
 
     for _,itemType in pairs(buying) do
