@@ -961,9 +961,7 @@ end
 
 function storeWindow:refresh(additional)
     if self.mapObject then
-        local ping = self.player:getPing()
-        print("ping:"..ping)
-        reopenNextTick = {enabled=false,obj=self.mapObject,time=ping+(additional or 0)}
+        reopenNextTick = {enabled=false,obj=self.mapObject,time=2+(additional or 0)}
         self:setVisible(false)
         self:removeFromUIManager()
         reopenNextTick.enabled = true
