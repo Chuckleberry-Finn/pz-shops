@@ -7,7 +7,7 @@ function getItemDictionary() return itemDictionary end
 function itemDictionary.addToPartition(input,itemType)
     if input and input ~= "" then
         if not itemDictionary.partition[input] then itemDictionary.partition[input] = {} end
-        table.insert(itemDictionary.partition[input], itemType)
+        itemDictionary.partition[input][itemType]=string.lower(itemType)
     end
 end
 
@@ -37,10 +37,16 @@ end
 Events.OnGameBoot.Add(itemDictionary.assemble)
 
 function findMatchesFromItemDictionary(input)
-    local inputLower = string.lower(string.sub(input,1,3))
-    local partitionMatches = itemDictionary.partition[inputLower]
+    local inputLower = string.lower(input)
+    local inputLowerCut = string.sub(inputLower,1,3)
+    local partitionMatches = itemDictionary.partition[inputLowerCut]
     if not partitionMatches then return end
     
     print("inputChar: "..inputLower)
-    for _,type in pairs(partitionMatches) do if string.match(type,inputLower) then print(" -- "..type) end end
+    for type,typeLower in pairs(partitionMatches) do
+        --print(" -- "..type)
+        if string.find(typeLower,inputLower) then
+            print(" -- "..type)
+        end
+    end
 end
