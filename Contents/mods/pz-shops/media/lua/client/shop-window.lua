@@ -4,6 +4,7 @@ require "shop-wallet"
 require "luautils"
 require "shop-itemLookup"
 
+
 ---@class storeWindow : ISPanel
 storeWindow = ISPanelJoypad:derive("storeWindow")
 storeWindow.messages = {}
@@ -57,6 +58,11 @@ function storeWindow:onStoreItemSelected()
     end
 end
 
+function storeWindow:addItemEntryChange()
+    local s = storeWindow.instance
+    if not s then return end
+    findMatchesFromItemDictionary(s.addStockEntry:getInternalText())
+end
 
 function storeWindow:initialise()
     ISPanelJoypad.initialise(self)
@@ -112,9 +118,10 @@ function storeWindow:initialise()
     self:addChild(self.addStockBtn)
 
     self.addStockEntry = ISTextEntryBox:new("", self.storeStockData.x, self.addStockBtn.y, self.storeStockData.width-self.addStockBtn.width-3, self.addStockBtn.height)
+    self.addStockEntry.font = UIFont.Medium
     self.addStockEntry:initialise()
     self.addStockEntry:instantiate()
-    self.addStockEntry.font = UIFont.Medium
+    self.addStockEntry.onTextChange = storeWindow.addItemEntryChange
     self:addChild(self.addStockEntry)
 
     self.addStockPrice = ISTextEntryBox:new("0", self.addStockEntry.x+10, self.addStockEntry.y+self.addStockEntry.height+3, 30, self.addStockBtn.height)
