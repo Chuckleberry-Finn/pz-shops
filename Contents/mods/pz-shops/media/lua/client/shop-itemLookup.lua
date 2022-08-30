@@ -21,7 +21,7 @@ function itemDictionary.assemble()
         if not itemScript:getObsolete() and not itemScript:isHidden() and itemModule ~= "Moveables" then
 
             local displayCategory = itemScript:getDisplayCategory()
-            if not itemDictionary.categories[displayCategory] then itemDictionary.categories[displayCategory] = string.lower(displayCategory) end
+            if displayCategory and not itemDictionary.categories[displayCategory] then itemDictionary.categories[displayCategory] = string.lower(displayCategory) end
             
             local itemType = itemScript:getName()
             local itemModuleType = itemScript:getFullName()
