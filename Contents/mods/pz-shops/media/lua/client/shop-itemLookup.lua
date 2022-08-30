@@ -42,5 +42,5 @@ function findMatchesFromItemDictionary(input)
     if not partitionMatches then return end
     
     print("inputChar: "..inputLower)
-    for _,type in pairs(partitionMatches) do if string.match(type,inputLower)) then print(" -- "..type) end end
+    for _,type in pairs(partitionMatches) do if string.match(type,inputLower) then print(" -- "..type) end end
 end
