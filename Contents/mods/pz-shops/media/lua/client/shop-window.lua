@@ -61,7 +61,8 @@ end
 function storeWindow:addItemEntryChange()
     local s = storeWindow.instance
     if not s then return end
-    findMatchesFromItemDictionary(s.addStockEntry:getInternalText())
+    local matches = findMatchesFromItemDictionary(s.addStockEntry:getInternalText())
+    --self.tooltip =
 end
 
 function storeWindow:initialise()

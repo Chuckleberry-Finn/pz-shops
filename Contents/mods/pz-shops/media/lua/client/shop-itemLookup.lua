@@ -41,12 +41,16 @@ function findMatchesFromItemDictionary(input)
     local inputLowerCut = string.sub(inputLower,1,3)
     local partitionMatches = itemDictionary.partition[inputLowerCut]
     if not partitionMatches then return end
-    
-    print("inputChar: "..inputLower)
+
+    local foundMatches = {}
+
     for type,typeLower in pairs(partitionMatches) do
         --print(" -- "..type)
         if string.find(typeLower,inputLower) then
             print(" -- "..type)
+            table.insert(foundMatches, type)
         end
     end
+
+    return foundMatches
 end
