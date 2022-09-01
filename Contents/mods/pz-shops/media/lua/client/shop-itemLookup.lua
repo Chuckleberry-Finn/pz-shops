@@ -43,14 +43,7 @@ function findMatchesFromItemDictionary(input)
     if not partitionMatches then return end
 
     local foundMatches = {}
-
-    for type,typeLower in pairs(partitionMatches) do
-        --print(" -- "..type)
-        if string.find(typeLower,inputLower) then
-            print(" -- "..type)
-            table.insert(foundMatches, type)
-        end
-    end
+    for type,typeLower in pairs(partitionMatches) do if string.find(typeLower,inputLower) then table.insert(foundMatches, type) end end
 
     return foundMatches
 end
