@@ -58,12 +58,19 @@ function storeWindow:onStoreItemSelected()
     end
 end
 
+
 function storeWindow:addItemEntryChange()
     local s = storeWindow.instance
     if not s then return end
     local matches = findMatchesFromItemDictionary(s.addStockEntry:getInternalText())
-    --self.tooltip =
+    if matches then
+        local text
+        for _,type in pairs(matches) do text = (text or "")..type.."\n" end
+        if text then self.tooltip = text return end
+    end
+    self.tooltip = nil
 end
+
 
 function storeWindow:initialise()
     ISPanelJoypad.initialise(self)
