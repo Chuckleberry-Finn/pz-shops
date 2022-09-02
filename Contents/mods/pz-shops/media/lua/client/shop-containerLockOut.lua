@@ -1,5 +1,3 @@
---[[
-
 local ISInventoryPage_dropItemsInContainer = ISInventoryPage.dropItemsInContainer
 function ISInventoryPage:dropItemsInContainer(button)
     local container = self.mouseOverButton and self.mouseOverButton.inventory or nil
@@ -58,5 +56,3 @@ local function containerLockOut(UI, STEP)
     end
 end
 Events.OnRefreshInventoryWindowContainers.Add(containerLockOut)
-
---]]

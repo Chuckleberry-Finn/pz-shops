@@ -30,21 +30,17 @@ Events.OnGameBoot.Add(modifyScript)
 
 
 ---@param playerObj IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
-function getOrSetWalletID(playerID,playerObj)
+function getOrSetWalletID(playerObj)
+    playerObj = playerObj or getPlayer()
     if not playerObj then return end
     local playerModData = playerObj:getModData()
     if not playerModData then print("WARN: Player created without modData - can't append wallet.") return end
-    if not playerModData.wallet_UUID then
-        print("- No Player wallet_UUID - generating now.")
-        playerModData.wallet_UUID = getRandomUUID()
-    end
+    if not playerModData.wallet_UUID then playerModData.wallet_UUID = getRandomUUID() end
 
-    print("playerModData.wallet_UUID: "..playerModData.wallet_UUID)
-    sendClientCommand("shop", "getOrSetWallet", {playerID=playerModData.wallet_UUID,steamID=playerObj:getSteamID()})
+    if not CLIENT_WALLETS[playerModData.wallet_UUID] then sendClientCommand(playerObj, "shop", "getOrSetWallet", {playerID=playerModData.wallet_UUID,steamID=playerObj:getSteamID()}) end
 
     return playerModData.wallet_UUID
 end
-Events.OnCreatePlayer.Add(getOrSetWalletID)
 
 
 local valuedMoney = {}
@@ -367,7 +363,6 @@ function ISCharacterScreen:depositOnMouseUp(x, y)
         self:setTitle(string.lower(getText("IGUI_WITHDRAW")))
     else
         ISButton.onMouseUp(self, x, y)
-        --self.parent:withdraw(self)
     end
 end
 
@@ -387,11 +382,13 @@ function ISCharacterScreen:initialise()
     self:addChild(self.withdraw)
 end
 
+
 local ISCharacterScreen_render = ISCharacterScreen.render
 function ISCharacterScreen:render()
     ISCharacterScreen_render(self)
     self.withdraw:setX(self.avatarX+self.avatarWidth+25)
     self.withdraw:setY(self.literatureButton.y+52)
+    getOrSetWalletID(self.char)
     local walletBalance = getWalletBalance(self.char)
     self.withdraw.enable = (walletBalance > 0)
     local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)

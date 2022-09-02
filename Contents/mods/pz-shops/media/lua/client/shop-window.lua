@@ -921,7 +921,7 @@ function storeWindow:finalizeDeal()
         end
     end
 
-    local walletID = getOrSetWalletID(nil,self.player)
+    local walletID = getOrSetWalletID(self.player)
     if not walletID then print("ERROR: finalizeDeal: No Wallet ID for "..self.player:getUsername()..", aborting.") return end
     self.yourCartData:clear()
 
