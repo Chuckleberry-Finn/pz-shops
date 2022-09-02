@@ -33,13 +33,12 @@ Events.OnReceiveGlobalModData.Add(receiveGlobalModData)
 
 
 function getWalletBalance(player)
-    local walletBalance = 0
+    local walletBalance
     if player and player:getModData() then
         local pID = player:getModData().wallet_UUID
         if pID then
-            triggerEvent("SHOPPING_ClientModDataReady")
             local wallet = CLIENT_WALLETS[pID]
-            if wallet then walletBalance = wallet.amount or 0 end
+            if wallet then walletBalance = wallet.amount end
         end
     end
     return walletBalance
