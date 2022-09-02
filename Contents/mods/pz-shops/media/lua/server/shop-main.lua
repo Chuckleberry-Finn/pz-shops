@@ -256,15 +256,3 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
         end
     end
 end
-
-
---TODO: REMOVE THIS LATER
-function STORE_HANDLER.repairOldStores()
-    for ID,_ in pairs(GLOBAL_STORES) do
-        for type,_ in pairs(GLOBAL_STORES[ID].listings) do
-            local listing = GLOBAL_STORES[ID].listings[type]
-            if listing and listing.reselling == nil then listing.reselling = SandboxVars.ShopsAndTraders.TradersResellItems end
-        end
-    end
-end
-Events.OnGameStart.Add(STORE_HANDLER.repairOldStores)
