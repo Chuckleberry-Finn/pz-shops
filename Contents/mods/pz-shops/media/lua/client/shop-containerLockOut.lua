@@ -1,5 +1,5 @@
 --require "ISUI/ISInventoryPane"
-require "ISUI/ISInventoryPage"
+--require "ISUI/ISInventoryPage"
 
 --[[
 local DraggedItems = ISInventoryPaneDraggedItems
@@ -79,6 +79,7 @@ function ISInventoryPage:dropItemsInContainer(button)
 end
 --]]
 
+--[[
 local function validStoreObject(mapObject)
     local canView = true
     local storeObjID = mapObject:getModData().storeObjID
@@ -108,7 +109,7 @@ local function containerLockOut(UI, STEP)
                     containerButton:setOnMouseOverFunction(nil)
                     containerButton:setOnMouseOutFunction(nil)
                     containerButton.textureOverride = getTexture("media/ui/lock.png")
-                    
+
                     UI.removeChild(containerButton)
                     UI.backpacks[index] = nil
                 end
@@ -118,3 +119,4 @@ local function containerLockOut(UI, STEP)
     end
 end
 Events.OnRefreshInventoryWindowContainers.Add(containerLockOut)
+--]]
