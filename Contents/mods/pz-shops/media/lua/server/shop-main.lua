@@ -27,6 +27,7 @@ end
 
 function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID)
     local matchingWallet = GLOBAL_WALLETS[playerID] or wallet:new(playerID,steamID)
+    print("matchingWallet: "..tostring(matchingWallet))
     return matchingWallet
 end
 
@@ -206,11 +207,7 @@ function STORE_HANDLER.validateItemType(storeID,itemType)
     if not validItem then print("ERROR: no script found for \'"..itemType.."\'") return end
 
     local listing = storeObj.listings[itemType]
-
-    print("validItem:getDisplayCategory():"..validItem:getDisplayCategory())
-
     if not listing then listing = storeObj.listings["category:"..validItem:getDisplayCategory()] end
-
     if not listing then print("ERROR: \'"..itemType.."\' not a listed for \'"..storeObj.name.."\'") return end
     return listing
 end

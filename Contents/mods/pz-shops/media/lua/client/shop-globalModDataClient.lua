@@ -33,7 +33,7 @@ Events.OnReceiveGlobalModData.Add(receiveGlobalModData)
 
 
 function getWalletBalance(player)
-    local walletBalance
+    local walletBalance = 0
     if player and player:getModData() then
         local pID = player:getModData().wallet_UUID
         if pID then
