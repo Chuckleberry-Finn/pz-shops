@@ -60,7 +60,14 @@ end
 function storeWindow:addItemEntryChange()
     local s = storeWindow.instance
     if not s then return end
-    local matches = findMatchesFromItemDictionary(s.addStockEntry:getInternalText())
+    local matches
+
+    if s.categorySet.selected[1] == true then
+        matches = findMatchesFromCategories(s.addStockEntry:getInternalText())
+    else
+        matches = findMatchesFromItemDictionary(s.addStockEntry:getInternalText())
+    end
+
     if matches then
         local text
         for _,type in pairs(matches) do text = (text or "")..type.."\n" end
@@ -578,9 +585,10 @@ function storeWindow:prerender()
         local catX = getTextManager():MeasureStringX(UIFont.Small, cat)+4
 
         if self.categorySet.selected[1] == true then
-            self:drawText(cat, self.storeStockData.x+1, self.addStockEntry.y-1, 0.9, 0.1, 0.1, 0.9, UIFont.Small)
+            local addStockEntryColor = self.addStockEntry.textColor
             self.addStockEntry:setX(self.storeStockData.x+catX)
             self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3-catX)
+            self:drawText(cat, self.storeStockData.x+1, self.addStockEntry.y-1, addStockEntryColor.r,addStockEntryColor.g,addStockEntryColor.b,addStockEntryColor.a, UIFont.Small)
         else
             self.addStockEntry:setX(self.storeStockData.x)
             self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3)

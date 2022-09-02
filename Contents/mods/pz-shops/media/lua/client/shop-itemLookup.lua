@@ -59,9 +59,15 @@ function findMatchesFromItemDictionary(input)
     local inputLowerCut = string.sub(inputLower,1,3)
     local partitionMatches = itemDictionary.partition[inputLowerCut]
     if not partitionMatches then return end
-
     local foundMatches = {}
     for type,typeLower in pairs(partitionMatches) do if string.find(typeLower,inputLower) then table.insert(foundMatches, type) end end
+    return foundMatches
+end
 
+
+function findMatchesFromCategories(input)
+    local inputLower = string.lower(input)
+    local foundMatches = {}
+    for category,lowerCat in pairs(itemDictionary.categories) do if string.find(lowerCat,inputLower) then table.insert(foundMatches, category) end end
     return foundMatches
 end
