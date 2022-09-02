@@ -25,7 +25,7 @@ function storeWindow:storeItemRowAt(y)
     for i,v in ipairs(self.storeStockData.items) do
         if not v.height then v.height = self.storeStockData.itemheight end
 
-        if (listings[v.item].reselling==true and listings[v.item].available ~= 0) or self:isBeingManaged() then
+        if (listings[v.item].available ~= 0) or self:isBeingManaged() then
             if y >= y0 and y < y0 + v.height then return i end
             y0 = y0 + v.height
         end
@@ -42,12 +42,10 @@ function storeWindow:onStoreItemSelected()
     if self:isBeingManaged() then
         self.storeStockData:removeItemByIndex(self.storeStockData.selected)
         sendClientCommand("shop", "removeListing", { item=item, storeID=self.storeObj.ID })
-        if not isClient() then self:refresh() end
         return
     end
 
     if #self.yourCartData.items >= storeWindow.MaxItems then return end
-
     local inCart = 0
     for k,v in pairs(self.yourCartData.items) do if v.item == item then inCart = inCart+1 end end
 
@@ -219,7 +217,7 @@ function storeWindow:initialise()
     local buttonW = (acbWidth/2)-btnBuffer
     local delBtnW = (buttonW/3)
 
-    self.assignComboBox = ISComboBox:new((self.width/2)-(acbWidth/2)+(delBtnW/4)+2, (self.height/2)-1, acbWidth, 22)--, nil, nil, nil, nil)
+    self.assignComboBox = ISComboBox:new((self.width/2)-(acbWidth/2)+(delBtnW/4)+2, (self.height/2)-1, acbWidth, 22)
     self.assignComboBox.borderColor = { r = 1, g = 1, b = 1, a = 0.4 }
     self.assignComboBox:initialise()
     self.assignComboBox:instantiate()
@@ -468,7 +466,6 @@ function storeWindow:update()
         self:removeFromUIManager()
         return
     end
---[[ for i,v in ipairs(self.yourCartData.items) do if type(v.item) ~= "string" then if not self:rtrnTypeIfValid(v.item) then self:removeItem(v) break end end end--]]
 end
 
 
@@ -823,7 +820,6 @@ function storeWindow:onClick(button)
                 end
             end
         end
-        if not isClient() then self:refresh() end
     end
 
     if button.internal == "CLEAR_STORE" and self.storeObj and self:isBeingManaged() then
@@ -879,7 +875,6 @@ function storeWindow:onClick(button)
 
         sendClientCommand("shop", "listNewItem", { isBeingManaged=store.isBeingManaged,
         item=newEntry, price=price, quantity=quantity, buybackRate=buybackRate, reselling=reselling, storeID=store.ID, x=x, y=y, z=z, mapObjName=mapObjName })
-        if not isClient() then self:refresh() end
     end
 
     if button.internal == "CANCEL" then
@@ -887,9 +882,7 @@ function storeWindow:onClick(button)
         self:removeFromUIManager()
     end
 
-    if button.internal == "PURCHASE" then
-        self:finalizeDeal()
-    end
+    if button.internal == "PURCHASE" then self:finalizeDeal() end
 end
 
 
@@ -920,8 +913,8 @@ function storeWindow:finalizeDeal()
     local walletID = getOrSetWalletID(nil,self.player)
     if not walletID then print("ERROR: finalizeDeal: No Wallet ID for "..self.player:getUsername()..", aborting.") return end
     self.yourCartData:clear()
+
     sendClientCommand(self.player,"shop", "processOrder", { playerID=walletID, storeID=self.storeObj.ID, buying=itemToPurchase, selling=itemsToSell })
-    if not isClient() then self:refresh() end
 end
 
 
@@ -952,40 +945,20 @@ function storeWindow:new(x, y, width, height, player, storeObj, mapObj)
 end
 
 
-local reopenNextTick--{false,false}
 function storeWindow:onBrowse(storeObj, mapObj)
     if storeWindow.instance and storeWindow.instance:isVisible() then
         storeWindow.instance:setVisible(false)
         storeWindow.instance:removeFromUIManager()
     end
 
-    triggerEvent("SHOPPING_ClientModDataReady", true)
+    local itemDictionary = getItemDictionary()
+    sendClientCommand("shop", "updateItemDictionary", { itemsToCategories=itemDictionary.itemsToCategories })
 
-    reopenNextTick = nil
+    triggerEvent("SHOPPING_ClientModDataReady")
+
     local ui = storeWindow:new(50,50,555,555, getPlayer(), storeObj, mapObj)
     ui:initialise()
     ui:addToUIManager()
 end
-
-function storeWindow:refresh(additional)
-    if self.mapObject then
-        reopenNextTick = {enabled=false,obj=self.mapObject,time=2+(additional or 0)}
-        self:setVisible(false)
-        self:removeFromUIManager()
-        reopenNextTick.enabled = true
-    end
-end
-
-local function reopenNextTickFunc()
-    if storeWindow.instance and storeWindow.instance:isVisible() then return end
-    if reopenNextTick and reopenNextTick.obj and reopenNextTick.time and reopenNextTick.enabled then
-        reopenNextTick.time = reopenNextTick.time-1
-        if reopenNextTick.time<=0 then
-            local storeID = reopenNextTick.obj:getModData().storeObjID
-            storeWindow:onBrowse(CLIENT_STORES[storeID], reopenNextTick.obj)
-        end
-    end
-end
-Events.OnPlayerUpdate.Add(reopenNextTickFunc)
 
 

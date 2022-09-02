@@ -1,8 +1,25 @@
+local crossRefMods = {
+    ["BetterSortCC"]="ItemTweaker_Copy_CC",
+}
+local loadedModIDs = {};
+local activeModIDs = getActivatedMods()
+for i=1, activeModIDs:size() do
+    local modID = activeModIDs:get(i-1)
+    if crossRefMods[modID] and not loadedModIDs[modID] then
+        require (crossRefMods[modID])
+        loadedModIDs[modID] = true
+    end
+end
+
+
 local itemDictionary = {}
 itemDictionary.categories = {}
+itemDictionary.itemsToCategories = {}
 itemDictionary.partition = {} -- first 3 characters
 
+
 function getItemDictionary() return itemDictionary end
+
 
 function itemDictionary.addToPartition(input,itemType)
     if input and input ~= "" then
@@ -12,20 +29,20 @@ function itemDictionary.addToPartition(input,itemType)
 end
 
 function itemDictionary.assemble()
-    local allItems = ScriptManager.instance:getAllItems()
-
+    local allItems = getScriptManager():getAllItems()
     for i=0, allItems:size()-1 do
         ---@type Item
         local itemScript = allItems:get(i)
         local itemModule = itemScript:getModuleName()
         if not itemScript:getObsolete() and not itemScript:isHidden() and itemModule ~= "Moveables" then
 
-            local displayCategory = itemScript:getDisplayCategory()
-            if displayCategory and not itemDictionary.categories[displayCategory] then itemDictionary.categories[displayCategory] = string.lower(displayCategory) end
-            
             local itemType = itemScript:getName()
             local itemModuleType = itemScript:getFullName()
-            
+
+            local displayCategory = itemScript:getDisplayCategory()
+            itemDictionary.itemsToCategories[itemModuleType] = displayCategory
+            if displayCategory and not itemDictionary.categories[displayCategory] then itemDictionary.categories[displayCategory] = string.lower(displayCategory) end
+
             local first3CharItemType = string.lower(string.sub(itemType,1,3))
             itemDictionary.addToPartition(first3CharItemType,itemModuleType)
 
@@ -35,6 +52,7 @@ function itemDictionary.assemble()
     end
 end
 Events.OnGameBoot.Add(itemDictionary.assemble)
+
 
 function findMatchesFromItemDictionary(input)
     local inputLower = string.lower(input)

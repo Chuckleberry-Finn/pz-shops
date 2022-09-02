@@ -11,10 +11,8 @@ function CONTEXT_HANDLER.browseStore(worldObjects, playerObj, mapObject, storeOb
 end
 
 
---function ISContextMenu:addOption(name, target, onSelect, param1, param2, param3, param4, param5, param6, param7, param8, param9, param10)
 function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects)
     local playerObj = getSpecificPlayer(playerID)
-    --local inventory = playerObj:getInventory()
     local square
 
     for _,v in ipairs(worldObjects) do square = v:getSquare() end

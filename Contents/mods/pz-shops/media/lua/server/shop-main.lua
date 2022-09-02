@@ -108,7 +108,6 @@ function store:new(copyThisID)
 end
 
 function STORE_HANDLER.restocking()
-    if not GLOBAL_STORES then print("WARN: Restock: No GLOBAL_STORES Found?") return end
     for ID,_ in pairs(GLOBAL_STORES) do
         if not GLOBAL_STORES[ID].restockHrs then GLOBAL_STORES[ID].restockHrs = 48 end
         GLOBAL_STORES[ID].nextRestock = (GLOBAL_STORES[ID].nextRestock or GLOBAL_STORES[ID].restockHrs)-1
@@ -207,6 +206,9 @@ function STORE_HANDLER.validateItemType(storeID,itemType)
     if not validItem then print("ERROR: no script found for \'"..itemType.."\'") return end
 
     local listing = storeObj.listings[itemType]
+
+    print("validItem:getDisplayCategory():"..validItem:getDisplayCategory())
+
     if not listing then listing = storeObj.listings["category:"..validItem:getDisplayCategory()] end
 
     if not listing then print("ERROR: \'"..itemType.."\' not a listed for \'"..storeObj.name.."\'") return end
@@ -224,6 +226,7 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
     local playerWallet = WALLET_HANDLER.getOrSetPlayerWallet(playerID)
 
     for _,itemType in pairs(selling) do
+
         local listing = STORE_HANDLER.validateItemType(storeID,itemType)
         if listing then
             local adjustedPrice = listing.price*(listing.buybackRate/100)
@@ -250,10 +253,8 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
                 listing.available = listing.available-1
             end
 
-            if isServer() then
-                sendServerCommand(playerObj, "shop", "transmitItem", {item=listing.item})
-            else
-                playerObj:getInventory():AddItem(listing.item)
+            if isServer() then sendServerCommand(playerObj, "shop", "transmitItem", {item=listing.item})
+            else playerObj:getInventory():AddItem(listing.item)
             end
         end
     end
@@ -262,7 +263,6 @@ end
 
 --TODO: REMOVE THIS LATER
 function STORE_HANDLER.repairOldStores()
-    if not GLOBAL_STORES then print("WARN: repairOldStores: No GLOBAL_STORES Found?") return end
     for ID,_ in pairs(GLOBAL_STORES) do
         for type,_ in pairs(GLOBAL_STORES[ID].listings) do
             local listing = GLOBAL_STORES[ID].listings[type]

@@ -1,5 +1,5 @@
 ---Credit to Konijima (Konijima#9279) for clearing up networking :thumbsup:
-if isClient() then return end
+
 require "shop-commandsClientToServer"
 
 GLOBAL_STORES = {}

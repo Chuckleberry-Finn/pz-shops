@@ -1,13 +1,23 @@
-if isClient() then return end -- execute in SP or on Server
-
 LuaEventManager.AddEvent("SHOPPING_ServerModDataReady")
 
-local function onClientCommand(_module, _command, _player, _data)
+local itemDictionaryUpdated = false
 
+local function onClientCommand(_module, _command, _player, _data)
     --if getDebug() then print("Received command from " .. _player:getUsername() .." [".._module..".".._command.."]") end
 
     if _module ~= "shop" then return end
     _data = _data or {}
+
+    if _command == "updateItemDictionary" then
+        if itemDictionaryUpdated then return end
+        itemDictionaryUpdated = true
+        local itemsToCategories = _data.itemsToCategories
+        local scriptManager = getScriptManager()
+        for moduleType,displayCategory in pairs(itemsToCategories) do
+            local scriptFound = scriptManager:getItem(moduleType)
+            if scriptFound then scriptFound:DoParam("DisplayCategory = "..displayCategory) end
+        end
+    end
 
     if _command == "getOrSetWallet" then
         local playerID, steamID = _data.playerID, _data.steamID
@@ -128,6 +138,7 @@ local function onClientCommand(_module, _command, _player, _data)
         triggerEvent("SHOPPING_ServerModDataReady")
 
     elseif _command == "processOrder" then
+
         local storeID, buying, selling, playerID = _data.storeID, _data.buying, _data.selling, _data.playerID
         STORE_HANDLER.validateOrder(_player, playerID, storeID, buying, selling)
         triggerEvent("SHOPPING_ServerModDataReady")
@@ -136,9 +147,5 @@ local function onClientCommand(_module, _command, _player, _data)
 end
 Events.OnClientCommand.Add(onClientCommand)--/client/ to server
 
-
-local function onServerModDataReady()
-    --if getDebug() then print(" -- triggering all clients to pull updated ModData.") end
-    sendServerCommand("shop", "severModData_received", {})
-end
+local function onServerModDataReady() sendServerCommand("shop", "severModData_received", {}) end
 Events.SHOPPING_ServerModDataReady.Add(onServerModDataReady)

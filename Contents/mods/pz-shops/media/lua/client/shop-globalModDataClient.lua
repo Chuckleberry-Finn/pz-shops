@@ -1,6 +1,4 @@
 ---Credit to Konijima (Konijima#9279) for clearing up networking :thumbsup:
-if isServer() then return end -- execute in SP or on Client
-
 require "shop-commandsServerToClient"
 require "shop-shared"
 
@@ -17,8 +15,7 @@ local function initGlobalModData(isNewGame)
     CLIENT_STORES = ModData.getOrCreate("STORES")
     CLIENT_WALLETS = ModData.getOrCreate("WALLETS")
 
-    --if isNewGame then print("- New Game Initialized!") else print("- Existing Game Initialized!") end
-    triggerEvent("SHOPPING_ClientModDataReady", isNewGame)
+    triggerEvent("SHOPPING_ClientModDataReady")
 end
 Events.OnInitGlobalModData.Add(initGlobalModData)
 
@@ -40,7 +37,7 @@ function getWalletBalance(player)
     if player and player:getModData() then
         local pID = player:getModData().wallet_UUID
         if pID then
-            triggerEvent("SHOPPING_ClientModDataReady", true)
+            triggerEvent("SHOPPING_ClientModDataReady")
             local wallet = CLIENT_WALLETS[pID]
             if wallet then walletBalance = wallet.amount or 0 end
         end
