@@ -28,7 +28,7 @@ local function modifyScript()
 end
 Events.OnGameBoot.Add(modifyScript)
 
-local setOnLoginPatch = {}
+
 ---@param playerObj IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
 function getOrSetWalletID(playerID,playerObj)
     if not playerObj then return end
@@ -42,14 +42,9 @@ function getOrSetWalletID(playerID,playerObj)
     print("playerModData.wallet_UUID: "..playerModData.wallet_UUID)
     sendClientCommand("shop", "getOrSetWallet", {playerID=playerModData.wallet_UUID,steamID=playerObj:getSteamID()})
 
-    if not setOnLoginPatch[playerObj] then
-        Events.OnPlayerUpdate.Remove(getOrSetWalletID)
-        setOnLoginPatch[playerObj] = true
-    end
-
     return playerModData.wallet_UUID
 end
-Events.OnPlayerCreate.Add(getOrSetWalletID)
+Events.OnCreatePlayer.Add(getOrSetWalletID)
 
 
 local valuedMoney = {}
