@@ -253,7 +253,7 @@ function storeWindow:populateComboList()
     self.assignComboBox:clear()
     self.assignComboBox:addOptionWithData("BLANK", false)
     for ID,DATA in pairs(CLIENT_STORES) do self.assignComboBox:addOptionWithData(DATA.name, ID) end
-    self.assignComboBox.selected = 1
+    if (not self.assignComboBox.selected) or (self.assignComboBox.selected > #self.assignComboBox.options) then self.assignComboBox.selected = 1 end
 end
 
 
@@ -736,7 +736,10 @@ function storeWindow:render()
         self.manageBtn:setVisible(false)
         if managed then blocked = true end
     end
-    if not (self.storeObj) then blocked = true end
+    if not (self.storeObj) then
+        self:populateComboList()
+        blocked = true
+    end
 
     local shouldSeeStorePresetOptions = (not self.storeObj) and (isAdmin() or isCoopHost() or getDebug())
     self.assignComboBox:setVisible(shouldSeeStorePresetOptions)
