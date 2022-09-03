@@ -15,4 +15,13 @@ Sandbox_EN = {
     Sandbox_ShopsAndTraders_TradersResetStock = "Restocking Traders Reset Their Stock",
     Sandbox_ShopsAndTraders_TradersResellItems_tooltip = "When traders restock they clear out items sold to them.",
 
+    Sandbox_ShopsAndTraders_CanWithdraw = "Can Withdraw Cash",
+    Sandbox_ShopsAndTraders_CanWithdraw_tooltip = "If players can withdraw money-items from their wallets.",
+
+    Sandbox_ShopsAndTraders_MoneySpawnMin = "Minimum Value For Money-Item",
+    Sandbox_ShopsAndTraders_MoneySpawnMin_tooltip = "The minimum value money items can spawn with.",
+
+    Sandbox_ShopsAndTraders_MoneySpawnMax = "Maximum Value For Money-Item",
+    Sandbox_ShopsAndTraders_MoneySpawnMax_tooltip = "The maximum value money items can spawn with.",
+
 	}

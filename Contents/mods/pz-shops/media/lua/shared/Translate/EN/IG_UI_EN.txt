@@ -23,6 +23,7 @@ IGUI_EN = {
     IGUI_SPLIT = "Split",
     IGUI_WITHDRAW = "Withdraw",
     IGUI_DEPOSIT = "Deposit",
+    IGUI_WALLET = "Wallet",
 
     IGUI_NOTRADE_INVALIDTYPE = "I don't buy these."
     IGUI_NOTRADE_ONLYSELL = "I only sell these."

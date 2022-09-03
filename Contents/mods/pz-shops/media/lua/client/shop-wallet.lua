@@ -4,7 +4,7 @@ require "ISUI/ISInventoryPaneContextMenu"
 require "ISUI/ISTextBox"
 require "luautils"
 
-local moneyTypes = {"Base.Money"}
+local moneyTypes = {"Base.Money","AuthenticZClothing.Authentic_MoneyStack"}
 
 local trueKeyed, _moneyTypes
 if not trueKeyed then
@@ -45,7 +45,7 @@ end
 
 local valuedMoney = {}
 ---@param item InventoryItem
-local function generateMoneyValue(item, value, force)
+function generateMoneyValue(item, value, force)
     if item ~= nil and _moneyTypes[item:getFullType()] and (not valuedMoney[item] or force) then
         if (not item:getModData().value) or force then
 
@@ -308,13 +308,16 @@ Events.OnPreFillInventoryObjectContextMenu.Add(addContext)
 
 
 function ISCharacterScreen:withdraw(button)
-    local walletBalance = getWalletBalance(self.char)
-    if walletBalance <= 0 then return end
-    onSplitStack(nil, self.char, ISCharacterInfoWindow.instance.x+button.x+button.width+10, ISCharacterInfoWindow.instance.y+button.y+button.height+15)
+    if SandboxVars.ShopsAndTraders.CanWithdraw then
+        local walletBalance = getWalletBalance(self.char)
+        if walletBalance <= 0 then return end
+        onSplitStack(nil, self.char, ISCharacterInfoWindow.instance.x+button.x+button.width+10, ISCharacterInfoWindow.instance.y+button.y+button.height+15)
+    end
 end
 
+
 function ISCharacterScreen:moneyMouseOut(x, y)
-    self.withdraw:setTitle(string.lower(getText("IGUI_WITHDRAW")))
+    self.withdraw:setTitle(string.lower(getText("IGUI_WALLET")))
 end
 function ISCharacterScreen:moneyMouseOver(x, y)
     if not self.withdraw.mouseOver or not self.withdraw.onmouseover then return end
@@ -328,6 +331,8 @@ function ISCharacterScreen:moneyMouseOver(x, y)
             end
         end
         if money then self.withdraw:setTitle(string.lower(getText("IGUI_DEPOSIT"))) end
+    else
+        if SandboxVars.ShopsAndTraders.CanWithdraw then self.withdraw:setTitle(string.lower(getText("IGUI_WITHDRAW"))) end
     end
 end
 
@@ -337,8 +342,16 @@ function ISCharacterScreen:depositMoney(moneyItem)
     local playerModData = self.char:getModData()
     local value = moneyItem:getModData().value
     sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=playerModData.wallet_UUID, receive=nil})
+
+    local worldItem = moneyItem:getWorldItem()
+    if worldItem then
+        local sq = worldItem:getSquare()
+        if sq then sq:transmitRemoveItemFromSquare(worldItem) end
+    end
+
     local container = moneyItem:getContainer()
     container:Remove(moneyItem)
+
     self.withdraw:setTitle(string.lower(getText("IGUI_WITHDRAW")))
 end
 
@@ -360,7 +373,7 @@ function ISCharacterScreen:depositOnMouseUp(x, y)
                 end
             end
         end
-        self:setTitle(string.lower(getText("IGUI_WITHDRAW")))
+        self:setTitle(string.lower(getText("IGUI_WALLET")))
     else
         ISButton.onMouseUp(self, x, y)
     end
@@ -370,7 +383,7 @@ end
 local ISCharacterScreen_initialise = ISCharacterScreen.initialise
 function ISCharacterScreen:initialise()
     ISCharacterScreen_initialise(self)
-    self.withdraw = ISButton:new(0, 0, 20, 20, string.lower(getText("IGUI_WITHDRAW")), self, ISCharacterScreen.withdraw)
+    self.withdraw = ISButton:new(0, 0, 25, 20, string.lower(getText("IGUI_WALLET")), self, ISCharacterScreen.withdraw)
     self.withdraw.font = UIFont.NewSmall
     self.withdraw.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
     self.withdraw.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
@@ -388,6 +401,7 @@ function ISCharacterScreen:render()
     ISCharacterScreen_render(self)
     self.withdraw:setX(self.avatarX+self.avatarWidth+25)
     self.withdraw:setY(self.literatureButton.y+52)
+    self.withdraw:setWidthToTitle(25)
     getOrSetWalletID(self.char)
     local walletBalance = getWalletBalance(self.char)
     self.withdraw.enable = (walletBalance > 0)
