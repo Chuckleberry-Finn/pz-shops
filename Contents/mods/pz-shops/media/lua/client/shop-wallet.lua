@@ -383,7 +383,7 @@ end
 local ISCharacterScreen_initialise = ISCharacterScreen.initialise
 function ISCharacterScreen:initialise()
     ISCharacterScreen_initialise(self)
-    self.withdraw = ISButton:new(0, 0, 25, 20, string.lower(getText("IGUI_WALLET")), self, ISCharacterScreen.withdraw)
+    self.withdraw = ISButton:new(0, 0, 55, 20, string.lower(getText("IGUI_WALLET")), self, ISCharacterScreen.withdraw)
     self.withdraw.font = UIFont.NewSmall
     self.withdraw.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
     self.withdraw.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
@@ -401,7 +401,7 @@ function ISCharacterScreen:render()
     ISCharacterScreen_render(self)
     self.withdraw:setX(self.avatarX+self.avatarWidth+25)
     self.withdraw:setY(self.literatureButton.y+52)
-    self.withdraw:setWidthToTitle(25)
+    self.withdraw:setWidthToTitle(55)
     getOrSetWalletID(self.char)
     local walletBalance = getWalletBalance(self.char)
     self.withdraw.enable = (walletBalance > 0)
