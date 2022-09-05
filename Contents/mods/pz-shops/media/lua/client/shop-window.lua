@@ -699,8 +699,8 @@ function storeWindow:updateButtons()
     if not self.storeObj then
         self.assignComboBox.enable = true
         self.aBtnCopy.enable = true
-        --self.importBtn.enable = true
-        --self.importBtn.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
+        self.importBtn.enable = true
+        self.importBtn.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
         if self.assignComboBox.selected~=1 then
             self.aBtnConnect.enable = true
             self.aBtnConnect.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
