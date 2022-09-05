@@ -30,5 +30,5 @@ IGUI_EN = {
     IGUI_NOTRADE_DAMAGED = "This is too damaged."
     IGUI_NOTRADE_OUTSIDEINV = "You have to be holding it."
 
-    IGUI_EXPORTSTORES = "Export Stores"
+    IGUI_IMPORT_EXPORT = "Import"
 }
