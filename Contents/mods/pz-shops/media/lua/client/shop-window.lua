@@ -3,7 +3,7 @@ require "shop-globalModDataClient"
 require "shop-wallet"
 require "luautils"
 require "shop-itemLookup"
-
+require "shop-importExport"
 
 ---@class storeWindow : ISPanel
 storeWindow = ISPanelJoypad:derive("storeWindow")
@@ -912,8 +912,8 @@ function storeWindow:onClick(button)
 
     if button.internal == "PURCHASE" then self:finalizeDeal() end
 
-    if button.internal == "IGUI_IMPORT_EXPORT" then
-
+    if button.internal == "IMPORT_EXPORT_STORES" then
+        printStoresOutput()
     end
 end
 
