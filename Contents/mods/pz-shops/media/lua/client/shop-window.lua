@@ -703,7 +703,7 @@ function storeWindow:updateButtons()
         --self.importBtn.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
         if self.assignComboBox.selected~=1 then
             self.aBtnConnect.enable = true
-            self.aBtnDel.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
+            self.aBtnConnect.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
             self.aBtnDel.enable = true
             self.aBtnDel.borderColor = { r = 1, g = 0, b = 0, a = 0.7 }
         end
