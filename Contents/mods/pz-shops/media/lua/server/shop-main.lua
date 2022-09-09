@@ -27,7 +27,7 @@ end
 
 function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID)
     local matchingWallet = GLOBAL_WALLETS[playerID] or wallet:new(playerID,steamID)
-    print("matchingWallet: "..tostring(matchingWallet))
+    --print("matchingWallet: "..tostring(matchingWallet))
     return matchingWallet
 end
 
