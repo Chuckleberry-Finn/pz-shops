@@ -3,7 +3,7 @@ require "shop-globalModDataClient"
 require "shop-wallet"
 require "luautils"
 require "shop-itemLookup"
-
+require "shop-importExport"
 
 ---@class storeWindow : ISPanel
 storeWindow = ISPanelJoypad:derive("storeWindow")
@@ -253,6 +253,16 @@ function storeWindow:initialise()
     self.aBtnCopy:initialise()
     self.aBtnCopy:instantiate()
     self:addChild(self.aBtnCopy)
+
+
+    self.importBtn = ISButton:new(self.aBtnDel.x, acb.y-29, self.aBtnDel.width, 25, getText("IGUI_IMPORT_EXPORT"), self, storeWindow.onClick)
+    self.importBtn.internal = "IMPORT_EXPORT_STORES"
+    self.importBtn.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
+    self.importBtn.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
+    self.importBtn:initialise()
+    self.importBtn:instantiate()
+    self:addChild(self.importBtn)
+
 end
 
 
@@ -671,7 +681,6 @@ end
 function storeWindow:updateButtons()
 
     self.purchase.enable = false
-
     self.manageBtn.enable = false
     self.clearStore.enable = false
     self.addStockBtn.enable = false
@@ -681,14 +690,22 @@ function storeWindow:updateButtons()
     self.assignComboBox.enable = false
     self.aBtnCopy.enable = false
     self.aBtnConnect.enable = false
+    self.aBtnConnect.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.7 }
+    self.importBtn.enable = false
+    self.importBtn.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.7 }
     self.aBtnDel.enable = false
+    self.aBtnDel.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.7 }
 
     if not self.storeObj then
         self.assignComboBox.enable = true
         self.aBtnCopy.enable = true
+        self.importBtn.enable = true
+        self.importBtn.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
         if self.assignComboBox.selected~=1 then
             self.aBtnConnect.enable = true
+            self.aBtnConnect.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
             self.aBtnDel.enable = true
+            self.aBtnDel.borderColor = { r = 1, g = 0, b = 0, a = 0.7 }
         end
         return
     end
@@ -753,6 +770,7 @@ function storeWindow:render()
     self.assignComboBox:setVisible(shouldSeeStorePresetOptions)
     self.aBtnConnect:setVisible(shouldSeeStorePresetOptions)
     self.aBtnDel:setVisible(shouldSeeStorePresetOptions)
+    self.importBtn:setVisible(shouldSeeStorePresetOptions)
     self.aBtnCopy:setVisible(shouldSeeStorePresetOptions)
 
     self.addStockBtn:setVisible(managed and not blocked)
@@ -804,6 +822,7 @@ function storeWindow:render()
     self.aBtnConnect:bringToTop()
     self.aBtnDel:bringToTop()
     self.aBtnCopy:bringToTop()
+    self.importBtn:bringToTop()
 end
 
 
@@ -894,6 +913,10 @@ function storeWindow:onClick(button)
     end
 
     if button.internal == "PURCHASE" then self:finalizeDeal() end
+
+    if button.internal == "IMPORT_EXPORT_STORES" then
+        printStoresOutput()
+    end
 end
 
 

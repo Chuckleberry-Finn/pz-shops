@@ -29,4 +29,6 @@ IGUI_EN = {
     IGUI_NOTRADE_ONLYSELL = "I only sell these."
     IGUI_NOTRADE_DAMAGED = "This is too damaged."
     IGUI_NOTRADE_OUTSIDEINV = "You have to be holding it."
+
+    IGUI_IMPORT_EXPORT = "Import"
 }
