@@ -61,9 +61,10 @@ function ISTradingUI:render()
     local walletBalanceLine = _internal.numToCurrency(walletBalance)
     self.walletFunds:drawText(walletBalanceLine, 10, 2, color.r, color.g, color.b, color.a, self.font)
 
-    local offerAmount = tonumber(self.transferFunds:getInternalText()) or 0
+    local currentOffer = tonumber(self.transferFunds:getInternalText())
+    local offerAmount = currentOffer or 0
     offerAmount = math.min(walletBalance, math.max(0,offerAmount))
-    self.transferFunds:setText(tostring(offerAmount))
+    if currentOffer ~= offerAmount then self.transferFunds:setText(tostring(offerAmount)) end
 
     sendClientCommand("shop", "changeTransferOffer", {onlineID=self.otherPlayer:getOnlineID(), amount=offerAmount})
 
