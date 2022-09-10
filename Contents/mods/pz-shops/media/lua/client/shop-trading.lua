@@ -61,11 +61,11 @@ function ISTradingUI:render()
     local walletBalanceLine = _internal.numToCurrency(walletBalance)
     self.walletFunds:drawText(walletBalanceLine, 10, 2, color.r, color.g, color.b, color.a, self.font)
 
-    local currentOffer = tonumber(self.transferFunds:getInternalText())
-    local offerAmount = currentOffer or 0
-    offerAmount = math.min(walletBalance, math.max(0,offerAmount))
-    if currentOffer ~= offerAmount then self.transferFunds:setText(tostring(offerAmount)) end
-
+    local currentInput = tonumber(self.transferFunds:getInternalText():match("0*(%d+)")) or 0
+    local offerAmount = math.min(walletBalance, math.max(0,currentInput))
+    local offeredAmountTxt = tostring(offerAmount)
+    if self.transferFunds:getInternalText() ~= offeredAmountTxt then self.transferFunds:setText(offeredAmountTxt) end
+    
     sendClientCommand("shop", "changeTransferOffer", {onlineID=self.otherPlayer:getOnlineID(), amount=offerAmount})
 
     local offerText = getText("IGUI_OFFERING")..": ".._internal.numToCurrency(self.setOfferedAmount)
@@ -87,18 +87,12 @@ local ISTradingUI_updateButtons = ISTradingUI.updateButtons
 function ISTradingUI:updateButtons()
     ISTradingUI_updateButtons(self)
 
-    if self.sealOffer.selected[1] and self.otherSealedOffer then
+    local offeredAmount = tonumber(self.transferFunds:getInternalText()) or 0
+    local otherOffer = self.setOfferedAmount
 
-        local walletBalance = getWalletBalance(self.player)
-        local offeredAmount = tonumber(self.transferFunds:getInternalText()) or 0
-        offeredAmount = math.min(walletBalance, math.max(0,offeredAmount))
-
-        local otherOffer = self.setOfferedAmount
-
-        if #self.yourOfferDatas.items > 0 or #self.hisOfferDatas.items > 0 or otherOffer > 0 or offeredAmount > 0 then
-            self.acceptDeal.enable = true
-            self.acceptDeal.tooltip = nil
-        end
+    if #self.yourOfferDatas.items > 0 or #self.hisOfferDatas.items > 0 or otherOffer > 0 or offeredAmount > 0 then
+        self.acceptDeal.enable = true
+        self.acceptDeal.tooltip = nil
     end
 end
 
