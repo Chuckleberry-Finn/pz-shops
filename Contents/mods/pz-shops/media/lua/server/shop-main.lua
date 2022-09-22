@@ -11,7 +11,7 @@ wallet.playerUUID = false
 wallet.amount = 25
 
 
-function wallet:new(playerID,steamID)
+function WALLET_HANDLER.new(playerID,steamID)
     if not playerID then print("ERROR: wallet:new - No playerID provided.") return end
     if not steamID then print("ERROR: wallet:new - No steamID provided.") return end
     local newWallet = copyTable(wallet)
@@ -26,7 +26,7 @@ function WALLET_HANDLER.scrubWallet(playerID)
 end
 
 function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID)
-    local matchingWallet = GLOBAL_WALLETS[playerID] or wallet:new(playerID,steamID)
+    local matchingWallet = GLOBAL_WALLETS[playerID] or WALLET_HANDLER.new(playerID,steamID)
     return matchingWallet
 end
 
@@ -54,7 +54,8 @@ store_listing.available = 0
 store_listing.storeID = false
 store_listing.reselling = true
 
-function store_listing:new(item,price,stock,buybackRate,reselling,oldListing)
+function STORE_HANDLER.newListing(storeObj,item,price,stock,buybackRate,reselling)
+    local oldListing = storeObj.listings[item]
     local newListing = oldListing or copyTable(store_listing)
     newListing.item = item
     if price then
@@ -77,9 +78,9 @@ function store_listing:new(item,price,stock,buybackRate,reselling,oldListing)
 
     if reselling then newListing.reselling = true else newListing.reselling = false end
 
+    storeObj.listings[item] = newListing
     return newListing
 end
-
 
 
 ---@class store Pseudo-Object
@@ -91,7 +92,7 @@ store.isBeingManaged = false
 store.restockHrs = 48
 store.nextRestock = 48
 
-function store:new(copyThisID)
+function STORE_HANDLER.new(copyThisID)
     local original = store
     if copyThisID then
         local originalStore = GLOBAL_STORES[copyThisID]
@@ -154,7 +155,7 @@ function STORE_HANDLER.copyStoreOntoObject(isoObj,ID,managed)
     if not modData then print("ERROR: Can't apply store to obj:"..tostring(isoObj)) return end
     if modData.storeObjID and (not GLOBAL_STORES[modData.storeObjID]) then STORE_HANDLER.clearStoreFromObject(isoObj) end
     if modData.storeObjID then print("ERROR: Object already has store assigned. obj:"..tostring(isoObj)) return end
-    local newStore = store:new(ID)
+    local newStore = STORE_HANDLER.new(ID)
     newStore.isBeingManaged = managed or false
     modData.storeObjID = newStore.ID
     isoObj:transmitModData()
@@ -189,12 +190,6 @@ function STORE_HANDLER.removeListing(storeObj,item)
     else
         print("ERROR: Warning: "..item.." not in listings to remove.")
     end
-end
-
-function STORE_HANDLER.newListing(storeObj,item,price,stock,buybackRate,reselling)
-    local newListing = store_listing:new(item,price,stock,buybackRate,reselling,storeObj.listings[item])
-    storeObj.listings[item] = newListing
-    return newListing
 end
 
 
