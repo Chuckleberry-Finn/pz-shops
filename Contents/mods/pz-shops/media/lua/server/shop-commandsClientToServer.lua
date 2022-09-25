@@ -20,7 +20,7 @@ local function onClientCommand(_module, _command, _player, _data)
     end
 
     if _command == "ImportStores" then
-        GLOBAL_STORES = _internal.copyAgainst(GLOBAL_STORES, _data.stores)
+        _internal.copyAgainst(GLOBAL_STORES, _data.stores)
         triggerEvent("SHOPPING_ServerModDataReady")
     end
 
