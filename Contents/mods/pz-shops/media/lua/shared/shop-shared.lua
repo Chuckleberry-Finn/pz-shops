@@ -8,9 +8,19 @@ function _internal.numToCurrency(n)
     return getText("IGUI_CURRENCY_PREFIX")..formatted.." "..getText("IGUI_CURRENCY_SUFFIX")
 end
 
+
 function _internal.copyAgainst(tableA,tableB)
     if not tableA or not tableB then return end
-    for key,value in pairs(tableB) do tableA[key] = value end
+
+    for key,value in pairs(tableB) do
+        if type(value) == "table" then
+            tableA[key] = {}
+            _internal.copyAgainst(tableA[key],value)
+        else
+            tableA[key] = value
+        end
+    end
+
     for key,_ in pairs(tableA) do if not tableB[key] then tableA[key] = nil end end
 end
 
