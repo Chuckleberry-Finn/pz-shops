@@ -3,7 +3,7 @@ require "shop-globalModDataClient"
 require "shop-wallet"
 require "luautils"
 require "shop-itemLookup"
-require "shop-importExport"
+require "shop-shared"
 
 ---@class storeWindow : ISPanel
 storeWindow = ISPanelJoypad:derive("storeWindow")
@@ -255,13 +255,34 @@ function storeWindow:initialise()
     self:addChild(self.aBtnCopy)
 
 
-    self.importBtn = ISButton:new(self.aBtnDel.x, acb.y-29, self.aBtnDel.width, 25, getText("IGUI_IMPORT_EXPORT"), self, storeWindow.onClick)
+    self.importBtn = ISButton:new(self.aBtnDel.x, acb.y-29, self.aBtnDel.width, 25, getText("IGUI_IMPORT"), self, storeWindow.onClick)
     self.importBtn.internal = "IMPORT_EXPORT_STORES"
     self.importBtn.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
     self.importBtn.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
+    self.importBtn.toggled = false
     self.importBtn:initialise()
     self.importBtn:instantiate()
     self:addChild(self.importBtn)
+
+    self.importCancel = ISButton:new(self.aBtnDel.x, self.aBtnDel.y, self.aBtnDel.width, 25, getText("UI_Cancel"), self, storeWindow.onClick)
+    self.importCancel.font = UIFont.NewSmall
+    self.importCancel.internal = "IMPORT_EXPORT_CANCEL"
+    self.importCancel.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
+    self.importCancel.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
+    self.importCancel:initialise()
+    self.importCancel:instantiate()
+    self:addChild(self.importCancel)
+
+    local iTMargin = 4
+    local importTextX = self.importBtn.x+self.importBtn.width+iTMargin
+    self.importText = ISTextEntryBox:new("", importTextX, iTMargin, self:getWidth() - importTextX-iTMargin, self:getHeight()-(iTMargin*2))
+    self.importText.backgroundColor = {r=0, g=0, b=0, a=0.8}
+    self.importText:initialise()
+    self.importText:instantiate()
+    self.importText:setMultipleLine(true)
+    self.importText.javaObject:setMaxLines(15)
+    --self.entry.javaObject:setMaxTextLength(self.maxTextLength)
+    self:addChild(self.importText)
 
 end
 
@@ -687,6 +708,9 @@ function storeWindow:updateButtons()
     self.categorySet.enable = false
     self.resell.enable = false
 
+    self.importText.enable = false
+    self.importCancel.enable = false
+
     self.assignComboBox.enable = false
     self.aBtnCopy.enable = false
     self.aBtnConnect.enable = false
@@ -697,6 +721,10 @@ function storeWindow:updateButtons()
     self.aBtnDel.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.7 }
 
     if not self.storeObj then
+        if self.importBtn.toggled==true then
+            self.importText.enabled = true
+            self.importCancel.enable = true
+        end
         self.assignComboBox.enable = true
         self.aBtnCopy.enable = true
         self.importBtn.enable = true
@@ -773,6 +801,9 @@ function storeWindow:render()
     self.importBtn:setVisible(shouldSeeStorePresetOptions)
     self.aBtnCopy:setVisible(shouldSeeStorePresetOptions)
 
+    self.importText:setVisible(shouldSeeStorePresetOptions and self.importBtn.toggled)
+    self.importCancel:setVisible(shouldSeeStorePresetOptions and self.importBtn.toggled)
+
     self.addStockBtn:setVisible(managed and not blocked)
     self.manageStoreName:setVisible(managed and not blocked)
     self.addStockEntry:setVisible(managed and not blocked)
@@ -789,6 +820,8 @@ function storeWindow:render()
     self.addStockPrice:isEditable(not blocked)
     self.addStockQuantity:isEditable(not blocked and (self.categorySet.selected[1] == false))
     self.addStockBuyBackRate:isEditable(not blocked)
+
+    self.importText:isEditable(shouldSeeStorePresetOptions and self.importBtn.toggled)
 
     local purchaseValid = (getWalletBalance(self.player)-self:getOrderTotal()) >= 0
     self.purchase.enable = (not managed and not blocked and #self.yourCartData.items>0 and purchaseValid)
@@ -822,7 +855,10 @@ function storeWindow:render()
     self.aBtnConnect:bringToTop()
     self.aBtnDel:bringToTop()
     self.aBtnCopy:bringToTop()
+
     self.importBtn:bringToTop()
+    self.importCancel:bringToTop()
+    self.importText:bringToTop()
 end
 
 
@@ -914,8 +950,35 @@ function storeWindow:onClick(button)
 
     if button.internal == "PURCHASE" then self:finalizeDeal() end
 
+
+    if button.internal == "IMPORT_EXPORT_CANCEL" then
+        self.importBtn:setTitle(getText("IGUI_IMPORT"))
+        self.importBtn.toggled = false
+    end
+
+
     if button.internal == "IMPORT_EXPORT_STORES" then
-        printStoresOutput()
+
+        if self.importBtn.toggled then
+            self.importBtn.toggled = false
+            self.importBtn:setTitle(getText("IGUI_IMPORT"))
+            local tbl = _internal.stringToTable(self.importText:getText())
+
+            if (not tbl) or (type(tbl)~="table") then
+                print("ERROR: STORES MASS EXPORT FAILED.")
+                return
+            end
+
+            sendClientCommand("shop", "ImportStores", {stores=tbl})
+            if getDebug() then print("FINAL:\n".._internal.tableToString(tbl)) end
+
+        else
+
+            self.importText:setText(_internal.tableToString(CLIENT_STORES))
+            self.importBtn:setTitle(getText("IGUI_EXPORT"))
+            self.importBtn.toggled = true
+        end
+
     end
 end
 
