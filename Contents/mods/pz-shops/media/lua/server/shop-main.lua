@@ -109,6 +109,7 @@ function STORE_HANDLER.new(copyThisID)
 end
 
 function STORE_HANDLER.restocking()
+    if not GLOBAL_STORES or type(GLOBAL_STORES)~="table" then print("ERROR: GLOBAL_STORES not present or not table: "..tostring(GLOBAL_STORES)) end
     for ID,_ in pairs(GLOBAL_STORES) do
         if not GLOBAL_STORES[ID].restockHrs then GLOBAL_STORES[ID].restockHrs = 48 end
         GLOBAL_STORES[ID].nextRestock = (GLOBAL_STORES[ID].nextRestock or GLOBAL_STORES[ID].restockHrs)-1

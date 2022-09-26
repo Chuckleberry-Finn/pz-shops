@@ -58,22 +58,26 @@ function _internal.tableToString(object,nesting)
         else text = tostring(object)
         end
     end
+    print("dumpedTable: "..text)
     return text
 end
 
 
-function _internal.stringToTable(inputstr, sep)
-    sep = sep or '%[.-%,}'
+function _internal.stringToTable(inputstr)
     local t={}
     inputstr = inputstr:gsub("  ", "")
     inputstr = inputstr:gsub("\n", "")
+    if string.sub(inputstr, 1, 1)=="{" and string.sub(inputstr,string.len(inputstr))=="}" then
+        inputstr = inputstr:sub(2) --delete first char
+        inputstr = inputstr:sub(1, -3)--delete the last char
+    end
 
-    for str in string.gmatch(inputstr, sep) do
-        local header = string.match(str, "%[\"(.-)\"%] =")
-        local body = string.match(str, "= (.*)")
+    for str in string.gmatch(inputstr, "([^,]+)") do
+        local header = string.match(inputstr, "%[\"(.-)\"%] =")
+        local body = string.match(inputstr, "= (.*)")
         if body then
             if string.sub(body, 1, 1)=="{" and string.sub(body,string.len(body))=="}" then
-                body = _internal.stringToTable(body, "([^,]+)")
+                body = _internal.stringToTable(str)
             else
                 if body == "false" then body = false
                 elseif body == "true" then body = true
@@ -82,7 +86,8 @@ function _internal.stringToTable(inputstr, sep)
                 end
             end
         end
-        if header~=nil and body~=nil then  t[header] = body end
+        if header~=nil and body~=nil then t[header] = body end
     end
+
     return t
 end

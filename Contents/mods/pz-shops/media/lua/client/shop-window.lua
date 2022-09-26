@@ -438,6 +438,12 @@ function storeWindow:displayStoreStock()
     if not storeObj then return end
     local scriptManager = getScriptManager()
 
+    if not storeObj.listings then print("storeObj.listings: not found") return end
+    if storeObj.listings and type(storeObj.listings)~="table" then
+        print("storeObj.listings: not table: "..tostring(storeObj.listings))
+        return
+    end
+
     for _,listing in pairs(storeObj.listings) do
 
         local script = scriptManager:getItem(listing.item)
@@ -770,7 +776,6 @@ function storeWindow:render()
     self:updateTooltip()
 
     self:displayStoreStock()
-    self:displayOrderTotal()
 
     local managed = false
     if self:isBeingManaged() then
@@ -803,6 +808,8 @@ function storeWindow:render()
 
     self.importText:setVisible(shouldSeeStorePresetOptions and self.importBtn.toggled)
     self.importCancel:setVisible(shouldSeeStorePresetOptions and self.importBtn.toggled)
+
+    if not (shouldSeeStorePresetOptions and self.importBtn.toggled) then self:displayOrderTotal() end
 
     self.addStockBtn:setVisible(managed and not blocked)
     self.manageStoreName:setVisible(managed and not blocked)
