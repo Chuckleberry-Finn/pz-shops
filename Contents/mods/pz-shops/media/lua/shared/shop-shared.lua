@@ -102,6 +102,8 @@ function _internal.stringToTable(inputstr)
     return t
 end
 
+---local tblTbl = load("return "..tblStr)()
+
 --[[
 
 _internal = {} function _internal.clipStrTbl(inputstr) if string.sub(inputstr, 1, 1)=="{" and string.sub(inputstr,string.len(inputstr))=="}" then inputstr = inputstr:sub(2) inputstr = inputstr:sub(1, -3) return inputstr end end
