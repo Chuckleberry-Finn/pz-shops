@@ -8,19 +8,9 @@ function _internal.numToCurrency(n)
     return getText("IGUI_CURRENCY_PREFIX")..formatted.." "..getText("IGUI_CURRENCY_SUFFIX")
 end
 
-
 function _internal.copyAgainst(tableA,tableB)
     if not tableA or not tableB then return end
-
-    for key,value in pairs(tableB) do
-        if type(value) == "table" then
-            tableA[key] = {}
-            _internal.copyAgainst(tableA[key],value)
-        else
-            tableA[key] = value
-        end
-    end
-
+    for key,value in pairs(tableB) do tableA[key] = value end
     for key,_ in pairs(tableA) do if not tableB[key] then tableA[key] = nil end end
 end
 
@@ -58,8 +48,16 @@ function _internal.tableToString(object,nesting)
         else text = tostring(object)
         end
     end
-    print("dumpedTable: "..text)
     return text
+end
+
+
+function _internal.clipStrTbl(inputstr)
+    if string.sub(inputstr, 1, 1)=="{" and string.sub(inputstr,string.len(inputstr))=="}" then
+        inputstr = inputstr:sub(2)--delete first char
+        inputstr = inputstr:sub(1, -3)--delete the last 2 char
+        return inputstr
+    end
 end
 
 
@@ -67,27 +65,34 @@ function _internal.stringToTable(inputstr)
     local t={}
     inputstr = inputstr:gsub("  ", "")
     inputstr = inputstr:gsub("\n", "")
-    if string.sub(inputstr, 1, 1)=="{" and string.sub(inputstr,string.len(inputstr))=="}" then
-        inputstr = inputstr:sub(2) --delete first char
-        inputstr = inputstr:sub(1, -3)--delete the last char
-    end
+    inputstr = _internal.clipStrTbl(inputstr) or inputstr
 
-    for str in string.gmatch(inputstr, "([^,]+)") do
-        local header = string.match(inputstr, "%[\"(.-)\"%] =")
-        local body = string.match(inputstr, "= (.*)")
-        if body then
-            if string.sub(body, 1, 1)=="{" and string.sub(body,string.len(body))=="}" then
-                body = _internal.stringToTable(str)
-            else
-                if body == "false" then body = false
-                elseif body == "true" then body = true
-                elseif body == tostring(tonumber(body)) then body = tonumber(body)
-                else body = body:gsub("\"", "")
+    local header = string.match(inputstr, "%[\"(.-)\"%] =")
+    local body = string.match(inputstr, "= (.*)")
+    if body then
+        local bodyContainsTbl = _internal.clipStrTbl(body)
+        if bodyContainsTbl then
+            body = bodyContainsTbl
+            local openSubBody
+            for str in string.gmatch(body, "([^,]+)") do
+                if string.find(str, "{") then openSubBody = (openSubBody or "")..str.."," end
+                if string.find(str, "}") then
+                    str = openSubBody..str
+                    openSubBody = nil
+                end
+                if not openSubBody then
+                    body = _internal.stringToTable(str)
                 end
             end
+        else
+            if body == "false" then body = false
+            elseif body == "true" then body = true
+            elseif body == tostring(tonumber(body)) then body = tonumber(body)
+            else body = body:gsub("\"", "")
+            end
         end
-        if header~=nil and body~=nil then t[header] = body end
     end
+    if header~=nil and body~=nil then t[header] = body end
 
     return t
 end
