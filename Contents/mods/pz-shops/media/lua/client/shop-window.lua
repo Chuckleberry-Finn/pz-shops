@@ -977,7 +977,7 @@ function storeWindow:onClick(button)
             end
 
             sendClientCommand("shop", "ImportStores", {stores=tbl})
-            if getDebug() then print("FINAL:\n".._internal.tableToString(tbl)) end
+            --if getDebug() then print("FINAL:\n".._internal.tableToString(tbl)) end
 
         else
 
