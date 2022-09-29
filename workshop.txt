@@ -19,6 +19,5 @@ description=[img]https://i.imgur.com/6ovqjA2.png[/img]
 description=
 description=Once you are ready to list your item select + to add it. Trying to add the same type/category will overwrite the old one.
 description=[img]https://i.imgur.com/3P9HkgK.png[/img]
-description=
-tags=Build 41;Misc;Multiplayer
+tags=Build 41;Framework;Misc;Multiplayer
 visibility=public
