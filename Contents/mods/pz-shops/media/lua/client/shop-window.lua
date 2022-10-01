@@ -305,9 +305,7 @@ function storeWindow:rtrnTypeIfValid(item)
     local itemType
     local itemCat
     if type(item) == "string" then
-
         local itemScript = getScriptManager():getItem(item)
-
         if itemScript then
             itemType = item
         else
@@ -408,7 +406,12 @@ function storeWindow:drawStock(y, item, alt)
     local texture
     if type(item.item) == "string" then
         local script = getScriptManager():getItem(item.item)
-        if script then texture = script:getNormalTexture() end
+        if script then
+            texture = script:getNormalTexture()
+        else
+            print("WARN: drawStock: Invalid item type found in present listing: \<"..item.item.."\>")
+            return
+        end
     else texture = item.item:getTex() end
 
     local color = {r=1, g=1, b=1, a=0.9}
