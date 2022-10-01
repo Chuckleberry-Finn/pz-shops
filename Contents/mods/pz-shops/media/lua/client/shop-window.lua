@@ -305,7 +305,14 @@ function storeWindow:rtrnTypeIfValid(item)
     local itemType
     local itemCat
     if type(item) == "string" then
-        itemType = item
+
+        local itemScript = getScriptManager():getItem(item)
+
+        if itemScript then
+            itemType = item
+        else
+            print("WARN: rtrnTypeIfValid: Invalid item type found in present listing: \<"..item.."\>")
+        end
     else
         if self.player and luautils.haveToBeTransfered(self.player, item) then return false, "IGUI_NOTRADE_OUTSIDEINV" end
         if (item:getCondition()/item:getConditionMax())<0.75 or item:isBroken() then return false, "IGUI_NOTRADE_DAMAGED" end
@@ -316,7 +323,7 @@ function storeWindow:rtrnTypeIfValid(item)
     end
 
     local storeObj = self.storeObj
-    if storeObj then
+    if storeObj and itemType then
 
         local listing = storeObj.listings[itemType]
         if not listing and itemCat then listing = storeObj.listings["category:"..tostring(itemCat)] end
@@ -334,6 +341,7 @@ end
 function storeWindow:drawCart(y, item, alt)
     local texture
     local itemType, reason, itemCat = self.parent:rtrnTypeIfValid(item.item)
+
     if type(item.item) == "string" then texture = getScriptManager():getItem(item.item):getNormalTexture()
     else texture = item.item:getTex() end
 
