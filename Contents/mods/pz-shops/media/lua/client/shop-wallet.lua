@@ -73,13 +73,13 @@ local function onPlayerDeath(playerObj)
     local transferAmount = math.floor((walletBalance*(SandboxVars.ShopsAndTraders.PercentageDropOnDeath/100) * 100) / 100)
 
     if transferAmount > 0 then
-        sendClientCommand("shop", "transferFunds", {giver=playerModData.wallet_UUID, give=transferAmount, receiver=nil, receive=nil})
         local type = moneyTypes[ZombRand(#moneyTypes)+1]
-
         local money = InventoryItemFactory.CreateItem(type)
-        generateMoneyValue(money, transferAmount)
-        if money then playerObj:getInventory():AddItem(money)
-        else print("ERROR: Split/Withdraw Wallet: No money object created.") end
+        if money then
+            sendClientCommand("shop", "transferFunds", {giver=playerModData.wallet_UUID, give=transferAmount, receiver=nil, receive=nil})
+            generateMoneyValue(money, transferAmount)
+            playerObj:getInventory():AddItem(money)
+        else print("ERROR: Split/Withdraw Wallet: No money object created. \<"..type.."\>") end
     end
     sendClientCommand("shop", "scrubWallet", {playerID=playerModData.wallet_UUID})
 end
@@ -136,21 +136,24 @@ function ISSliderBox:onClick(button, playerObj, item)
     if button.internal == "OK" then
         local transferValue = button.parent.slider:getCurrentValue()
 
-        if item and _moneyTypes[item:getFullType()] and item:getModData() and item:getModData().value > 0 then
-            local newValue = item:getModData().value-transferValue
-            generateMoneyValue(item, newValue, true)
-        end
-
-        if not item then
-            local playerModData = playerObj:getModData()
-            sendClientCommand("shop", "transferFunds", {giver=playerModData.wallet_UUID, give=transferValue, receiver=nil, receive=nil})
-        end
-
         local type = moneyTypes[ZombRand(#moneyTypes)+1]
         local money = InventoryItemFactory.CreateItem(type)
-        generateMoneyValue(money, transferValue)
-        if money then playerObj:getInventory():AddItem(money)
-        else print("ERROR: Split/Withdraw Wallet: No money object created.") end
+
+        if money then
+            generateMoneyValue(money, transferValue)
+            playerObj:getInventory():AddItem(money)
+
+            if item and _moneyTypes[item:getFullType()] and item:getModData() and item:getModData().value > 0 then
+                local newValue = item:getModData().value-transferValue
+                generateMoneyValue(item, newValue, true)
+            end
+
+            if not item then
+                local playerModData = playerObj:getModData()
+                sendClientCommand("shop", "transferFunds", {giver=playerModData.wallet_UUID, give=transferValue, receiver=nil, receive=nil})
+            end
+
+        else print("ERROR: Split/Withdraw Wallet: No money object created. \<"..type.."\>") end
     end
 end
 
