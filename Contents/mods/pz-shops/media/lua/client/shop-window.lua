@@ -405,12 +405,15 @@ end
 
 
 function storeWindow:drawStock(y, item, alt)
-    local texture
-    local script
+    local texture, script, validCategory
     if type(item.item) == "string" then
         script = getScriptManager():getItem(item.item)
-        if script then texture = script:getNormalTexture() end
-    else texture = item.item:getTex() end
+        if script then texture = script:getNormalTexture()
+        else validCategory = findMatchesFromCategories(item.item:gsub("category:",""))
+        end
+    else
+        texture = item.item:getTex()
+    end
 
     local color = {r=1, g=1, b=1, a=0.9}
 
@@ -418,7 +421,7 @@ function storeWindow:drawStock(y, item, alt)
     if storeObj then
         local listing = storeObj.listings[item.item]
         if listing then
-            if ((listing.stock ~= 0 or listing.reselling==true) and listing.available ~= 0 and script) or (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())) then
+            if ((listing.stock ~= 0 or listing.reselling==true) and listing.available ~= 0 and (texture or #validCategory>0)) or (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())) then
 
                 if not string.match(item.item, "category:") then
                     local inCart = 0
@@ -428,7 +431,7 @@ function storeWindow:drawStock(y, item, alt)
                 end
 
                 local extra = ""
-                if not script then extra = "\<!\> " end
+                if not (texture or #validCategory>0) then extra = "\<!\> " end
 
                 self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
                 if texture then self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b) end
@@ -462,6 +465,8 @@ function storeWindow:displayStoreStock()
         local itemDisplayName = listing.item
         if script then itemDisplayName = script:getDisplayName() end
 
+        local isCategoryListingAndIsValid = (string.match(listing.item, "category:") and findMatchesFromCategories(listing.item:gsub("category:","")))
+
         local price = _internal.numToCurrency(listing.price)
         if listing.price <= 0 then price = getText("IGUI_FREE") end
 
@@ -479,7 +484,7 @@ function storeWindow:displayStoreStock()
             if not string.match(listedItem.item, "category:") then displayText = displayText.." [restock x"..listing.stock.."]" end
             displayText = displayText.." [buyback "..listing.buybackRate.."%]"
 
-            if not script then displayText = "\<INVALID ITEM\> "..displayText end
+            if not script and not isCategoryListingAndIsValid then displayText = "\<INVALID ITEM\> "..displayText end
 
             local resell = listing.reselling
             if resell~=SandboxVars.ShopsAndTraders.TradersResellItems then if resell then displayText = displayText.." [resell]" else displayText = displayText.." [no resell]" end end
