@@ -139,24 +139,28 @@ function storeWindow:initialise()
 
     self.addStockPrice = ISTextEntryBox:new("0", self.addStockEntry.x+10, self.addStockEntry.y+self.addStockEntry.height+3, 30, self.addStockBtn.height)
     self.addStockPrice.font = UIFont.Small
+    self.addStockPrice.tooltip = getText("IGUI_CURRENCY_TOOLTIP")
     self.addStockPrice:initialise()
     self.addStockPrice:instantiate()
     self:addChild(self.addStockPrice)
 
     self.addStockQuantity = ISTextEntryBox:new("0", self.addStockPrice.x+self.addStockPrice.width+20, self.addStockPrice.y, 30, self.addStockBtn.height)
     self.addStockQuantity.font = UIFont.Small
+    self.addStockQuantity.tooltip = getText("IGUI_STOCK_TOOLTIP")
     self.addStockQuantity:initialise()
     self.addStockQuantity:instantiate()
     self:addChild(self.addStockQuantity)
 
     self.addStockBuyBackRate = ISTextEntryBox:new("0", self.addStockQuantity.x+self.addStockQuantity.width+20, self.addStockQuantity.y, 30, self.addStockBtn.height)
     self.addStockBuyBackRate.font = UIFont.Small
+    self.addStockBuyBackRate.tooltip = getText("IGUI_RATE_TOOLTIP")
     self.addStockBuyBackRate:initialise()
     self.addStockBuyBackRate:instantiate()
     self:addChild(self.addStockBuyBackRate)
 
     self.categorySet = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.addStockBuyBackRate.y, 18, 18, "", self, nil)
     self.categorySet.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
+    self.categorySet.tooltip = getText("IGUI_STOCKCATEGORY_TOOLTIP")
     self.categorySet:initialise()
     self.categorySet:instantiate()
     self.categorySet.selected[1] = false
@@ -165,6 +169,7 @@ function storeWindow:initialise()
 
     self.resell = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.addStockBuyBackRate.y+self.categorySet.height+4, 18, 18, "", self, nil)
     self.resell.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
+    self.resell.tooltip = getText("IGUI_IGUI_RESELL_TOOLTIP")
     self.resell:initialise()
     self.resell:instantiate()
     self.resell.selected[1] = SandboxVars.ShopsAndTraders.TradersResellItems
@@ -198,6 +203,7 @@ function storeWindow:initialise()
     self.clearStore.font = UIFont.NewSmall
     self.clearStore.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
     self.clearStore.borderColor = { r = 1, g = 0, b = 0, a = 0.7 }
+    self.clearStore.tooltip = getText("IGUI_DISCONNECT_STORE")
     self.clearStore:initialise()
     self.clearStore:instantiate()
     self:addChild(self.clearStore)
@@ -306,11 +312,7 @@ function storeWindow:rtrnTypeIfValid(item)
     local itemCat
     if type(item) == "string" then
         local itemScript = getScriptManager():getItem(item)
-        if itemScript then
-            itemType = item
-        else
-            print("WARN: rtrnTypeIfValid: Invalid item type found in present listing: \<"..item.."\>")
-        end
+        if itemScript then itemType = item end
     else
         if self.player and luautils.haveToBeTransfered(self.player, item) then return false, "IGUI_NOTRADE_OUTSIDEINV" end
         if (item:getCondition()/item:getConditionMax())<0.75 or item:isBroken() then return false, "IGUI_NOTRADE_DAMAGED" end
@@ -404,14 +406,10 @@ end
 
 function storeWindow:drawStock(y, item, alt)
     local texture
+    local script
     if type(item.item) == "string" then
-        local script = getScriptManager():getItem(item.item)
-        if script then
-            texture = script:getNormalTexture()
-        else
-            print("WARN: drawStock: Invalid item type found in present listing: \<"..item.item.."\>")
-            return
-        end
+        script = getScriptManager():getItem(item.item)
+        if script then texture = script:getNormalTexture() end
     else texture = item.item:getTex() end
 
     local color = {r=1, g=1, b=1, a=0.9}
@@ -420,7 +418,7 @@ function storeWindow:drawStock(y, item, alt)
     if storeObj then
         local listing = storeObj.listings[item.item]
         if listing then
-            if ((listing.stock ~= 0 or listing.reselling==true) and listing.available ~= 0) or (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())) then
+            if ((listing.stock ~= 0 or listing.reselling==true) and listing.available ~= 0 and script) or (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())) then
 
                 if not string.match(item.item, "category:") then
                     local inCart = 0
@@ -429,9 +427,12 @@ function storeWindow:drawStock(y, item, alt)
                     if availableTemp == 0 then color = {r=0.7, g=0.7, b=0.7, a=0.3} end
                 end
 
+                local extra = ""
+                if not script then extra = "\<!\> " end
+
                 self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
                 if texture then self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b) end
-                self:drawText(item.text, 32, y+6, color.r, color.g, color.b, color.a, self.font)
+                self:drawText(extra..item.text, 32, y+6, color.r, color.g, color.b, color.a, self.font)
 
                 return y + self.itemheight
             end
@@ -477,6 +478,8 @@ function storeWindow:displayStoreStock()
             local displayText = ""
             if not string.match(listedItem.item, "category:") then displayText = displayText.." [restock x"..listing.stock.."]" end
             displayText = displayText.." [buyback "..listing.buybackRate.."%]"
+
+            if not script then displayText = "\<INVALID ITEM\> "..displayText end
 
             local resell = listing.reselling
             if resell~=SandboxVars.ShopsAndTraders.TradersResellItems then if resell then displayText = displayText.." [resell]" else displayText = displayText.." [no resell]" end end

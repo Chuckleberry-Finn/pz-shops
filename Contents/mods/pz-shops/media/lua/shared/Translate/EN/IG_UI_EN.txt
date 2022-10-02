@@ -1,13 +1,19 @@
 IGUI_EN = {
     IGUI_ItemCat_Money = "Money",
     IGUI_MANAGESTORE = "Manage Store",
+    IGUI_DISCONNECT_STORE = "Disconnect Store From Object",
     IGUI_STORESTOCK = "Store Stock",
     IGUI_STOCKCATEGORY = "is category"
-    IGUI_RESELL = "allow resale"
+    IGUI_STOCKCATEGORY_TOOLTIP = "When toggled listing will use 'display category' if no exact type matches are found.",
+    IGUI_RESELL = "allow resale",
+    IGUI_IGUI_RESELL_TOOLTIP = "When toggled store will stock items purchased.",
     IGUI_STOCK = "#",
+    IGUI_STOCK_TOOLTIP = "Stock Quantity",
     IGUI_CURRENCY_PREFIX = "$",
     IGUI_CURRENCY_SUFFIX = "",
+    IGUI_CURRENCY_TOOLTIP = "Price",
     IGUI_RATE = "%",
+    IGUI_RATE_TOOLTIP = "Buyback Rate",
     IGUI_YOURCART = "Your Cart",
     IGUI_PURCHASE = "Trade",
     IGUI_STOREBEINGMANAGED = "This store is not accessible at this time.",
@@ -25,11 +31,11 @@ IGUI_EN = {
     IGUI_DEPOSIT = "Deposit",
     IGUI_WALLET = "Wallet",
 
-    IGUI_NOTRADE_INVALIDTYPE = "I don't buy these."
-    IGUI_NOTRADE_ONLYSELL = "I only sell these."
-    IGUI_NOTRADE_DAMAGED = "This is too damaged."
-    IGUI_NOTRADE_OUTSIDEINV = "You have to be holding it."
+    IGUI_NOTRADE_INVALIDTYPE = "I don't buy these.",
+    IGUI_NOTRADE_ONLYSELL = "I only sell these.",
+    IGUI_NOTRADE_DAMAGED = "This is too damaged.",
+    IGUI_NOTRADE_OUTSIDEINV = "You have to be holding it.",
 
-    IGUI_IMPORT = "Import"
-    IGUI_EXPORT = "Export"
+    IGUI_IMPORT = "Import",
+    IGUI_EXPORT = "Export",
 }
