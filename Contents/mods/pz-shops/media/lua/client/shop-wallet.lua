@@ -4,7 +4,13 @@ require "ISUI/ISInventoryPaneContextMenu"
 require "ISUI/ISTextBox"
 require "luautils"
 
-local moneyTypes = {"Base.Money","AuthenticZClothing.Authentic_MoneyStack"}
+local moneyTypes = {"Base.Money"}
+
+local activeModIDs = getActivatedMods()
+for i=1, activeModIDs:size() do
+    local modID = activeModIDs:get(i-1)
+    if modID == "Authentic Z - Current" then table.insert(moneyTypes, "AuthenticZClothing.Authentic_MoneyStack") end
+end
 
 local trueKeyed, _moneyTypes
 if not trueKeyed then
