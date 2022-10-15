@@ -58,7 +58,7 @@ function generateMoneyValue(item, value, force)
             local min = (SandboxVars.ShopsAndTraders.MoneySpawnMin or 1.5)*100
             local max = (SandboxVars.ShopsAndTraders.MoneySpawnMax or 25)*100
 
-            value = value or ((ZombRand(min,max+100)/100)*100)/100
+            value = value or ((ZombRand(min,max)/100)*100)/100
             item:getModData().value = value
             item:setName(_internal.numToCurrency(value))
         end
