@@ -53,8 +53,9 @@ store_listing.stock = 0
 store_listing.available = 0
 store_listing.storeID = false
 store_listing.reselling = true
+store_listing.alwaysShow = false
 
-function STORE_HANDLER.newListing(storeObj,item,price,stock,buybackRate,reselling)
+function STORE_HANDLER.newListing(storeObj,item,price,stock,buybackRate,reselling,alwaysShow)
     local oldListing = storeObj.listings[item]
     local newListing = oldListing or copyTable(store_listing)
     newListing.item = item
@@ -77,6 +78,7 @@ function STORE_HANDLER.newListing(storeObj,item,price,stock,buybackRate,resellin
     end
 
     if reselling then newListing.reselling = true else newListing.reselling = false end
+    if alwaysShow then newListing.alwaysShow = true else newListing.alwaysShow = false end
 
     storeObj.listings[item] = newListing
     return newListing

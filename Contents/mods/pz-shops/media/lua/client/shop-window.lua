@@ -167,7 +167,7 @@ function storeWindow:initialise()
     self.categorySet:addOption(getText("IGUI_STOCKCATEGORY"))
     self:addChild(self.categorySet)
 
-    self.resell = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.addStockBuyBackRate.y+self.categorySet.height+4, 18, 18, "", self, nil)
+    self.resell = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.categorySet.y+self.categorySet.height+2, 18, 18, "", self, nil)
     self.resell.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
     self.resell.tooltip = getText("IGUI_IGUI_RESELL_TOOLTIP")
     self.resell:initialise()
@@ -175,6 +175,15 @@ function storeWindow:initialise()
     self.resell.selected[1] = SandboxVars.ShopsAndTraders.TradersResellItems
     self.resell:addOption(getText("IGUI_RESELL"))
     self:addChild(self.resell)
+
+    self.alwaysShow = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.resell.y+self.resell.height+2, 18, 18, "", self, nil)
+    self.alwaysShow.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
+    self.alwaysShow.tooltip = getText("IGUI_ALWAYSSHOW_TOOLTIP")
+    self.alwaysShow:initialise()
+    self.alwaysShow:instantiate()
+    self.alwaysShow.selected[1] = false
+    self.alwaysShow:addOption(getText("IGUI_ALWAYSSHOW"))
+    self:addChild(self.alwaysShow)
 
     self.purchase = ISButton:new(self.storeStockData.x + self.storeStockData.width - (math.max(btnWid, getTextManager():MeasureStringX(UIFont.Small, getText("IGUI_PURCHASE")) + 10)), self:getHeight() - padBottom - btnHgt, btnWid, btnHgt - 3, getText("IGUI_PURCHASE"), self, storeWindow.onClick)
     self.purchase.internal = "PURCHASE"
@@ -421,7 +430,12 @@ function storeWindow:drawStock(y, item, alt)
     if storeObj then
         local listing = storeObj.listings[item.item]
         if listing then
-            if ((listing.stock ~= 0 or listing.reselling==true) and listing.available ~= 0 and (texture or #validCategory>0)) or (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())) then
+
+            local showListing = ((listing.stock ~= 0 or listing.reselling==true) and (listing.available ~= 0) and (texture or #validCategory>0))
+            if listing.alwaysShow==true then showListing = true end
+            local managing = (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug()))
+
+            if showListing or managing then
 
                 if not string.match(item.item, "category:") then
                     local inCart = 0
@@ -459,6 +473,8 @@ function storeWindow:displayStoreStock()
         return
     end
 
+    local managed = self:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())
+
     for _,listing in pairs(storeObj.listings) do
 
         local script = scriptManager:getItem(listing.item)
@@ -477,20 +493,27 @@ function storeWindow:displayStoreStock()
         local stockText = " ("..availableTemp.."/"..math.max(listing.available, listing.stock)..")"
         if listing.stock == -1 or string.match(listing.item, "category:") then stockText = "" end
 
-        local listedItem = self.storeStockData:addItem(price.."  "..itemDisplayName..stockText, listing.item)
-
-        if self:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug()) then
-            local displayText = ""
-            if not string.match(listedItem.item, "category:") then displayText = displayText.." [restock x"..listing.stock.."]" end
-            displayText = displayText.." [buyback "..listing.buybackRate.."%]"
-
-            if not script and not isCategoryListingAndIsValid then displayText = "\<INVALID ITEM\> "..displayText end
-
-            local resell = listing.reselling
-            if resell~=SandboxVars.ShopsAndTraders.TradersResellItems then if resell then displayText = displayText.." [resell]" else displayText = displayText.." [no resell]" end end
-            if displayText ~= "" then listedItem.tooltip = displayText end
+        if string.match(itemDisplayName, "category:") then
+            itemDisplayName = itemDisplayName:gsub("category:","")
+            itemDisplayName = getTextOrNull("IGUI_ItemCat_"..itemDisplayName) or itemDisplayName
+            if managed then itemDisplayName = "category: "..itemDisplayName end
         end
 
+        local listedItem = self.storeStockData:addItem(price.."  "..itemDisplayName..stockText, listing.item)
+
+        if managed then
+            local tooltipText = ""
+            if not string.match(listedItem.item, "category:") then
+                tooltipText = tooltipText.." [restock x"..listing.stock.."]"
+            end
+            tooltipText = tooltipText.." [buyback "..listing.buybackRate.."%]"
+
+            if not script and not isCategoryListingAndIsValid then tooltipText = "\<INVALID ITEM\> "..tooltipText end
+
+            local resell = listing.reselling
+            if resell~=SandboxVars.ShopsAndTraders.TradersResellItems then if resell then tooltipText = tooltipText.." [resell]" else tooltipText = tooltipText.." [no resell]" end end
+            if tooltipText ~= "" then listedItem.tooltip = tooltipText end
+        end
     end
 end
 
@@ -731,6 +754,7 @@ function storeWindow:updateButtons()
     self.clearStore.enable = false
     self.addStockBtn.enable = false
     self.categorySet.enable = false
+    self.alwaysShow.enable = false
     self.resell.enable = false
 
     self.importText.enable = false
@@ -769,6 +793,7 @@ function storeWindow:updateButtons()
             self.clearStore.enable = true
             self.addStockBtn.enable = true
             self.categorySet.enable = true
+            self.alwaysShow.enable = true
             self.resell.enable = true
         end
     end
@@ -839,6 +864,7 @@ function storeWindow:render()
     self.clearStore:setVisible(managed and not blocked)
     self.restockHours:setVisible(managed and not blocked)
     self.categorySet:setVisible(managed and not blocked)
+    self.alwaysShow:setVisible(managed and not blocked)
     self.resell:setVisible(managed and not blocked)
 
     self.manageStoreName:isEditable(not blocked)
@@ -965,7 +991,7 @@ function storeWindow:onClick(button)
 
         local reselling = self.resell.selected[1]
 
-        sendClientCommand("shop", "listNewItem", { isBeingManaged=store.isBeingManaged,
+        sendClientCommand("shop", "listNewItem", { isBeingManaged=store.isBeingManaged, alwaysShow = (self.alwaysShow.selected[1] or false),
         item=newEntry, price=price, quantity=quantity, buybackRate=buybackRate, reselling=reselling, storeID=store.ID, x=x, y=y, z=z, mapObjName=mapObjName })
     end
 
