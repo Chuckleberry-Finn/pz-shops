@@ -25,7 +25,23 @@ function storeWindow:storeItemRowAt(y)
     for i,v in ipairs(self.storeStockData.items) do
         if not v.height then v.height = self.storeStockData.itemheight end
 
-        if (listings[v.item].available ~= 0) or self:isBeingManaged() then
+        local listing = listings[v.item]
+
+        local texture, script, validCategory
+        if type(v.item) == "string" then
+            script = getScriptManager():getItem(v.item)
+            if script then texture = script:getNormalTexture()
+            else validCategory = findMatchesFromCategories(v.item:gsub("category:",""))
+            end
+        else
+            texture = v.item:getTex()
+        end
+
+        local showListing = ((listing.stock ~= 0 or listing.reselling==true) and (listing.available ~= 0) and (texture or #validCategory>0))
+        if listing.alwaysShow==true then showListing = true end
+        local managing = (self:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug()))
+
+        if showListing or managing then
             if y >= y0 and y < y0 + v.height then return i end
             y0 = y0 + v.height
         end
