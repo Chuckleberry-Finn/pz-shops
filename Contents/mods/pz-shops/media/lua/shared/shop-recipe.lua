@@ -12,7 +12,7 @@ local function recipeOverride()
     for i=0, allRecipes:size()-1 do
         ---@type Recipe
         local recipe = allRecipes:get(i)
-        if recipe and isMoneyType(recipe:getResult():getFullType()) then recipe:setLuaTest("shopsAndTraders.OnAuthZMoneyStack") end
+        if recipe and recipe:getResult():getFullType()=="AuthenticZClothing.Authentic_MoneyStack" then recipe:setLuaTest("shopsAndTraders.OnAuthZMoneyStack") end
     end
 end
 Events.OnGameBoot.Add(recipeOverride)
