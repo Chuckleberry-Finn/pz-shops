@@ -260,11 +260,11 @@ function ISInventoryPane:onMouseUp(x, y)
 
     local result = ISInventoryPane_onMouseUp(self, x, y)
     if not result then
-        if getDebug() then print("ISInventoryPane_onMouseUp: no result") end
+        --if getDebug() then print("ISInventoryPane_onMouseUp: no result") end
         return
     end
     if busy or (not noSpecialKeys) then
-        if getDebug() then print("ISInventoryPane_onMouseUp: busy|(not noSpecialKeys)") end
+        --if getDebug() then print("ISInventoryPane_onMouseUp: busy|(not noSpecialKeys)") end
         return
     end
     self.selected = selectedOld
