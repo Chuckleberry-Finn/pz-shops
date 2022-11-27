@@ -447,7 +447,10 @@ function storeWindow:drawStock(y, item, alt)
         local listing = storeObj.listings[item.item]
         if listing then
 
-            local showListing = ((listing.stock ~= 0 or listing.reselling==true) and (listing.available ~= 0) and (texture or #validCategory>0))
+            local validCategoryLen = 0
+            if type(validCategory)=="table" then validCategoryLen = #validCategory end
+
+            local showListing = ((listing.stock ~= 0 or listing.reselling==true) and (listing.available ~= 0) and (texture or validCategoryLen>0))
             if listing.alwaysShow==true then showListing = true end
             local managing = (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug()))
 
@@ -461,7 +464,7 @@ function storeWindow:drawStock(y, item, alt)
                 end
 
                 local extra = ""
-                if not (texture or #validCategory>0) then extra = "\<!\> " end
+                if (not texture) or (not validCategoryLen>0) then extra = "\<!\> " end
 
                 self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
                 if texture then self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b) end
