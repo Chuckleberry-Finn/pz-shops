@@ -43,7 +43,9 @@ function getOrSetWalletID(playerObj)
     if not playerModData then print("WARN: Player created without modData - can't append wallet.") return end
     if not playerModData.wallet_UUID then playerModData.wallet_UUID = getRandomUUID() end
 
-    if not CLIENT_WALLETS[playerModData.wallet_UUID] then sendClientCommand(playerObj, "shop", "getOrSetWallet", {playerID=playerModData.wallet_UUID,steamID=playerObj:getSteamID()}) end
+    if not CLIENT_WALLETS[playerModData.wallet_UUID] then
+        sendClientCommand(playerObj, "shop", "setWallet", {playerID=playerModData.wallet_UUID, steamID=playerObj:getSteamID(), playerUsername=playerObj:getUsername()})
+    end
 
     return playerModData.wallet_UUID
 end

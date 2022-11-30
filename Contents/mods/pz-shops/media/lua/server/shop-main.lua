@@ -8,15 +8,17 @@ STORE_HANDLER = {}
 local wallet = {}
 wallet.steamID = false
 wallet.playerUUID = false
+wallet.playerUsername = false
 wallet.amount = 25
 
 
-function WALLET_HANDLER.new(playerID,steamID)
+function WALLET_HANDLER.new(playerID,steamID,playerUsername)
     if not playerID then print("ERROR: wallet:new - No playerID provided.") return end
     if not steamID then print("ERROR: wallet:new - No steamID provided.") return end
     local newWallet = copyTable(wallet)
     newWallet.playerUUID = playerID
     newWallet.steamID = steamID
+    newWallet.playerUsername = playerUsername
     newWallet.amount = SandboxVars.ShopsAndTraders.StartingWallet or newWallet.amount
     GLOBAL_WALLETS[newWallet.playerUUID] = newWallet
 end
@@ -25,17 +27,21 @@ function WALLET_HANDLER.scrubWallet(playerID)
     GLOBAL_WALLETS[playerID] = nil
 end
 
-function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID)
-    local matchingWallet = GLOBAL_WALLETS[playerID] or WALLET_HANDLER.new(playerID,steamID)
+function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID,playerUsername)
+    local matchingWallet = GLOBAL_WALLETS[playerID] or WALLET_HANDLER.new(playerID,steamID,playerUsername)
+
+    matchingWallet.steamID = matchingWallet.steamID or steamID
+    matchingWallet.playerUsername = matchingWallet.playerUsername or playerUsername
+
     return matchingWallet
 end
 
 
-function WALLET_HANDLER.getWalletsByUuidAndSteam(playerID,steamID)
+function WALLET_HANDLER.getWalletsByUuidAndSteam(playerID,steamID,playerUsername)
 
     local matchingWallets = {}
 
-    local walletByUUID = WALLET_HANDLER.getorSetPlayerWallet(playerID,steamID)
+    local walletByUUID = WALLET_HANDLER.getorSetPlayerWallet(playerID,steamID,playerUsername)
     table.insert(matchingWallets, walletByUUID)
 
     for _,playerWallet in pairs(GLOBAL_WALLETS) do if (playerWallet.steamID == steamID) then table.insert(matchingWallets, playerWallet) end end
@@ -214,10 +220,12 @@ end
 function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
     if not playerID then print("ERROR: validatePurchases: No playerID") return end
     if not storeID then print("ERROR: validatePurchases: No storeID") return end
+
     local storeObj = STORE_HANDLER.getStoreByID(storeID)
     if not storeObj then print("ERROR: validatePurchases: No storeObj") return end
 
     local playerWallet = WALLET_HANDLER.getOrSetPlayerWallet(playerID)
+    if not playerWallet then print("ERROR: validatePurchases: No valid player wallet") return end
 
     for _,itemType in pairs(selling) do
 
