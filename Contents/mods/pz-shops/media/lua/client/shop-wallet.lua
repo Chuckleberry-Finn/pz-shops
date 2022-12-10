@@ -360,7 +360,7 @@ function ISCharacterScreen:moneyMouseOver(x, y)
 end
 
 
----@param moneyItem InventoryItem
+---@param moneyItem InventoryItem|IsoObject
 function ISCharacterScreen:depositMoney(moneyItem)
     local playerModData = self.char:getModData()
     local value = moneyItem:getModData().value
@@ -368,8 +368,13 @@ function ISCharacterScreen:depositMoney(moneyItem)
 
     local worldItem = moneyItem:getWorldItem()
     if worldItem then
+        ---@type IsoGridSquare
         local sq = worldItem:getSquare()
-        if sq then sq:transmitRemoveItemFromSquare(worldItem) end
+        if sq then
+            sq:transmitRemoveItemFromSquare(worldItem)
+            sq:removeWorldObject(worldItem)
+            moneyItem:setWorldItem(nil)
+        end
     end
 
     local container = moneyItem:getContainer()
