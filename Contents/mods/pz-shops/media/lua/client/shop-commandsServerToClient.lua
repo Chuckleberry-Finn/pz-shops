@@ -18,6 +18,15 @@ local function onServerCommand(_module, _command, _data)
 
     if _command == "severModData_received" then onClientModDataReady() end
     if _command == "transmitItem" then getPlayer():getInventory():AddItem(_data.item) end
+
+    if _command == "setWalletCash" then
+        local moneyTypes = _internal.getMoneyTypes()
+        local type = moneyTypes[ZombRand(#moneyTypes)+1]
+        local money = InventoryItemFactory.CreateItem(type)
+        generateMoneyValue(money, _data.value)
+        getPlayer():getInventory():AddItem(money)
+    end
+
     if _command == "updateTransferOffer" then
         if ISTradingUI.instance and ISTradingUI.instance:isVisible() then ISTradingUI.instance.setOfferedAmount = _data.amount end
     end

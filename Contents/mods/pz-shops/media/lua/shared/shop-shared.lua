@@ -1,6 +1,36 @@
 ---internal functions for handling tables more object-like (copy/new/etc)
 _internal = {}
 
+local moneyTypes = {"Base.Money"}
+local activeModIDs = getActivatedMods()
+for i=1, activeModIDs:size() do
+    local modID = activeModIDs:get(i-1)
+    if modID == "Authentic Z - Current" then table.insert(moneyTypes, "AuthenticZClothing.Authentic_MoneyStack") end
+end
+
+local _moneyTypes
+function _internal.validateMoneyTypes()
+    if not _moneyTypes then
+        _moneyTypes = {}
+        for _,type in pairs(moneyTypes) do _moneyTypes[type] = true end
+    end
+end
+
+function _internal.getMoneyTypes()
+    _internal.validateMoneyTypes()
+    return moneyTypes
+end
+function _internal.isMoneyType(itemType)
+    _internal.validateMoneyTypes()
+    return _moneyTypes[itemType]
+end
+
+function _internal.generateMoneyValue_clientWorkAround(item, value, force)
+    generateMoneyValue(item, value, force)
+end
+
+
+
 function _internal.floorCurrency(n) return math.floor(n*100)/100 end
 function _internal.numToCurrency(n)
     local formatted = string.format("%.2f", _internal.floorCurrency(n))

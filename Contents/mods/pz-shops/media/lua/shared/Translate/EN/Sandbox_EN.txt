@@ -3,7 +3,19 @@ Sandbox_EN = {
 	Sandbox_ShopsAndTraders_PercentageDropOnDeath = "Money-Drop Percentage",
 	Sandbox_ShopsAndTraders_PercentageDropOnDeath_tooltip = "This percentage will be how much money is dropped when a player dies.",
 
-    Sandbox_ShopsAndTraders_StartingWallet = "Starting Wallet Value",
+    Sandbox_ShopsAndTraders_PlayerWallets = "Players Wallets"
+    Sandbox_ShopsAndTraders_PlayerWallets_tooltip = "Disabling this would force players to always carry their cash."
+
+    Sandbox_ShopsAndTraders_CanWithdraw = "Can Withdraw Cash",
+    Sandbox_ShopsAndTraders_CanWithdraw_tooltip = "If players can withdraw money-items from their wallets. Requires "Players Wallets" to be 'True' to have an impact.",
+
+    Sandbox_ShopsAndTraders_MoneySpawnMin = "Minimum Value For Money-Item",
+    Sandbox_ShopsAndTraders_MoneySpawnMin_tooltip = "The minimum value money items can spawn with.",
+
+    Sandbox_ShopsAndTraders_MoneySpawnMax = "Maximum Value For Money-Item",
+    Sandbox_ShopsAndTraders_MoneySpawnMax_tooltip = "The maximum value money items can spawn with.",
+
+    Sandbox_ShopsAndTraders_StartingWallet = "Starting Amount of Money",
     Sandbox_ShopsAndTraders_StartingWallet_tooltip = "How much money players start with.",
 
 	Sandbox_ShopsAndTraders_MoneyWeight = "Money Weight",
@@ -14,14 +26,5 @@ Sandbox_EN = {
 
     Sandbox_ShopsAndTraders_TradersResetStock = "Restocking Traders Reset Their Stock",
     Sandbox_ShopsAndTraders_TradersResellItems_tooltip = "When traders restock they clear out items sold to them.",
-
-    Sandbox_ShopsAndTraders_CanWithdraw = "Can Withdraw Cash",
-    Sandbox_ShopsAndTraders_CanWithdraw_tooltip = "If players can withdraw money-items from their wallets.",
-
-    Sandbox_ShopsAndTraders_MoneySpawnMin = "Minimum Value For Money-Item",
-    Sandbox_ShopsAndTraders_MoneySpawnMin_tooltip = "The minimum value money items can spawn with.",
-
-    Sandbox_ShopsAndTraders_MoneySpawnMax = "Maximum Value For Money-Item",
-    Sandbox_ShopsAndTraders_MoneySpawnMax_tooltip = "The maximum value money items can spawn with.",
 
 	}

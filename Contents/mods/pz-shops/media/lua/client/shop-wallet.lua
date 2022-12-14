@@ -4,25 +4,8 @@ require "ISUI/ISInventoryPaneContextMenu"
 require "ISUI/ISTextBox"
 require "luautils"
 
-local moneyTypes = {"Base.Money"}
-
-local activeModIDs = getActivatedMods()
-for i=1, activeModIDs:size() do
-    local modID = activeModIDs:get(i-1)
-    if modID == "Authentic Z - Current" then table.insert(moneyTypes, "AuthenticZClothing.Authentic_MoneyStack") end
-end
-
-local trueKeyed, _moneyTypes
-if not trueKeyed then
-    _moneyTypes = {}
-    for _,type in pairs(moneyTypes) do _moneyTypes[type] = true end
-    trueKeyed = true
-end
-
-function isMoneyType(itemType) return _moneyTypes[itemType] end
-
 local function modifyScript()
-    for type,_ in pairs(_moneyTypes) do
+    for _,type in pairs(_internal.getMoneyTypes()) do
         ---@type Item
         local script = getScriptManager():getItem(type)
         local weight = SandboxVars.ShopsAndTraders.MoneyWeight
@@ -44,7 +27,9 @@ function getOrSetWalletID(playerObj)
     if not playerModData.wallet_UUID then playerModData.wallet_UUID = getRandomUUID() end
 
     local playerWallet = CLIENT_WALLETS[playerModData.wallet_UUID]
-    if not playerWallet or (playerWallet and not playerWallet.playerUsername) then
+    local forceMoneyOut = (SandboxVars.ShopsAndTraders.PlayerWallets and playerWallet.amount>0)
+
+    if not playerWallet or (playerWallet and not playerWallet.playerUsername) or forceMoneyOut then
         sendClientCommand(playerObj, "shop", "getOrSetWallet", {playerID=playerModData.wallet_UUID, steamID=playerObj:getSteamID(), playerUsername=playerObj:getUsername()})
     end
 
@@ -55,7 +40,7 @@ end
 local valuedMoney = {}
 ---@param item InventoryItem
 function generateMoneyValue(item, value, force)
-    if item ~= nil and _moneyTypes[item:getFullType()] and (not valuedMoney[item] or force) then
+    if item ~= nil and _internal.isMoneyType(item:getFullType()) and (not valuedMoney[item] or force) then
         if (not item:getModData().value) or force then
 
             local min = (SandboxVars.ShopsAndTraders.MoneySpawnMin or 1.5)*100
@@ -73,7 +58,7 @@ end
 
 ---@param playerObj IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
 local function onPlayerDeath(playerObj)
-
+    if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
     local playerModData = playerObj:getModData()
     if not playerModData then print("WARN: Player without modData.") return end
     if not playerModData.wallet_UUID then print("- No Player wallet_UUID.") return end
@@ -152,7 +137,7 @@ function ISSliderBox:onClick(button, playerObj, item)
             generateMoneyValue(money, transferValue)
             playerObj:getInventory():AddItem(money)
 
-            if item and _moneyTypes[item:getFullType()] and item:getModData() and item:getModData().value > 0 then
+            if item and _internal.isMoneyType(item:getFullType()) and item:getModData() and item:getModData().value > 0 then
                 local newValue = item:getModData().value-transferValue
                 generateMoneyValue(item, newValue, true)
             end
@@ -181,7 +166,7 @@ function ISInventoryPane:refreshContainer()
     _refreshContainer(self)
     for _, entry in ipairs(self.itemslist) do
         for _,item in pairs(entry.items) do
-            if item ~= nil and _moneyTypes[item:getFullType()] then generateMoneyValue(item) end
+            if item ~= nil and _internal.isMoneyType(item:getFullType()) then generateMoneyValue(item) end
         end
     end
 end
@@ -280,7 +265,7 @@ function ISInventoryPane:onMouseUp(x, y)
         local doWalk = true
         local dragging = ISInventoryPane.getActualItems(draggingOld)
         for i,v in ipairs(dragging) do
-            if _moneyTypes[v:getFullType()] then
+            if _internal.isMoneyType(v:getFullType()) then
                 local transfer = v:getContainer() and not self.inventory:isInside(v)
                 if v:isFavorite() and not self.inventory:isInCharacterInventory(playerObj) then transfer = false end
                 if transfer then
@@ -301,7 +286,7 @@ function ISInventoryPane:onMouseUp(x, y)
 
         for _,money in pairs(moneyFound) do if money==pushToActual then return end end
 
-        if pushToActual and _moneyTypes[pushToActual:getFullType()] then
+        if pushToActual and _internal.isMoneyType(pushToActual:getFullType()) then
             local ptValue = pushToActual:getModData().value
             local consolidatedValue = 0
             for _,money in pairs(moneyFound) do
@@ -331,6 +316,7 @@ Events.OnPreFillInventoryObjectContextMenu.Add(addContext)
 
 
 function ISCharacterScreen:withdraw(button)
+    if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
     if SandboxVars.ShopsAndTraders.CanWithdraw then
         local walletBalance = getWalletBalance(self.char)
         if walletBalance <= 0 then return end
@@ -362,6 +348,7 @@ end
 
 ---@param moneyItem InventoryItem|IsoObject
 function ISCharacterScreen:depositMoney(moneyItem)
+    if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
     local playerModData = self.char:getModData()
     local value = moneyItem:getModData().value
     sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=playerModData.wallet_UUID, receive=nil})
@@ -386,6 +373,7 @@ end
 
 
 function ISCharacterScreen:depositOnMouseUp(x, y)
+    if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
     if self.vscroll then self.vscroll.scrolling = false end
     local counta = 1
     if ISMouseDrag.dragging then
@@ -412,28 +400,44 @@ end
 local ISCharacterScreen_initialise = ISCharacterScreen.initialise
 function ISCharacterScreen:initialise()
     ISCharacterScreen_initialise(self)
-    self.withdraw = ISButton:new(0, 0, 55, 20, string.lower(getText("IGUI_WALLET")), self, ISCharacterScreen.withdraw)
-    self.withdraw.font = UIFont.NewSmall
-    self.withdraw.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
-    self.withdraw.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
-    self.withdraw.onMouseUp = self.depositOnMouseUp
-    self.withdraw:setOnMouseOverFunction(self.moneyMouseOver)
-    self.withdraw:setOnMouseOutFunction(self.moneyMouseOut)
-    self.withdraw:initialise()
-    self.withdraw:instantiate()
-    self:addChild(self.withdraw)
+    if SandboxVars.ShopsAndTraders.PlayerWallets then
+        self.withdraw = ISButton:new(0, 0, 55, 20, string.lower(getText("IGUI_WALLET")), self, ISCharacterScreen.withdraw)
+        self.withdraw.font = UIFont.NewSmall
+        self.withdraw.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
+        self.withdraw.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
+        self.withdraw.onMouseUp = self.depositOnMouseUp
+        self.withdraw:setOnMouseOverFunction(self.moneyMouseOver)
+        self.withdraw:setOnMouseOutFunction(self.moneyMouseOut)
+        self.withdraw:initialise()
+        self.withdraw:instantiate()
+        self:addChild(self.withdraw)
+    end
 end
+
+
+local playersChecked = {}
+local function applyWallet(player)
+    if not playersChecked[player] then
+        getOrSetWalletID(player)
+        playersChecked[player] = true
+    end
+end
+local function applyWalletCreate(_,player) applyWallet(player) end
 
 
 local ISCharacterScreen_render = ISCharacterScreen.render
 function ISCharacterScreen:render()
     ISCharacterScreen_render(self)
-    self.withdraw:setX(self.avatarX+self.avatarWidth+25)
-    self.withdraw:setY(self.literatureButton.y+52)
-    self.withdraw:setWidthToTitle(55)
-    getOrSetWalletID(self.char)
-    local walletBalance = getWalletBalance(self.char)
-    self.withdraw.enable = (walletBalance > 0)
-    local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
-    self:drawText(walletBalanceLine, self.withdraw.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
+    if SandboxVars.ShopsAndTraders.PlayerWallets then
+        self.withdraw:setX(self.avatarX+self.avatarWidth+25)
+        self.withdraw:setY(self.literatureButton.y+52)
+        self.withdraw:setWidthToTitle(55)
+        applyWallet(self.char)
+        local walletBalance = getWalletBalance(self.char)
+        self.withdraw.enable = (walletBalance > 0)
+        local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
+        self:drawText(walletBalanceLine, self.withdraw.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
+    end
 end
+Events.OnCreatePlayer.Add(applyWalletCreate)
+Events.OnPlayerMove.Add(applyWallet)

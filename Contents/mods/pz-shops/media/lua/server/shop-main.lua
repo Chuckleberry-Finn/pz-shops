@@ -20,18 +20,34 @@ function WALLET_HANDLER.new(playerID,steamID,playerUsername)
     newWallet.steamID = steamID
     newWallet.playerUsername = playerUsername
     newWallet.amount = SandboxVars.ShopsAndTraders.StartingWallet or newWallet.amount
+
     GLOBAL_WALLETS[newWallet.playerUUID] = newWallet
+    return GLOBAL_WALLETS[newWallet.playerUUID]
 end
 
 function WALLET_HANDLER.scrubWallet(playerID)
     GLOBAL_WALLETS[playerID] = nil
 end
 
-function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID,playerUsername)
+function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID,playerUsername,playerObj)
     local matchingWallet = GLOBAL_WALLETS[playerID] or WALLET_HANDLER.new(playerID,steamID,playerUsername)
 
     matchingWallet.steamID = matchingWallet.steamID or steamID
     matchingWallet.playerUsername = matchingWallet.playerUsername or playerUsername
+
+    if not SandboxVars.ShopsAndTraders.PlayerWallets then
+        local walletValue = matchingWallet.amount
+        matchingWallet.amount = 0
+        if isServer() then
+            sendServerCommand(playerObj, "shop", "setWalletCash", {value=walletValue})
+        else
+            local moneyTypes = _internal.getMoneyTypes()
+            local type = moneyTypes[ZombRand(#moneyTypes)+1]
+            local money = InventoryItemFactory.CreateItem(type)
+            _internal.generateMoneyValue_clientWorkAround(money, walletValue)
+            playerObj:getInventory():AddItem(money)
+        end
+    end
 
     return matchingWallet
 end

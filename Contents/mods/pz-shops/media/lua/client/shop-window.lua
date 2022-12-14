@@ -448,7 +448,7 @@ function storeWindow:drawStock(y, item, alt)
         if listing then
 
             local validCategoryLen = 0
-            if type(validCategory)=="table" then validCategoryLen = #validCategory end
+            if type(validCategory)=="table" then validCategoryLen = #validCategory or 0 end
 
             local showListing = ((listing.stock ~= 0 or listing.reselling==true) and (listing.available ~= 0) and (texture or validCategoryLen>0))
             if listing.alwaysShow==true then showListing = true end
@@ -464,7 +464,7 @@ function storeWindow:drawStock(y, item, alt)
                 end
 
                 local extra = ""
-                if (not texture) or (not validCategoryLen>0) then extra = "\<!\> " end
+                if (not texture) and (not (validCategoryLen <= 0)) then extra = "\[!\] " end
 
                 self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
                 if texture then self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b) end
@@ -644,20 +644,22 @@ function storeWindow:displayOrderTotal()
     self:drawText(textForTotal, w-xOffset+5, y+(fontH/2), tColor.r, tColor.g, tColor.b, tColor.a, self.font)
     self:drawRectBorder(x, y+4, w, h, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
 
-    self:drawRect(x, y+h+8, w, h, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
-    local walletBalance = getWalletBalance(self.player)
-    local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
-    local bColor = balanceColor.normal
-    if (walletBalance-totalForTransaction) < 0 then bColor = balanceColor.red end
-    self:drawText(walletBalanceLine, x+10, y+h+4+(fontH/2), bColor.r, bColor.g, bColor.b, bColor.a, self.font)
+    if SandboxVars.ShopsAndTraders.PlayerWallets then
+        self:drawRect(x, y+h+8, w, h, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
+        local walletBalance = getWalletBalance(self.player)
+        local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
+        local bColor = balanceColor.normal
+        if (walletBalance-totalForTransaction) < 0 then bColor = balanceColor.red end
+        self:drawText(walletBalanceLine, x+10, y+h+4+(fontH/2), bColor.r, bColor.g, bColor.b, bColor.a, self.font)
 
-    local walletBalanceAfter = walletBalance-totalForTransaction
-    local sign = " "
-    if walletBalanceAfter < 0 then sign = "-" end
-    local wbaText = sign.._internal.numToCurrency(math.abs(walletBalanceAfter))
-    local xOffset2 = getTextManager():MeasureStringX(self.font, wbaText)+15
-    self:drawText(wbaText, w-xOffset2+5, y+h+4+(fontH/2), 0.7, 0.7, 0.7, 0.7, self.font)
-    self:drawRectBorder(x, y+h+8, w, h, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+        local walletBalanceAfter = walletBalance-totalForTransaction
+        local sign = " "
+        if walletBalanceAfter < 0 then sign = "-" end
+        local wbaText = sign.._internal.numToCurrency(math.abs(walletBalanceAfter))
+        local xOffset2 = getTextManager():MeasureStringX(self.font, wbaText)+15
+        self:drawText(wbaText, w-xOffset2+5, y+h+4+(fontH/2), 0.7, 0.7, 0.7, 0.7, self.font)
+        self:drawRectBorder(x, y+h+8, w, h, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+    end
 end
 
 
@@ -1027,6 +1029,9 @@ function storeWindow:onClick(button)
         self.importBtn.toggled = false
     end
 
+    if button.internal == "EXPORT_CLIPBOARD" then
+        Clipboard.setClipboard(_internal.tableToString(CLIENT_STORES))
+    end
 
     if button.internal == "IMPORT_EXPORT_STORES" then
 
@@ -1123,6 +1128,8 @@ function storeWindow:onBrowse(storeObj, mapObj)
     sendClientCommand("shop", "updateItemDictionary", { itemsToCategories=itemDictionary.itemsToCategories })
 
     triggerEvent("SHOPPING_ClientModDataReady")
+
+    getOrSetWalletID(getPlayer())
 
     local ui = storeWindow:new(50,50,555,555, getPlayer(), storeObj, mapObj)
     ui:initialise()

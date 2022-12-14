@@ -55,21 +55,27 @@ end
 local ISTradingUI_render = ISTradingUI.render
 function ISTradingUI:render()
 
-    local color = {r=1, g=1, b=1, a=0.9}
+    if SandboxVars.ShopsAndTraders.PlayerWallets then
+        local color = {r=1, g=1, b=1, a=0.9}
 
-    local walletBalance = getWalletBalance(self.player)
-    local walletBalanceLine = _internal.numToCurrency(walletBalance)
-    self.walletFunds:drawText(walletBalanceLine, 10, 2, color.r, color.g, color.b, color.a, self.font)
+        local walletBalance = getWalletBalance(self.player)
+        local walletBalanceLine = _internal.numToCurrency(walletBalance)
+        self.walletFunds:drawText(walletBalanceLine, 10, 2, color.r, color.g, color.b, color.a, self.font)
 
-    local currentInput = tonumber(self.transferFunds:getInternalText():match("0*(%d+)")) or 0
-    local offerAmount = math.min(walletBalance, math.max(0,currentInput))
-    local offeredAmountTxt = tostring(offerAmount)
-    if self.transferFunds:getInternalText() ~= offeredAmountTxt then self.transferFunds:setText(offeredAmountTxt) end
-    
-    sendClientCommand("shop", "changeTransferOffer", {onlineID=self.otherPlayer:getOnlineID(), amount=offerAmount})
+        local currentInput = tonumber(self.transferFunds:getInternalText():match("0*(%d+)")) or 0
+        local offerAmount = math.min(walletBalance, math.max(0,currentInput))
+        local offeredAmountTxt = tostring(offerAmount)
+        if self.transferFunds:getInternalText() ~= offeredAmountTxt then self.transferFunds:setText(offeredAmountTxt) end
 
-    local offerText = getText("IGUI_OFFERING")..": ".._internal.numToCurrency(self.setOfferedAmount)
-    self.offeredFunds:drawText(offerText, 10, 2, color.r, color.g, color.b, color.a, self.font)
+        sendClientCommand("shop", "changeTransferOffer", {onlineID=self.otherPlayer:getOnlineID(), amount=offerAmount})
+
+        local offerText = getText("IGUI_OFFERING")..": ".._internal.numToCurrency(self.setOfferedAmount)
+        self.offeredFunds:drawText(offerText, 10, 2, color.r, color.g, color.b, color.a, self.font)
+    else
+        self.walletFunds:setVisible(false)
+        self.transferFunds:setVisible(false)
+        self.offeredFunds:setVisible(false)
+    end
 
     ISTradingUI_render(self)
 
@@ -86,25 +92,28 @@ end
 local ISTradingUI_updateButtons = ISTradingUI.updateButtons
 function ISTradingUI:updateButtons()
     ISTradingUI_updateButtons(self)
+    if SandboxVars.ShopsAndTraders.PlayerWallets then
+        local offeredAmount = tonumber(self.transferFunds:getInternalText()) or 0
+        local otherOffer = self.setOfferedAmount
 
-    local offeredAmount = tonumber(self.transferFunds:getInternalText()) or 0
-    local otherOffer = self.setOfferedAmount
-
-    if #self.yourOfferDatas.items > 0 or #self.hisOfferDatas.items > 0 or otherOffer > 0 or offeredAmount > 0 then
-        self.acceptDeal.enable = true
-        self.acceptDeal.tooltip = nil
+        if #self.yourOfferDatas.items > 0 or #self.hisOfferDatas.items > 0 or otherOffer > 0 or offeredAmount > 0 then
+            self.acceptDeal.enable = true
+            self.acceptDeal.tooltip = nil
+        end
     end
 end
 
+
 local ISTradingUI_finalizeDeal = ISTradingUI.finalizeDeal
 function ISTradingUI:finalizeDeal()
+    if SandboxVars.ShopsAndTraders.PlayerWallets then
+        local offeredAmount = tonumber(self.transferFunds:getInternalText()) or 0
+        local otherOffer = self.setOfferedAmount
 
-    local offeredAmount = tonumber(self.transferFunds:getInternalText()) or 0
-    local otherOffer = self.setOfferedAmount
+        local playerID = self.player:getModData().wallet_UUID
+        local otherIO = self.otherPlayer:getModData().wallet_UUID
 
-    local playerID = self.player:getModData().wallet_UUID
-    local otherIO = self.otherPlayer:getModData().wallet_UUID
-
-    sendClientCommand("shop", "transferFunds", {giver=playerID, give=offeredAmount, receiver=otherIO, receive=otherOffer})
+        sendClientCommand("shop", "transferFunds", {giver=playerID, give=offeredAmount, receiver=otherIO, receive=otherOffer})
+    end
     ISTradingUI_finalizeDeal(self)
 end

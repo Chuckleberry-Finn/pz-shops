@@ -27,7 +27,7 @@ local function onClientCommand(_module, _command, _player, _data)
     if _command == "getOrSetWallet" then
         print("SETTING PLAYER WALLET: ".._data.playerID.."  for user:".._data.steamID)
         local playerID, steamID, playerUsername = _data.playerID, _data.steamID, _data.playerUsername
-        WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID,playerUsername)
+        WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID,playerUsername,_player)
         triggerEvent("SHOPPING_ServerModDataReady")
     end
 
