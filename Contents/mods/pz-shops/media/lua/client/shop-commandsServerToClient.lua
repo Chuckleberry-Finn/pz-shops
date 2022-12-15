@@ -1,3 +1,5 @@
+require "shop-shared"
+
 LuaEventManager.AddEvent("SHOPPING_ClientModDataReady")
 
 local function onClientModDataReady()
