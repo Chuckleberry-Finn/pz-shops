@@ -277,7 +277,7 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
         local listing = STORE_HANDLER.validateItemType(storeID,itemType)
         if listing then
             if playerWallet.amount-listing.price < 0 then break end
-            playerWallet.amount = playerWallet.amount-listing.price
+            WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,listing.price)
             if listing.available > 0 then
                 if listing.available <  1 then return end
                 listing.available = listing.available-1

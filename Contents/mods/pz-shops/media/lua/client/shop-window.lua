@@ -1064,21 +1064,32 @@ function storeWindow:finalizeDeal()
     local itemToPurchase = {}
     local itemsToSell = {}
 
+    local orderTotal = self:getOrderTotal()
+
     for i,v in ipairs(self.yourCartData.items) do
         if type(v.item) == "string" then
             table.insert(itemToPurchase, v.item)
         else
             local itemType, _, _ = self:rtrnTypeIfValid(v.item)
             if itemType then
+                local removeItem = true
                 if _internal.isMoneyType(itemType) then
                     local value = v.item:getModData().value
                     local pID = self.player:getModData().wallet_UUID
+
+                    if value > orderTotal then
+                        v.item:getModData().value = value-orderTotal
+                        removeItem = false
+                    end
+
                     sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=pID, receive=nil})
                 else
                     table.insert(itemsToSell, itemType)
                 end
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
-                self.player:getInventory():Remove(v.item)
+                if removeItem then
+                    self.player:getInventory():Remove(v.item)
+                end
             end
         end
     end
