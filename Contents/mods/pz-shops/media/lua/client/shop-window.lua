@@ -1082,7 +1082,9 @@ function storeWindow:finalizeDeal()
                         value = orderTotal
                         removeItem = false
                     end
-                    sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=pID, receive=nil})
+                    if SandboxVars.ShopsAndTraders.PlayerWallets then
+                        sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=pID, receive=nil})
+                    end
                 else
                     table.insert(itemsToSell, itemType)
                 end
