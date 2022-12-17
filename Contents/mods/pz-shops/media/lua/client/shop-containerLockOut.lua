@@ -67,6 +67,7 @@ function ISInventoryPage:update()
                 unlockedIndex = self:nextUnlockedContainer(currentIndex, false)
             end
             if unlockedIndex ~= -1 then
+                local playerObj = getSpecificPlayer(self.player)
                 if playerObj:getJoypadBind() ~= -1 then
                     self.backpackChoice = unlockedIndex
                 end
