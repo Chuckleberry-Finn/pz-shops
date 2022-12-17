@@ -67,6 +67,7 @@ local function onPlayerDeath(playerObj)
     local transferAmount = math.floor((walletBalance*(SandboxVars.ShopsAndTraders.PercentageDropOnDeath/100) * 100) / 100)
 
     if transferAmount > 0 then
+        local moneyTypes = _internal.getMoneyTypes()
         local type = moneyTypes[ZombRand(#moneyTypes)+1]
         local money = InventoryItemFactory.CreateItem(type)
         if money then
@@ -129,7 +130,7 @@ end
 function ISSliderBox:onClick(button, playerObj, item)
     if button.internal == "OK" then
         local transferValue = button.parent.slider:getCurrentValue()
-
+        local moneyTypes = _internal.getMoneyTypes()
         local type = moneyTypes[ZombRand(#moneyTypes)+1]
         local money = InventoryItemFactory.CreateItem(type)
 
