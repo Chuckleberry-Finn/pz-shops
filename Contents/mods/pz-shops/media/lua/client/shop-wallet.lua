@@ -306,7 +306,7 @@ local function addContext(playerID, context, items)
     for _, v in ipairs(items) do
         local item = v
         if not instanceof(v, "InventoryItem") then item = v.items[1] end
-        if _moneyTypes[item:getFullType()] then
+        if _internal.isMoneyType(item:getFullType()) then
             local itemValue = item:getModData().value
             if itemValue and itemValue>1 then context:addOption(getText("IGUI_SPLIT"), item, onSplitStack, playerObj) end
         end
@@ -335,8 +335,8 @@ function ISCharacterScreen:moneyMouseOver(x, y)
     local money = false
     if ISMouseDrag.dragging then
         for i,v in ipairs(ISMouseDrag.dragging) do
-            if instanceof(v, "InventoryItem") and _moneyTypes[v:getFullType()] then money = true break
-            else if v.invPanel.collapsed[v.name] then for i2,v2 in ipairs(v.items) do if _moneyTypes[v2:getFullType()] then money = true break end end end
+            if instanceof(v, "InventoryItem") and _internal.isMoneyType(v:getFullType()) then money = true break
+            else if v.invPanel.collapsed[v.name] then for i2,v2 in ipairs(v.items) do if _internal.isMoneyType(v2:getFullType()) then money = true break end end end
             end
         end
         if money then self.withdraw:setTitle(string.lower(getText("IGUI_DEPOSIT"))) end
@@ -379,12 +379,12 @@ function ISCharacterScreen:depositOnMouseUp(x, y)
     if ISMouseDrag.dragging then
         for i,v in ipairs(ISMouseDrag.dragging) do
             counta = 1
-            if instanceof(v, "InventoryItem") and _moneyTypes[v:getFullType()] then self.parent:depositMoney(v)
+            if instanceof(v, "InventoryItem") and _internal.isMoneyType(v:getFullType()) then self.parent:depositMoney(v)
             else
                 if v.invPanel.collapsed[v.name] then
                     counta = 1
                     for i2,v2 in ipairs(v.items) do
-                        if counta > 1 and _moneyTypes[v2:getFullType()] then self.parent:depositMoney(v2) end
+                        if counta > 1 and _internal.isMoneyType(v2:getFullType()) then self.parent:depositMoney(v2) end
                         counta = counta + 1
                     end
                 end
