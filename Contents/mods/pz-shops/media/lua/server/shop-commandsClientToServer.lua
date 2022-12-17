@@ -44,19 +44,16 @@ local function onClientCommand(_module, _command, _player, _data)
         if giverID then giverWallet = WALLET_HANDLER.getOrSetPlayerWallet(giverID) end
         if receiverID then receiverWallet = WALLET_HANDLER.getOrSetPlayerWallet(receiverID) end
 
-        if giverWallet and receiverWallet then
-            if give then
-                giverWallet.amount = giverWallet.amount-give
-                receiverWallet.amount = receiverWallet.amount+give
-            end
-            if receive then
-                giverWallet.amount = giverWallet.amount+receive
-                receiverWallet.amount = receiverWallet.amount-receive
-            end
-        else
-            if not receiverWallet then print("ERROR: transferFunds: No valid receiverWallet") end
-            if not giverWallet then print("ERROR: transferFunds: No valid giverWallet") end
+        if giverWallet then
+            if give then giverWallet.amount = giverWallet.amount-give end
+            if receive then giverWallet.amount = giverWallet.amount+receive end
         end
+
+        if receiverWallet then
+            if give then receiverWallet.amount = receiverWallet.amount+give end
+            if receive then receiverWallet.amount = receiverWallet.amount-receive end
+        end
+        
         triggerEvent("SHOPPING_ServerModDataReady")
     end
 

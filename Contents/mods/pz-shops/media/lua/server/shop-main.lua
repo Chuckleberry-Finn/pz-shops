@@ -34,14 +34,16 @@ function WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,amount)
     if SandboxVars.ShopsAndTraders.PlayerWallets then
         playerWallet.amount = playerWallet.amount+amount
     else
-        if isServer() then
-            sendServerCommand(playerObj, "shop", "sendMoneyItem", {value=amount})
-        else
-            local moneyTypes = _internal.getMoneyTypes()
-            local type = moneyTypes[ZombRand(#moneyTypes)+1]
-            local money = InventoryItemFactory.CreateItem(type)
-            _internal.generateMoneyValue_clientWorkAround(money, amount)
-            playerObj:getInventory():AddItem(money)
+        if amount>0 then
+            if isServer() then
+                sendServerCommand(playerObj, "shop", "sendMoneyItem", {value=amount})
+            else
+                local moneyTypes = _internal.getMoneyTypes()
+                local type = moneyTypes[ZombRand(#moneyTypes)+1]
+                local money = InventoryItemFactory.CreateItem(type)
+                _internal.generateMoneyValue_clientWorkAround(money, amount)
+                playerObj:getInventory():AddItem(money)
+            end
         end
     end
 end
