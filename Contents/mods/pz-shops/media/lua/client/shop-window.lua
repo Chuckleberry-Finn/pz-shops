@@ -342,7 +342,7 @@ function storeWindow:rtrnTypeIfValid(item)
         if self.player and luautils.haveToBeTransfered(self.player, item) then return false, "IGUI_NOTRADE_OUTSIDEINV" end
         if (item:getCondition()/item:getConditionMax())<0.75 or item:isBroken() then return false, "IGUI_NOTRADE_DAMAGED" end
         itemType = item:getFullType()
-        if (isMoneyType(itemType) and item:getModData().value) then return itemType end
+        if (_internal.isMoneyType(itemType) and item:getModData().value) then return itemType end
 
         itemCat = item:getDisplayCategory()
     end
@@ -399,11 +399,11 @@ function storeWindow:drawCart(y, item, alt)
 
     local balanceDiff = 0
     if storeObj and (not noList) then
-        local listing = storeObj.listings[itemType] or storeObj.listings["category:"..tostring(itemCat)] or isMoneyType(itemType)
+        local listing = storeObj.listings[itemType] or storeObj.listings["category:"..tostring(itemCat)] or _internal.isMoneyType(itemType)
         if listing then
             if type(item.item) == "string" then balanceDiff = listing.price
             else
-                if isMoneyType(itemType) then balanceDiff = 0-item.item:getModData().value
+                if _internal.isMoneyType(itemType) then balanceDiff = 0-item.item:getModData().value
                 else balanceDiff = 0-(listing.price*(listing.buybackRate/100))
                 end
             end
@@ -606,7 +606,7 @@ function storeWindow:getOrderTotal()
         local itemType, _, itemCat = self:rtrnTypeIfValid(v.item)
         if itemType then
             if type(v.item) ~= "string" then
-                if isMoneyType(itemType) then totalForTransaction = totalForTransaction-(v.item:getModData().value)
+                if _internal.isMoneyType(itemType) then totalForTransaction = totalForTransaction-(v.item:getModData().value)
                 else
                     local itemListing = self.storeObj.listings[itemType] or self.storeObj.listings["category:"..tostring(itemCat)]
                     if itemListing then totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100)) end
@@ -1070,7 +1070,7 @@ function storeWindow:finalizeDeal()
         else
             local itemType, _, _ = self:rtrnTypeIfValid(v.item)
             if itemType then
-                if isMoneyType(itemType) then
+                if _internal.isMoneyType(itemType) then
                     local value = v.item:getModData().value
                     local pID = self.player:getModData().wallet_UUID
                     sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=pID, receive=nil})
