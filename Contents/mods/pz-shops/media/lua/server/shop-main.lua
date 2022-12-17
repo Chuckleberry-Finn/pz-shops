@@ -29,6 +29,24 @@ function WALLET_HANDLER.scrubWallet(playerID)
     GLOBAL_WALLETS[playerID] = nil
 end
 
+
+function WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,amount)
+    if SandboxVars.ShopsAndTraders.PlayerWallets then
+        playerWallet.amount = playerWallet.amount+amount
+    else
+        if isServer() then
+            sendServerCommand(playerObj, "shop", "sendMoneyItem", {value=amount})
+        else
+            local moneyTypes = _internal.getMoneyTypes()
+            local type = moneyTypes[ZombRand(#moneyTypes)+1]
+            local money = InventoryItemFactory.CreateItem(type)
+            _internal.generateMoneyValue_clientWorkAround(money, amount)
+            playerObj:getInventory():AddItem(money)
+        end
+    end
+end
+
+
 function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID,playerUsername,playerObj)
     local matchingWallet = GLOBAL_WALLETS[playerID] or WALLET_HANDLER.new(playerID,steamID,playerUsername)
 
@@ -37,16 +55,8 @@ function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID,playerUsername,pla
 
     if not SandboxVars.ShopsAndTraders.PlayerWallets then
         local walletValue = matchingWallet.amount
+        WALLET_HANDLER.validateMoneyOrWallet(matchingWallet,playerObj,walletValue)
         matchingWallet.amount = 0
-        if isServer() then
-            sendServerCommand(playerObj, "shop", "setWalletCash", {value=walletValue})
-        else
-            local moneyTypes = _internal.getMoneyTypes()
-            local type = moneyTypes[ZombRand(#moneyTypes)+1]
-            local money = InventoryItemFactory.CreateItem(type)
-            _internal.generateMoneyValue_clientWorkAround(money, walletValue)
-            playerObj:getInventory():AddItem(money)
-        end
     end
 
     return matchingWallet
@@ -248,7 +258,7 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
         local listing = STORE_HANDLER.validateItemType(storeID,itemType)
         if listing then
             local adjustedPrice = listing.price*(listing.buybackRate/100)
-            playerWallet.amount = playerWallet.amount+adjustedPrice
+            WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,adjustedPrice)
 
             if listing.reselling == true then
                 if listing.item ~= itemType then

@@ -21,7 +21,7 @@ local function onServerCommand(_module, _command, _data)
     if _command == "severModData_received" then onClientModDataReady() end
     if _command == "transmitItem" then getPlayer():getInventory():AddItem(_data.item) end
 
-    if _command == "setWalletCash" then
+    if _command == "sendMoneyItem" then
         local moneyTypes = _internal.getMoneyTypes()
         local type = moneyTypes[ZombRand(#moneyTypes)+1]
         local money = InventoryItemFactory.CreateItem(type)
