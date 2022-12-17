@@ -1077,17 +1077,17 @@ function storeWindow:finalizeDeal()
                     local value = v.item:getModData().value
                     local pID = self.player:getModData().wallet_UUID
 
-                    if value > orderTotal then
-                        v.item:getModData().value = value-orderTotal
+                    if orderTotal<0 and value > math.abs(orderTotal) then
+                        generateMoneyValue(v.item, value+orderTotal, true)
+                        value = orderTotal
                         removeItem = false
                     end
-
                     sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=pID, receive=nil})
                 else
                     table.insert(itemsToSell, itemType)
                 end
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
-                if removeItem then
+                if removeItem and orderTotal<0 then
                     self.player:getInventory():Remove(v.item)
                 end
             end
