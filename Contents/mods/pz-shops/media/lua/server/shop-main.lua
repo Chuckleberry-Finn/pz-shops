@@ -245,7 +245,7 @@ end
 
 
 ---@param playerObj IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
-function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
+function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling,money)
     if not playerID then print("ERROR: validatePurchases: No playerID") return end
     if not storeID then print("ERROR: validatePurchases: No storeID") return end
 
@@ -273,19 +273,32 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling)
         end
     end
 
+    local itemsToTransmit = {}
+
     for _,itemType in pairs(buying) do
         local listing = STORE_HANDLER.validateItemType(storeID,itemType)
         if listing then
-            if playerWallet.amount-listing.price < 0 then break end
-            WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,0-listing.price)
+            local purchasePower = playerWallet.amount+money
+            if purchasePower-listing.price < 0 then break end
+            local costRemainder = math.max(0,listing.price-money)
+
             if listing.available > 0 then
                 if listing.available <  1 then return end
                 listing.available = listing.available-1
-            end
-
-            if isServer() then sendServerCommand(playerObj, "shop", "transmitItem", {item=listing.item})
-            else playerObj:getInventory():AddItem(listing.item)
+                WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,0-costRemainder)
+                table.insert(itemsToTransmit,listing.item)
             end
         end
     end
+
+    if #itemsToTransmit > 0 then
+        if isServer() then
+            sendServerCommand(playerObj, "shop", "transmitItems", {items=itemsToTransmit})
+        else
+            for _,itemType in pairs(itemsToTransmit) do
+                playerObj:getInventory():AddItem(itemType)
+            end
+        end
+    end
+
 end

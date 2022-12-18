@@ -620,6 +620,19 @@ function storeWindow:getOrderTotal()
     return totalForTransaction
 end
 
+function storeWindow:getPurchaseTotal()
+    local totalForPurchase = 0
+    for i,v in ipairs(self.yourCartData.items) do
+        local itemType, _, itemCat = self:rtrnTypeIfValid(v.item)
+        if itemType then
+            if type(v.item) == "string" then
+                local itemListing = self.storeObj.listings[v.item]
+                if itemListing then totalForPurchase = totalForPurchase+itemListing.price end
+            end
+        end
+    end
+    return totalForPurchase
+end
 
 function storeWindow:displayOrderTotal()
     local x = self.yourCartData.x
@@ -1064,7 +1077,12 @@ function storeWindow:finalizeDeal()
     local itemToPurchase = {}
     local itemsToSell = {}
 
-    local orderTotal = self:getOrderTotal()
+    --local orderTotal = self:getOrderTotal()
+    local walletID = getOrSetWalletID(self.player)
+    if not walletID then print("ERROR: finalizeDeal: No Wallet ID for "..self.player:getUsername()..", aborting.") return end
+
+    local purchaseTotal = self:getPurchaseTotal()
+    local moneyItemValueUsed = 0
 
     for i,v in ipairs(self.yourCartData.items) do
         if type(v.item) == "string" then
@@ -1072,35 +1090,36 @@ function storeWindow:finalizeDeal()
         else
             local itemType, _, _ = self:rtrnTypeIfValid(v.item)
             if itemType then
-                local removeItem = true
+                local removeItem = false
                 if _internal.isMoneyType(itemType) then
-                    local value = v.item:getModData().value
-                    local pID = self.player:getModData().wallet_UUID
+                    local moneyAmount = v.item:getModData().value
 
-                    if orderTotal<0 and value > math.abs(orderTotal) then
-                        generateMoneyValue(v.item, value+orderTotal, true)
-                        value = orderTotal
-                        removeItem = false
-                    end
-                    if SandboxVars.ShopsAndTraders.PlayerWallets then
-                        sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=pID, receive=nil})
+                    if purchaseTotal > 0 then
+                        local remainder = math.max(0, moneyAmount-purchaseTotal)
+                        local moneyNeeded = math.min(purchaseTotal, moneyAmount)
+
+                        moneyItemValueUsed = moneyItemValueUsed+moneyNeeded
+                        purchaseTotal = purchaseTotal-moneyNeeded
+
+                        if remainder <= 0 then
+                            removeItem = true
+                        else
+                            generateMoneyValue(v.item, remainder, true)
+                        end
                     end
                 else
+                    removeItem = true
                     table.insert(itemsToSell, itemType)
                 end
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
-                if removeItem and orderTotal<0 then
+                if removeItem then
                     self.player:getInventory():Remove(v.item)
                 end
             end
         end
     end
-
-    local walletID = getOrSetWalletID(self.player)
-    if not walletID then print("ERROR: finalizeDeal: No Wallet ID for "..self.player:getUsername()..", aborting.") return end
     self.yourCartData:clear()
-
-    sendClientCommand(self.player,"shop", "processOrder", { playerID=walletID, storeID=self.storeObj.ID, buying=itemToPurchase, selling=itemsToSell })
+    sendClientCommand(self.player,"shop", "processOrder", { playerID=walletID, storeID=self.storeObj.ID, buying=itemToPurchase, selling=itemsToSell, money=moneyItemValueUsed })
 end
 
 

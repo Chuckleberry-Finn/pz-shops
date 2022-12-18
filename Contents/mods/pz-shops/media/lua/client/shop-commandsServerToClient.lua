@@ -19,7 +19,7 @@ local function onServerCommand(_module, _command, _data)
     _data = _data or {}
 
     if _command == "severModData_received" then onClientModDataReady() end
-    if _command == "transmitItem" then getPlayer():getInventory():AddItem(_data.item) end
+    if _command == "transmitItems" then for _,itemType in pairs(_data.items) do getPlayer():getInventory():AddItem(itemType) end end
 
     if _command == "sendMoneyItem" then
         local moneyTypes = _internal.getMoneyTypes()

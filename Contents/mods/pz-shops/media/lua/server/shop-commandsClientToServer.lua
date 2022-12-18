@@ -146,8 +146,8 @@ local function onClientCommand(_module, _command, _player, _data)
 
     elseif _command == "processOrder" then
 
-        local storeID, buying, selling, playerID = _data.storeID, _data.buying, _data.selling, _data.playerID
-        STORE_HANDLER.validateOrder(_player, playerID, storeID, buying, selling)
+        local storeID, buying, selling, playerID, money = _data.storeID, _data.buying, _data.selling, _data.playerID, _data.money
+        STORE_HANDLER.validateOrder(_player, playerID, storeID, buying, selling, money)
         triggerEvent("SHOPPING_ServerModDataReady")
     end
 
