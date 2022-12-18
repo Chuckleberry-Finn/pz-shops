@@ -280,7 +280,10 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling,
         if listing then
             local purchasePower = playerWallet.amount+money
             if purchasePower-listing.price < 0 then break end
-            local costRemainder = math.max(0,listing.price-money)
+
+            local moneyNeeded = math.min(listing.price, money)
+            money = money-moneyNeeded
+            local costRemainder = math.max(0, listing.price-moneyNeeded)
 
             if listing.available > 0 then
                 if listing.available <  1 then return end
