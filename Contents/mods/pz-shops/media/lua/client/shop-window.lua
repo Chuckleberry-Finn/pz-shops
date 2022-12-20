@@ -602,9 +602,11 @@ end
 
 function storeWindow:getOrderTotal()
     local totalForTransaction = 0
+    local invalidOrder = false
     for i,v in ipairs(self.yourCartData.items) do
-        local itemType, _, itemCat = self:rtrnTypeIfValid(v.item)
+        local itemType, reason, itemCat = self:rtrnTypeIfValid(v.item)
         if itemType then
+            if reason then invalidOrder = true end
             if type(v.item) ~= "string" then
                 if _internal.isMoneyType(itemType) then totalForTransaction = totalForTransaction-(v.item:getModData().value)
                 else
@@ -617,7 +619,7 @@ function storeWindow:getOrderTotal()
             end
         end
     end
-    return totalForTransaction
+    return totalForTransaction, invalidOrder
 end
 
 function storeWindow:getPurchaseTotal()
@@ -647,7 +649,7 @@ function storeWindow:displayOrderTotal()
     local totalLine = getText("IGUI_TOTAL")..": "
     self:drawText(totalLine, x+10, y+(fontH/2), balanceColor.normal.r, balanceColor.normal.g, balanceColor.normal.b, balanceColor.normal.a, self.font)
 
-    local totalForTransaction = self:getOrderTotal()
+    local totalForTransaction, invalidOrder = self:getOrderTotal()
     local textForTotal = _internal.numToCurrency(math.abs(totalForTransaction))
     local tColor = balanceColor.normal
     if totalForTransaction < 0 then tColor, textForTotal = balanceColor.green, "+"..textForTotal
@@ -909,8 +911,11 @@ function storeWindow:render()
 
     self.importText:isEditable(shouldSeeStorePresetOptions and self.importBtn.toggled)
 
-    local purchaseValid = (getWalletBalance(self.player)-self:getOrderTotal()) >= 0
+    local totalForTransaction, invalidOrder = self:getOrderTotal()
+    local walletBalanceValid = (not SandboxVars.ShopsAndTraders.PlayerWallets) or (SandboxVars.ShopsAndTraders.PlayerWallets and ((getWalletBalance(self.player)-totalForTransaction) >= 0))
+    local purchaseValid = walletBalanceValid and (not invalidOrder)
     self.purchase.enable = (not managed and not blocked and #self.yourCartData.items>0 and purchaseValid)
+
     local gb = 1
     if not purchaseValid then gb = 0 end
     self.purchase.textColor = { r = 1, g = gb, b = gb, a = 0.7 }
@@ -1077,7 +1082,6 @@ function storeWindow:finalizeDeal()
     local itemToPurchase = {}
     local itemsToSell = {}
 
-    --local orderTotal = self:getOrderTotal()
     local walletID = getOrSetWalletID(self.player)
     if not walletID then print("ERROR: finalizeDeal: No Wallet ID for "..self.player:getUsername()..", aborting.") return end
 
