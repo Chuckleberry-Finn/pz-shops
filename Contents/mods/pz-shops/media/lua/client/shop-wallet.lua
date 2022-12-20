@@ -366,8 +366,8 @@ function ISCharacterScreen:depositMoney(moneyItem)
     end
 
     local container = moneyItem:getContainer()
-    container:setDrawDirty(true)
     container:Remove(moneyItem)
+    container:setDrawDirty(true)
 
     self.withdraw:setTitle(string.lower(getText("IGUI_WITHDRAW")))
 end
