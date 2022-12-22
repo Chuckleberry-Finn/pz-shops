@@ -55,8 +55,8 @@ function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID,playerUsername,pla
     matchingWallet.steamID = matchingWallet.steamID or steamID
     matchingWallet.playerUsername = matchingWallet.playerUsername or playerUsername
 
-    if playerObj and not SandboxVars.ShopsAndTraders.PlayerWallets then
-        local walletValue = matchingWallet.amount
+    local walletValue = matchingWallet.amount
+    if playerObj and not SandboxVars.ShopsAndTraders.PlayerWallets and walletValue>0 then
         WALLET_HANDLER.validateMoneyOrWallet(matchingWallet,playerObj,walletValue)
         matchingWallet.amount = 0
     end

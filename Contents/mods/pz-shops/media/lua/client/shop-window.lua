@@ -63,7 +63,7 @@ function storeWindow:onStoreItemSelected()
 
     if #self.yourCartData.items >= storeWindow.MaxItems then return end
     local inCart = 0
-    for k,v in pairs(self.yourCartData.items) do if v.item == item then inCart = inCart+1 end end
+    for _,v in pairs(self.yourCartData.items) do if v.item == item then inCart = inCart+1 end end
 
     if self.storeObj and ((self.storeObj.listings[item].available >= inCart+1) or (self.storeObj.listings[item].available == -1)) then
         local script = getScriptManager():getItem(item)
@@ -458,7 +458,7 @@ function storeWindow:drawStock(y, item, alt)
 
                 if not string.match(item.item, "category:") then
                     local inCart = 0
-                    for k,v in pairs(self.parent.yourCartData.items) do if v.item == item.item then inCart = inCart+1 end end
+                    for _,v in pairs(self.parent.yourCartData.items) do if v.item == item.item then inCart = inCart+1 end end
                     local availableTemp = listing.available-inCart
                     if availableTemp == 0 then color = {r=0.7, g=0.7, b=0.7, a=0.3} end
                 end
@@ -506,7 +506,7 @@ function storeWindow:displayStoreStock()
         if listing.price <= 0 then price = getText("IGUI_FREE") end
 
         local inCart = 0
-        for k,v in pairs(self.yourCartData.items) do if v.item == listing.item then inCart = inCart+1 end end
+        for _,v in pairs(self.yourCartData.items) do if v.item == listing.item then inCart = inCart+1 end end
         local availableTemp = listing.available-inCart
 
         local stockText = " ("..availableTemp.."/"..math.max(listing.available, listing.stock)..")"
@@ -539,7 +539,7 @@ end
 
 function storeWindow:addItemToYourCart(item)
     local add = true
-    for i,v in ipairs(self.yourCartData.items) do if v.item == item then add = false break end end
+    for _,v in ipairs(self.yourCartData.items) do if v.item == item then add = false break end end
     if add then self.yourCartData:addItem(item:getName(), item) end
 end
 
@@ -912,8 +912,9 @@ function storeWindow:render()
     self.importText:isEditable(shouldSeeStorePresetOptions and self.importBtn.toggled)
 
     local totalForTransaction, invalidOrder = self:getOrderTotal()
-    local walletBalanceValid = (not SandboxVars.ShopsAndTraders.PlayerWallets) or (SandboxVars.ShopsAndTraders.PlayerWallets and ((getWalletBalance(self.player)-totalForTransaction) >= 0))
-    local purchaseValid = walletBalanceValid and (not invalidOrder)
+    local validIfWallets = (SandboxVars.ShopsAndTraders.PlayerWallets and ((getWalletBalance(self.player)-totalForTransaction) >= 0))
+    local validIfNotWallets = ((not SandboxVars.ShopsAndTraders.PlayerWallets) and (totalForTransaction<=0))
+    local purchaseValid = (validIfWallets or validIfNotWallets) and (not invalidOrder)
     self.purchase.enable = (not managed and not blocked and #self.yourCartData.items>0 and purchaseValid)
 
     local gb = 1
