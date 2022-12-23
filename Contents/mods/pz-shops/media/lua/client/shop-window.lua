@@ -849,8 +849,12 @@ end
 
 function storeWindow:render()
 
-    if self.mapObject and self.mapObject:getModData().storeObjID then self.storeObj = CLIENT_STORES[self.mapObject:getModData().storeObjID] end
-    if self.storeObj and self.mapObject and not self.mapObject:getModData().storeObjID then self.storeObj = nil end
+    local mapObjModData
+    if self.mapObject then
+        mapObjModData = self.mapObject:getModData()
+        if mapObjModData and mapObjModData.storeObjID then self.storeObj = CLIENT_STORES[mapObjModData.storeObjID] end
+        if self.storeObj and not mapObjModData.storeObjID then self.storeObj = nil end
+    end
 
     self:updateButtons()
     self:updateTooltip()
