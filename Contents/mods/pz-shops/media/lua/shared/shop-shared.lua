@@ -31,7 +31,9 @@ end
 
 
 
-function _internal.floorCurrency(n) return math.floor(n*100)/100 end
+function _internal.floorCurrency(n)
+    return Math.round(n*100)/100
+end
 function _internal.numToCurrency(n)
     local formatted = string.format("%.2f", _internal.floorCurrency(n))
     formatted = formatted:gsub("%.00", "")

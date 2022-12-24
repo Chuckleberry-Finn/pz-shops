@@ -89,7 +89,10 @@ local function onClientCommand(_module, _command, _player, _data)
             if object and (not instanceof(object, "IsoWorldInventoryObject")) and _internal.getMapObjectName(object)==mapObjName then
 
                 local objMD = object:getModData()
-                if objMD and objMD.storeObjID and not GLOBAL_STORES[objMD.storeObjID] then objMD.storeObjID = nil end
+                if objMD and objMD.storeObjID and not GLOBAL_STORES[objMD.storeObjID] then
+                    objMD.storeObjID = nil
+                    object:transmitModData()
+                end
 
                 if _command ~= "clearStoreFromMapObj" and objMD and objMD.storeObjID then
                     print("WARNING: ".._command.." failed: Matching object ID: ("..GLOBAL_STORES[object:getModData().storeObjID].name.."); bypassed.")

@@ -32,9 +32,10 @@ end
 
 function WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,amount)
     if SandboxVars.ShopsAndTraders.PlayerWallets then
-        playerWallet.amount = playerWallet.amount+amount
+        playerWallet.amount = _internal.floorCurrency(playerWallet.amount+amount)
     else
         if amount>0 then
+            amount = _internal.floorCurrency(amount)
             if isServer() then
                 sendServerCommand(playerObj, "shop", "sendMoneyItem", {value=amount})
             else
