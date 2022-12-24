@@ -45,13 +45,13 @@ local function onClientCommand(_module, _command, _player, _data)
         if receiverID then receiverWallet = WALLET_HANDLER.getOrSetPlayerWallet(receiverID) end
 
         if giverWallet then
-            if give then giverWallet.amount = giverWallet.amount-give end
-            if receive then giverWallet.amount = giverWallet.amount+receive end
+            if give then WALLET_HANDLER.validateMoneyOrWallet(giverWallet,_player,0-give) end
+            if receive then WALLET_HANDLER.validateMoneyOrWallet(giverWallet,_player,receive) end
         end
 
         if receiverWallet then
-            if give then receiverWallet.amount = receiverWallet.amount+give end
-            if receive then receiverWallet.amount = receiverWallet.amount-receive end
+            if give then WALLET_HANDLER.validateMoneyOrWallet(receiverWallet,_player,give) end
+            if receive then WALLET_HANDLER.validateMoneyOrWallet(receiverWallet,_player,0-receive) end
         end
         
         triggerEvent("SHOPPING_ServerModDataReady")

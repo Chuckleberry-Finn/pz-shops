@@ -148,9 +148,9 @@ function storeWindow:initialise()
 
     self.addStockEntry = ISTextEntryBox:new("", self.storeStockData.x, self.addStockBtn.y, self.storeStockData.width-self.addStockBtn.width-3, self.addStockBtn.height)
     self.addStockEntry.font = UIFont.Medium
+    self.addStockEntry.onTextChange = storeWindow.addItemEntryChange
     self.addStockEntry:initialise()
     self.addStockEntry:instantiate()
-    self.addStockEntry.onTextChange = storeWindow.addItemEntryChange
     self:addChild(self.addStockEntry)
 
     self.addStockPrice = ISTextEntryBox:new("0", self.addStockEntry.x+10, self.addStockEntry.y+self.addStockEntry.height+3, 30, self.addStockBtn.height)
