@@ -5,8 +5,8 @@ local function validStoreObject(mapObject)
     local storeObjID = mapObject:getModData().storeObjID
     if storeObjID then
         local storeObj = GLOBAL_STORES[storeObjID]
-        if storeObj.isBeingManaged and (isAdmin() or isCoopHost() or getDebug()) then canView = true end
         canView = false
+        if storeObj.isBeingManaged and (isAdmin() or isCoopHost() or getDebug()) then canView = true end
     end
     return canView
 end
