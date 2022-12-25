@@ -11,7 +11,7 @@ local function validStoreObject(mapObject)
             if storeObjID then
                 local storeObj = CLIENT_STORES[storeObjID]
                 canView = false
-                if storeObj.isBeingManaged and (isAdmin() or isCoopHost() or getDebug()) then canView = true end
+                if storeObj and storeObj.isBeingManaged and (isAdmin() or isCoopHost() or getDebug()) then canView = true end
             end
         end
     end
