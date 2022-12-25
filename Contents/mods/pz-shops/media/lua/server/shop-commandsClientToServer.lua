@@ -102,7 +102,7 @@ local function onClientCommand(_module, _command, _player, _data)
             end
         end
 
-        if not foundObjToApplyTo then print("ERROR: No foundObjToApplyTo.") return end
+        if not foundObjToApplyTo then print("ERROR: ".._command..": No foundObjToApplyTo.") return end
 
         if _command == "connectStorePreset" then
             STORE_HANDLER.connectStoreByID(foundObjToApplyTo,storeID)
