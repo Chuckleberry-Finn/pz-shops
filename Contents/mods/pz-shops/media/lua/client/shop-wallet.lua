@@ -36,6 +36,23 @@ function getOrSetWalletID(playerObj)
     return playerModData.wallet_UUID
 end
 
+local function safelyRemoveMoney(moneyItem)
+    local worldItem = moneyItem:getWorldItem()
+    if worldItem then
+        ---@type IsoGridSquare
+        local sq = worldItem:getSquare()
+        if sq then
+            sq:transmitRemoveItemFromSquare(worldItem)
+            sq:removeWorldObject(worldItem)
+            moneyItem:setWorldItem(nil)
+        end
+    end
+
+    local container = moneyItem:getContainer()
+    container:Remove(moneyItem)
+    container:setDrawDirty(true)
+end
+
 
 local valuedMoney = {}
 ---@param item InventoryItem
@@ -293,8 +310,7 @@ function ISInventoryPane:onMouseUp(x, y)
             for _,money in pairs(moneyFound) do
                 local valueFound = (money:getModData().value or 0)
                 consolidatedValue = consolidatedValue+valueFound
-                local container = money:getContainer()
-                container:Remove(money)
+                safelyRemoveMoney(money)
             end
             generateMoneyValue(pushToActual, ptValue+consolidatedValue, true)
         end
@@ -353,22 +369,7 @@ function ISCharacterScreen:depositMoney(moneyItem)
     local playerModData = self.char:getModData()
     local value = moneyItem:getModData().value
     sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=playerModData.wallet_UUID, receive=nil})
-
-    local worldItem = moneyItem:getWorldItem()
-    if worldItem then
-        ---@type IsoGridSquare
-        local sq = worldItem:getSquare()
-        if sq then
-            sq:transmitRemoveItemFromSquare(worldItem)
-            sq:removeWorldObject(worldItem)
-            moneyItem:setWorldItem(nil)
-        end
-    end
-
-    local container = moneyItem:getContainer()
-    container:Remove(moneyItem)
-    container:setDrawDirty(true)
-
+    safelyRemoveMoney(moneyItem)
     self.withdraw:setTitle(string.lower(getText("IGUI_WITHDRAW")))
 end
 
