@@ -32,7 +32,10 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects)
 
             if object:getModData().storeObjID then
                 local storeObj = CLIENT_STORES[object:getModData().storeObjID]
-                if not storeObj then object:getModData().storeObjID = nil end
+                if not storeObj then
+                    object:getModData().storeObjID = nil
+                    object:transmitModData()
+                end
             end
 
             if object:getModData().storeObjID or (isAdmin() or isCoopHost() or getDebug()) then
