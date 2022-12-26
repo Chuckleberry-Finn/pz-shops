@@ -1,5 +1,4 @@
 require "ISObjectClickHandler"
-require "shop-window"
 
 local function validStoreObject(mapObject)
     local canView = true
@@ -19,10 +18,5 @@ function ISObjectClickHandler.doClick(object, x, y)
     local vanillaClick = true
     if storeObjID and validStoreObject(object)==false then vanillaClick=false end
 
-    if vanillaClick==true then
-        ISObjectClickHandler_doClick(object, x, y)
-    else
-        local storeObj = GLOBAL_STORES[storeObjID]
-        if storeObj then storeWindow:onBrowse(storeObj, object) end
-    end
+    if vanillaClick==true then ISObjectClickHandler_doClick(object, x, y) end
 end
