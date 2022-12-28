@@ -1,7 +1,7 @@
 require "ISUI/ISInventoryPane"
 require "ISUI/ISInventoryPage"
 
-
+---Validates if the mapObject can be interacted with
 local function canInteractWithContents(mapObject)
     local canView = true
     if mapObject then
@@ -19,6 +19,7 @@ local function canInteractWithContents(mapObject)
 end
 
 
+---Prevents transfer from or to a locked container
 local ISInventoryTransferAction_isValid = ISInventoryTransferAction.isValid
 function ISInventoryTransferAction:isValid()
     if self.destContainer and self.srcContainer then
@@ -29,6 +30,7 @@ function ISInventoryTransferAction:isValid()
 end
 
 
+---Prevents dragging items out of a locked container
 local ISInventoryPage_dropItemsInContainer = ISInventoryPage.dropItemsInContainer
 function ISInventoryPage:dropItemsInContainer(button)
     local container = self.mouseOverButton and self.mouseOverButton.inventory or nil
@@ -52,6 +54,8 @@ function ISInventoryPage:dropItemsInContainer(button)
 end
 
 
+---Slides the inventory page over to the next available page
+--TODO: Figure out why it doesn't go to `Floor`
 local ISInventoryPage_update = ISInventoryPage.update
 function ISInventoryPage:update()
     ISInventoryPage_update(self)
@@ -76,6 +80,7 @@ function ISInventoryPage:update()
 end
 
 
+---Places the lock texture over the button and prevents it from working
 local function containerLockOut(UI, STEP)
     if STEP == "buttonsAdded" then
 
