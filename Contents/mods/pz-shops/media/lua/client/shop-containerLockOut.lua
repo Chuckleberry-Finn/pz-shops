@@ -102,6 +102,7 @@ local function containerLockOut(UI, STEP)
                 end
             end
         end
+        UI.inventoryPane.inventory = UI.backpacks[#UI.backpacks].inventory
     end
 end
 Events.OnRefreshInventoryWindowContainers.Add(containerLockOut)
