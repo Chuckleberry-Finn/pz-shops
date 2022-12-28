@@ -3,18 +3,19 @@ require "ISUI/ISInventoryPage"
 
 ---Validates if the mapObject can be interacted with
 local function canInteractWithContents(mapObject)
+    if not mapObject then return true end
+
     local canView = true
-    if mapObject then
-        local mapObjectModData = mapObject:getModData()
-        if mapObjectModData then
-            local storeObjID = mapObjectModData.storeObjID
-            if storeObjID then
-                local storeObj = CLIENT_STORES[storeObjID]
-                canView = false
-                if storeObj and storeObj.isBeingManaged and (isAdmin() or isCoopHost() or getDebug()) then canView = true end
-            end
+    local mapObjectModData = mapObject:getModData()
+    if mapObjectModData then
+        local storeObjID = mapObjectModData.storeObjID
+        if storeObjID then
+            local storeObj = CLIENT_STORES[storeObjID]
+            canView = false
+            if storeObj and storeObj.isBeingManaged and (isAdmin() or isCoopHost() or getDebug()) then canView = true end
         end
     end
+
     return canView
 end
 
