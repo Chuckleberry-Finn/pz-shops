@@ -2,7 +2,7 @@ require "ISUI/ISInventoryPane"
 require "ISUI/ISInventoryPage"
 
 
-local function validStoreObject(mapObject)
+local function canViewContents(mapObject)
     local canView = true
     if mapObject then
         local mapObjectModData = mapObject:getModData()
@@ -22,7 +22,7 @@ end
 local ISInventoryTransferAction_isValid = ISInventoryTransferAction.isValid
 function ISInventoryTransferAction:isValid()
     if self.destContainer and self.srcContainer then
-        if validStoreObject(self.destContainer:getParent()) and validStoreObject(self.srcContainer:getParent()) then
+        if canViewContents(self.destContainer:getParent()) and canViewContents(self.srcContainer:getParent()) then
             return ISInventoryTransferAction_isValid(self)
         end
     end
@@ -36,7 +36,7 @@ function ISInventoryPage:dropItemsInContainer(button)
 
     if container then
         local mapObj = container:getParent()
-        if mapObj then allow = validStoreObject(mapObj) end
+        if mapObj then allow = canViewContents(mapObj) end
     end
 
     if allow then ISInventoryPage_dropItemsInContainer(self, button)
@@ -58,7 +58,7 @@ function ISInventoryPage:update()
     if not self.onCharacter then
         -- If the currently-selected container is locked to the player, select another container.
         local object = self.inventory and self.inventory:getParent() or nil
-        if object and #self.backpacks > 1 and instanceof(object, "IsoThumpable") and (not validStoreObject(object)) then
+        if object and #self.backpacks > 1 and instanceof(object, "IsoThumpable") and (not canViewContents(object)) then
             local currentIndex = self:getCurrentBackpackIndex()
             local unlockedIndex = self:prevUnlockedContainer(currentIndex, false)
             if unlockedIndex == -1 then
@@ -83,7 +83,7 @@ local function containerLockOut(UI, STEP)
             local mapObj = containerButton.inventory:getParent()
             if mapObj then
 
-                local canView = validStoreObject(mapObj)
+                local canView = canViewContents(mapObj)
 
                 if not canView and containerButton then
                     containerButton.onclick = nil
