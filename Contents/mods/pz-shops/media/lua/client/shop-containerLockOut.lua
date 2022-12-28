@@ -1,8 +1,10 @@
 require "ISUI/ISInventoryPane"
 require "ISUI/ISInventoryPage"
 
+local containerLockOut = {}
+
 ---Validates if the mapObject can be interacted with
-local function canInteractWithContents(mapObject)
+function containerLockOut.canInteract(mapObject)
     if not mapObject then return true end
 
     local canView = true
@@ -24,7 +26,7 @@ end
 local ISInventoryTransferAction_isValid = ISInventoryTransferAction.isValid
 function ISInventoryTransferAction:isValid()
     if self.destContainer and self.srcContainer then
-        if canInteractWithContents(self.destContainer:getParent()) and canInteractWithContents(self.srcContainer:getParent()) then
+        if containerLockOut.canInteract(self.destContainer:getParent()) and containerLockOut.canInteract(self.srcContainer:getParent()) then
             return ISInventoryTransferAction_isValid(self)
         end
     end
@@ -39,7 +41,7 @@ function ISInventoryPage:dropItemsInContainer(button)
 
     if container then
         local mapObj = container:getParent()
-        if mapObj then allow = canInteractWithContents(mapObj) end
+        if mapObj then allow = containerLockOut.canInteract(mapObj) end
     end
 
     if allow then ISInventoryPage_dropItemsInContainer(self, button)
@@ -55,14 +57,44 @@ function ISInventoryPage:dropItemsInContainer(button)
 end
 
 
----Slides the inventory page over to the next available page
+---Slides the inventory page over to the next available page when scrolling up
+local ISInventoryPage_prevUnlockedContainer = ISInventoryPage.prevUnlockedContainer
+function ISInventoryPage:prevUnlockedContainer(index, wrap)
+    local _index = ISInventoryPage_prevUnlockedContainer(self, index, wrap)
+    if _index ~= -1 then
+        local backpack = self.backpacks[_index]
+        local object = backpack.inventory:getParent()
+        if not containerLockOut.canInteract(object) then
+            return self:prevUnlockedContainer(_index, true)
+        end
+    end
+    return _index
+end
+
+
+---Slides the inventory page over to the next available page when scrolling down
+local ISInventoryPage_nextUnlockedContainer = ISInventoryPage.nextUnlockedContainer
+function ISInventoryPage:nextUnlockedContainer(index, wrap)
+    local _index = ISInventoryPage_nextUnlockedContainer(self, index, wrap)
+    if _index ~= -1 then
+        local backpack = self.backpacks[_index]
+        local object = backpack.inventory:getParent()
+        if not containerLockOut.canInteract(object) then
+            return self:nextUnlockedContainer(_index, true)
+        end
+    end
+    return _index
+end
+
+
+---Slides the inventory page over to the next available page on update
 local ISInventoryPage_update = ISInventoryPage.update
 function ISInventoryPage:update()
     ISInventoryPage_update(self)
     if not self.onCharacter then
         -- If the currently-selected container is locked to the player, select another container.
         local object = self.inventory and self.inventory:getParent() or nil
-        if object and #self.backpacks > 1 and instanceof(object, "IsoThumpable") and (not canInteractWithContents(object)) then
+        if object and #self.backpacks > 1 and (not containerLockOut.canInteract(object)) then
             local currentIndex = self:getCurrentBackpackIndex()
             local unlockedIndex = self:prevUnlockedContainer(currentIndex, false)
             if unlockedIndex == -1 then
@@ -81,14 +113,14 @@ end
 
 
 ---Places the lock texture over the button and prevents it from working
-local function containerLockOut(UI, STEP)
-    if STEP == "buttonsAdded" then
-        local firstOpen
+local function hideButtons(UI, STEP)
+    if STEP == "end" and (not UI.onCharacter) then
+
         for index,containerButton in ipairs(UI.backpacks) do
             local mapObj = containerButton.inventory:getParent()
             if mapObj then
 
-                local canView = canInteractWithContents(mapObj)
+                local canView = containerLockOut.canInteract(mapObj)
 
                 if not canView then
                     if containerButton then
@@ -100,12 +132,12 @@ local function containerLockOut(UI, STEP)
                         containerButton:setOnMouseOutFunction(nil)
                         containerButton.textureOverride = getTexture("media/ui/lock.png")
                     end
-                else
-                    firstOpen = firstOpen or index
                 end
             end
         end
-        UI.inventoryPane.inventory = UI.backpacks[firstOpen or #UI.backpacks].inventory
     end
 end
-Events.OnRefreshInventoryWindowContainers.Add(containerLockOut)
+
+Events.OnRefreshInventoryWindowContainers.Add(hideButtons)
+
+return containerLockOut
