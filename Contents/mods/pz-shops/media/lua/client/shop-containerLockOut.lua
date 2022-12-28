@@ -36,11 +36,9 @@ function ISInventoryPage:dropItemsInContainer(button)
 
     if container then
         local mapObj = container:getParent()
-        if mapObj then
-            local storeObjID = mapObj:getModData().storeObjID
-            if storeObjID then allow = validStoreObject(mapObj) end
-        end
+        if mapObj then allow = validStoreObject(mapObj) end
     end
+
     if allow then ISInventoryPage_dropItemsInContainer(self, button)
     else
         if ISMouseDrag.draggingFocus then
