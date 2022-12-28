@@ -338,6 +338,8 @@ function storeWindow:rtrnTypeIfValid(item)
     if type(item) == "string" then
         local itemScript = getScriptManager():getItem(item)
         if itemScript then itemType = item end
+
+        return itemType, false, itemCat
     else
         if self.player and luautils.haveToBeTransfered(self.player, item) then return false, "IGUI_NOTRADE_OUTSIDEINV" end
         if (item:getCondition()/item:getConditionMax())<0.75 or item:isBroken() then return false, "IGUI_NOTRADE_DAMAGED" end
@@ -345,20 +347,20 @@ function storeWindow:rtrnTypeIfValid(item)
         if (_internal.isMoneyType(itemType) and item:getModData().value) then return itemType end
 
         itemCat = item:getDisplayCategory()
-    end
 
-    local storeObj = self.storeObj
-    if storeObj and itemType then
+        local storeObj = self.storeObj
+        if storeObj and itemType then
 
-        local listing = storeObj.listings[itemType]
-        if not listing and itemCat then listing = storeObj.listings["category:"..tostring(itemCat)] end
-        if not listing then return false, "IGUI_NOTRADE_INVALIDTYPE" end
-        if listing then
-            if listing.buybackRate > 0 then return itemType, false, itemCat
-            else return itemType, "IGUI_NOTRADE_ONLYSELL" end
+            local listing = storeObj.listings[itemType]
+            if not listing and itemCat then listing = storeObj.listings["category:"..tostring(itemCat)] end
+            if not listing then return false, "IGUI_NOTRADE_INVALIDTYPE" end
+            if listing then
+                if listing.buybackRate > 0 then return itemType, false, itemCat
+                else return itemType, "IGUI_NOTRADE_ONLYSELL" end
+            end
         end
-
     end
+
     return false, nil
 end
 
