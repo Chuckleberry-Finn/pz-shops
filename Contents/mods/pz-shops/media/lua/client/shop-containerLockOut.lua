@@ -56,7 +56,6 @@ end
 
 
 ---Slides the inventory page over to the next available page
---TODO: Figure out why it doesn't go to `Floor`
 local ISInventoryPage_update = ISInventoryPage.update
 function ISInventoryPage:update()
     ISInventoryPage_update(self)
@@ -84,25 +83,29 @@ end
 ---Places the lock texture over the button and prevents it from working
 local function containerLockOut(UI, STEP)
     if STEP == "buttonsAdded" then
-
+        local firstOpen
         for index,containerButton in ipairs(UI.backpacks) do
             local mapObj = containerButton.inventory:getParent()
             if mapObj then
 
                 local canView = canInteractWithContents(mapObj)
 
-                if not canView and containerButton then
-                    containerButton.onclick = nil
-                    containerButton.onmousedown = nil
-                    containerButton.onMouseUp = nil
-                    containerButton.onRightMouseDown = nil
-                    containerButton:setOnMouseOverFunction(nil)
-                    containerButton:setOnMouseOutFunction(nil)
-                    containerButton.textureOverride = getTexture("media/ui/lock.png")
+                if not canView then
+                    if containerButton then
+                        containerButton.onclick = nil
+                        containerButton.onmousedown = nil
+                        containerButton.onMouseUp = nil
+                        containerButton.onRightMouseDown = nil
+                        containerButton:setOnMouseOverFunction(nil)
+                        containerButton:setOnMouseOutFunction(nil)
+                        containerButton.textureOverride = getTexture("media/ui/lock.png")
+                    end
+                else
+                    firstOpen = firstOpen or index
                 end
             end
         end
-        UI.inventoryPane.inventory = UI.backpacks[#UI.backpacks].inventory
+        UI.inventoryPane.inventory = UI.backpacks[firstOpen or #UI.backpacks].inventory
     end
 end
 Events.OnRefreshInventoryWindowContainers.Add(containerLockOut)
