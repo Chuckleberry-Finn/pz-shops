@@ -27,7 +27,7 @@ function getOrSetWalletID(playerObj)
     if not playerModData.wallet_UUID then playerModData.wallet_UUID = getRandomUUID() end
 
     local playerWallet = CLIENT_WALLETS[playerModData.wallet_UUID]
-    local forceMoneyOut = (not SandboxVars.ShopsAndTraders.PlayerWallets and playerWallet and playerWallet.amount>0)
+    local forceMoneyOut = (SandboxVars.ShopsAndTraders.PlayerWallets==false and playerWallet and playerWallet.amount>0)
 
     if not playerWallet or (playerWallet and (not playerWallet.playerUsername or forceMoneyOut)) then
         sendClientCommand(playerObj, "shop", "getOrSetWallet", {playerID=playerModData.wallet_UUID, steamID=playerObj:getSteamID(), playerUsername=playerObj:getUsername()})
