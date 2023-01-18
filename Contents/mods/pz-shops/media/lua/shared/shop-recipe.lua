@@ -4,7 +4,7 @@ require "shop-wallet"
 --recipe Make a Stack of Money { Money, Result:Authentic_MoneyStack, Time:30.0, }
 --recipe Convert into Item { Authentic_MoneyStack, Result:Money, Time:30.0, }
 
-shopsAndTraders = {}
+local shopsAndTraders = {}
 function shopsAndTraders.OnAuthZMoneyStack(items, result, player) return false end
 
 local function recipeOverride()
@@ -16,3 +16,5 @@ local function recipeOverride()
     end
 end
 Events.OnGameBoot.Add(recipeOverride)
+
+return shopsAndTraders
