@@ -36,6 +36,8 @@ function getOrSetWalletID(playerObj)
     return playerModData.wallet_UUID
 end
 
+
+---@param moneyItem InventoryItem
 local function safelyRemoveMoney(moneyItem)
     local worldItem = moneyItem:getWorldItem()
     if worldItem then
@@ -48,9 +50,12 @@ local function safelyRemoveMoney(moneyItem)
         end
     end
 
+    ---@type ItemContainer
     local container = moneyItem:getContainer()
-    container:Remove(moneyItem)
-    container:setDrawDirty(true)
+    if container then
+
+        container:DoRemoveItem(moneyItem)
+    end
 end
 
 
