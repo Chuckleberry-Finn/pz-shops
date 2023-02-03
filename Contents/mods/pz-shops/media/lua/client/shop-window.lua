@@ -568,7 +568,7 @@ end
 
 
 function storeWindow:update()
-    if not self.player or not self.mapObject or (math.abs(self.player:getX()-self.mapObject:getX())>2) or (math.abs(self.player:getY()-self.mapObject:getY())>2) then
+    if not self.player or not self.worldObject or (math.abs(self.player:getX()-self.worldObject:getX())>2) or (math.abs(self.player:getY()-self.worldObject:getY())>2) then
         self:setVisible(false)
         self:removeFromUIManager()
         return
@@ -851,11 +851,11 @@ end
 
 function storeWindow:render()
 
-    local mapObjModData
-    if self.mapObject then
-        mapObjModData = self.mapObject:getModData()
-        if mapObjModData and mapObjModData.storeObjID then self.storeObj = CLIENT_STORES[mapObjModData.storeObjID] end
-        if self.storeObj and not mapObjModData.storeObjID then self.storeObj = nil end
+    local worldObjModData
+    if self.worldObject then
+        worldObjModData = self.worldObject:getModData()
+        if worldObjModData and worldObjModData.storeObjID then self.storeObj = CLIENT_STORES[worldObjModData.storeObjID] end
+        if self.storeObj and not worldObjModData.storeObjID then self.storeObj = nil end
     end
 
     self:updateButtons()
@@ -962,24 +962,24 @@ end
 
 function storeWindow:onClick(button)
 
-    local x, y, z, mapObjName = self.mapObject:getX(), self.mapObject:getY(), self.mapObject:getZ(), _internal.getMapObjectName(self.mapObject)
+    local x, y, z, worldObjName = self.worldObject:getX(), self.worldObject:getY(), self.worldObject:getZ(), _internal.getWorldObjectName(self.worldObject)
 
     if button.internal == "CONNECT_TO_STORE" or button.internal == "COPY_STORE" or button.internal == "DELETE_STORE_PRESET" then
 
         local currentAssignSelection = self.assignComboBox:getOptionData(self.assignComboBox.selected)
 
         if button.internal == "COPY_STORE" and self.assignComboBox.selected==1 then
-            sendClientCommand("shop", "assignStore", { x=x, y=y, z=z, mapObjName=mapObjName })
+            sendClientCommand("shop", "assignStore", { x=x, y=y, z=z, worldObjName=worldObjName })
         else
             if self.assignComboBox.selected~=1 then
                 if button.internal == "COPY_STORE" then
-                    sendClientCommand("shop", "copyStorePreset", { storeID=currentAssignSelection, x=x, y=y, z=z, mapObjName=mapObjName })
+                    sendClientCommand("shop", "copyStorePreset", { storeID=currentAssignSelection, x=x, y=y, z=z, worldObjName=worldObjName })
 
                 elseif button.internal == "DELETE_STORE_PRESET" then
                     sendClientCommand("shop", "deleteStorePreset", { storeID=currentAssignSelection })
 
                 elseif button.internal == "CONNECT_TO_STORE" then
-                    sendClientCommand("shop", "connectStorePreset", { storeID=currentAssignSelection, x=x, y=y, z=z, mapObjName=mapObjName })
+                    sendClientCommand("shop", "connectStorePreset", { storeID=currentAssignSelection, x=x, y=y, z=z, worldObjName=worldObjName })
 
                 end
             end
@@ -987,7 +987,7 @@ function storeWindow:onClick(button)
     end
 
     if button.internal == "CLEAR_STORE" and self.storeObj and self:isBeingManaged() then
-        sendClientCommand("shop", "clearStoreFromMapObj", { storeID=self.storeObj.ID, x=x, y=y, z=z, mapObjName=mapObjName })
+        sendClientCommand("shop", "clearStoreFromWorldObj", { storeID=self.storeObj.ID, x=x, y=y, z=z, worldObjName=worldObjName })
     end
 
     if button.internal == "MANAGE" then
@@ -1038,7 +1038,7 @@ function storeWindow:onClick(button)
         local reselling = self.resell.selected[1]
 
         sendClientCommand("shop", "listNewItem", { isBeingManaged=store.isBeingManaged, alwaysShow = (self.alwaysShow.selected[1] or false),
-        item=newEntry, price=price, quantity=quantity, buybackRate=buybackRate, reselling=reselling, storeID=store.ID, x=x, y=y, z=z, mapObjName=mapObjName })
+        item=newEntry, price=price, quantity=quantity, buybackRate=buybackRate, reselling=reselling, storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
     end
 
     if button.internal == "CANCEL" then
@@ -1137,7 +1137,7 @@ end
 function storeWindow:RestoreLayout(name, layout) ISLayoutManager.DefaultRestoreWindow(self, layout) end
 function storeWindow:SaveLayout(name, layout) ISLayoutManager.DefaultSaveWindow(self, layout) end
 
-function storeWindow:new(x, y, width, height, player, storeObj, mapObj)
+function storeWindow:new(x, y, width, height, player, storeObj, worldObj)
     local o = {}
     x = getCore():getScreenWidth() / 2 - (width / 2)
     y = getCore():getScreenHeight() / 2 - (height / 2)
@@ -1151,7 +1151,7 @@ function storeWindow:new(x, y, width, height, player, storeObj, mapObj)
     o.width = width
     o.height = height
     o.player = player
-    o.mapObject = mapObj
+    o.worldObject = worldObj
     o.storeObj = storeObj
     o.moveWithMouse = true
     o.selectedItem = nil
@@ -1161,7 +1161,7 @@ function storeWindow:new(x, y, width, height, player, storeObj, mapObj)
 end
 
 
-function storeWindow:onBrowse(storeObj, mapObj)
+function storeWindow:onBrowse(storeObj, worldObj)
     if storeWindow.instance and storeWindow.instance:isVisible() then
         storeWindow.instance:setVisible(false)
         storeWindow.instance:removeFromUIManager()
@@ -1174,7 +1174,7 @@ function storeWindow:onBrowse(storeObj, mapObj)
 
     getOrSetWalletID(getPlayer())
 
-    local ui = storeWindow:new(50,50,555,555, getPlayer(), storeObj, mapObj)
+    local ui = storeWindow:new(50,50,555,555, getPlayer(), storeObj, worldObj)
     ui:initialise()
     ui:addToUIManager()
 end

@@ -72,9 +72,9 @@ local function onClientCommand(_module, _command, _player, _data)
         sendServerCommand(player, "shop", "updateTransferOffer", {amount=amount})
     end
 
-    if _command == "assignStore" or _command == "copyStorePreset" or _command == "connectStorePreset" or _command == "clearStoreFromMapObj" then
+    if _command == "assignStore" or _command == "copyStorePreset" or _command == "connectStorePreset" or _command == "clearStoreFromWorldObj" then
 
-        local storeID, x, y, z, mapObjName = _data.storeID, _data.x, _data.y, _data.z, _data.mapObjName
+        local storeID, x, y, z, worldObjName = _data.storeID, _data.x, _data.y, _data.z, _data.worldObjName
         local sq = getSquare(x, y, z)
         if not sq then print("ERROR: Could not find square for assigning store.") return end
 
@@ -84,9 +84,9 @@ local function onClientCommand(_module, _command, _player, _data)
         local foundObjToApplyTo
 
         for i=0,objects:size()-1 do
-            ---@type IsoObject|MapObjects
+            ---@type IsoObject
             local object = objects:get(i)
-            if object and (not instanceof(object, "IsoWorldInventoryObject")) and _internal.getMapObjectName(object)==mapObjName then
+            if object and (not instanceof(object, "IsoWorldInventoryObject")) and _internal.getWorldObjectName(object)==worldObjName then
 
                 local objMD = object:getModData()
                 if objMD and objMD.storeObjID and not GLOBAL_STORES[objMD.storeObjID] then
@@ -94,7 +94,7 @@ local function onClientCommand(_module, _command, _player, _data)
                     object:transmitModData()
                 end
 
-                if _command ~= "clearStoreFromMapObj" and objMD and objMD.storeObjID then
+                if _command ~= "clearStoreFromWorldObj" and objMD and objMD.storeObjID then
                     print("WARNING: ".._command.." failed: Matching object ID: ("..GLOBAL_STORES[object:getModData().storeObjID].name.."); bypassed.")
                 else
                     foundObjToApplyTo = object
@@ -106,7 +106,7 @@ local function onClientCommand(_module, _command, _player, _data)
 
         if _command == "connectStorePreset" then
             STORE_HANDLER.connectStoreByID(foundObjToApplyTo,storeID)
-        elseif _command == "clearStoreFromMapObj" then
+        elseif _command == "clearStoreFromWorldObj" then
             STORE_HANDLER.clearStoreFromObject(foundObjToApplyTo)
         else --assign or copy
             STORE_HANDLER.copyStoreOntoObject(foundObjToApplyTo,storeID,true)
