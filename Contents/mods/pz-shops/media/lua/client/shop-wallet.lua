@@ -432,15 +432,16 @@ function ISCharacterScreen:initialise()
 end
 
 
-local playersChecked = {}
-local function applyWallet(player)
-    if not playersChecked[player] then
+local playersChecked = {onRender={},onMove={},onCreate={}}
+local function applyWallet(player, list)
+    list = list or playersChecked.onRender
+    if not list[player] then
         getOrSetWalletID(player)
-        playersChecked[player] = true
+        list[player] = true
     end
 end
-local function applyWalletCreate(_,player) applyWallet(player) end
-
+local function applyWalletCreate(_,player) applyWallet(player, playersChecked.onCreate) end
+local function applyWalletMove(_,player) applyWallet(player, playersChecked.onMove) end
 
 local ISCharacterScreen_render = ISCharacterScreen.render
 function ISCharacterScreen:render()
@@ -449,7 +450,7 @@ function ISCharacterScreen:render()
         self.withdraw:setX(self.avatarX+self.avatarWidth+25)
         self.withdraw:setY(self.literatureButton.y+52)
         self.withdraw:setWidthToTitle(55)
-        applyWallet(self.char)
+        applyWallet(self.char, playersChecked.onRender)
         local walletBalance = getWalletBalance(self.char)
         self.withdraw.enable = (walletBalance > 0)
         local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
@@ -457,4 +458,4 @@ function ISCharacterScreen:render()
     end
 end
 Events.OnCreatePlayer.Add(applyWalletCreate)
-Events.OnPlayerMove.Add(applyWallet)
+Events.OnPlayerMove.Add(applyWalletMove)
