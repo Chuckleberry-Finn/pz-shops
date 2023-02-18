@@ -347,7 +347,7 @@ end
 Events.OnPreFillInventoryObjectContextMenu.Add(addContext)
 
 
-function ISCharacterScreen:withdraw(button)
+function ISCharacterScreen:withdrawMoney(button)
     if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
     if SandboxVars.ShopsAndTraders.CanWithdraw then
         local walletBalance = getWalletBalance(self.char)
@@ -358,10 +358,10 @@ end
 
 
 function ISCharacterScreen:moneyMouseOut(x, y)
-    self.withdraw:setTitle(string.lower(getText("IGUI_WALLET")))
+    self.withdrawButton:setTitle(string.lower(getText("IGUI_WALLET")))
 end
 function ISCharacterScreen:moneyMouseOver(x, y)
-    if not self.withdraw.mouseOver or not self.withdraw.onmouseover then return end
+    if not self.withdrawButton.mouseOver or not self.withdrawButton.onmouseover then return end
 
     if self.vscroll then self.vscroll.scrolling = false end
     local money = false
@@ -371,9 +371,9 @@ function ISCharacterScreen:moneyMouseOver(x, y)
             else if v.invPanel.collapsed[v.name] then for i2,v2 in ipairs(v.items) do if _internal.isMoneyType(v2:getFullType()) then money = true break end end end
             end
         end
-        if money then self.withdraw:setTitle(string.lower(getText("IGUI_DEPOSIT"))) end
+        if money then self.withdrawButton:setTitle(string.lower(getText("IGUI_DEPOSIT"))) end
     else
-        if SandboxVars.ShopsAndTraders.CanWithdraw then self.withdraw:setTitle(string.lower(getText("IGUI_WITHDRAW"))) end
+        if SandboxVars.ShopsAndTraders.CanWithdraw then self.withdrawButton:setTitle(string.lower(getText("IGUI_WITHDRAW"))) end
     end
 end
 
@@ -385,7 +385,7 @@ function ISCharacterScreen:depositMoney(moneyItem)
     local value = moneyItem:getModData().value
     sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=playerModData.wallet_UUID, receive=nil})
     safelyRemoveMoney(moneyItem)
-    self.withdraw:setTitle(string.lower(getText("IGUI_WITHDRAW")))
+    self.withdrawButton:setTitle(string.lower(getText("IGUI_WITHDRAW")))
 end
 
 
@@ -414,21 +414,30 @@ function ISCharacterScreen:depositOnMouseUp(x, y)
 end
 
 
+function ISCharacterScreen:handleWithdrawButton()
+
+    if SandboxVars.ShopsAndTraders.PlayerWallets then
+        if self.withdrawButton then self.withdrawButton:setVisible(true) return end
+
+        self.withdrawButton = ISButton:new(0, 0, 55, 20, string.lower(getText("IGUI_WALLET")), self, ISCharacterScreen.withdrawMoney)
+        self.withdrawButton.font = UIFont.NewSmall
+        self.withdrawButton.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
+        self.withdrawButton.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
+        self.withdrawButton.onMouseUp = self.depositOnMouseUp
+        self.withdrawButton:setOnMouseOverFunction(self.moneyMouseOver)
+        self.withdrawButton:setOnMouseOutFunction(self.moneyMouseOut)
+        self.withdrawButton:initialise()
+        self.withdrawButton:instantiate()
+        self:addChild(self.withdrawButton)
+    else
+        if self.instance and self.withdrawButton then self.withdrawButton:setVisible(false) end
+    end
+end
+
 local ISCharacterScreen_initialise = ISCharacterScreen.initialise
 function ISCharacterScreen:initialise()
     ISCharacterScreen_initialise(self)
-    if SandboxVars.ShopsAndTraders.PlayerWallets then
-        self.withdraw = ISButton:new(0, 0, 55, 20, string.lower(getText("IGUI_WALLET")), self, ISCharacterScreen.withdraw)
-        self.withdraw.font = UIFont.NewSmall
-        self.withdraw.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
-        self.withdraw.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
-        self.withdraw.onMouseUp = self.depositOnMouseUp
-        self.withdraw:setOnMouseOverFunction(self.moneyMouseOver)
-        self.withdraw:setOnMouseOutFunction(self.moneyMouseOut)
-        self.withdraw:initialise()
-        self.withdraw:instantiate()
-        self:addChild(self.withdraw)
-    end
+    self:handleWithdrawButton()
 end
 
 
@@ -446,15 +455,16 @@ local function applyWalletMove(_,player) applyWallet(player, playersChecked.onMo
 local ISCharacterScreen_render = ISCharacterScreen.render
 function ISCharacterScreen:render()
     ISCharacterScreen_render(self)
+    self:handleWithdrawButton()
+    applyWallet(self.char, playersChecked.onRender)
     if SandboxVars.ShopsAndTraders.PlayerWallets then
-        self.withdraw:setX(self.avatarX+self.avatarWidth+25)
-        self.withdraw:setY(self.literatureButton.y+52)
-        self.withdraw:setWidthToTitle(55)
-        applyWallet(self.char, playersChecked.onRender)
+        self.withdrawButton:setX(self.avatarX+self.avatarWidth+25)
+        self.withdrawButton:setY(self.literatureButton.y+52)
+        self.withdrawButton:setWidthToTitle(55)
         local walletBalance = getWalletBalance(self.char)
-        self.withdraw.enable = (walletBalance > 0)
+        self.withdrawButton.enable = (walletBalance > 0)
         local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
-        self:drawText(walletBalanceLine, self.withdraw.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
+        self:drawText(walletBalanceLine, self.withdrawButton.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
     end
 end
 Events.OnCreatePlayer.Add(applyWalletCreate)
