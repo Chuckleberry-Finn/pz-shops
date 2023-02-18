@@ -322,6 +322,10 @@ function ISInventoryPane:onMouseUp(x, y)
     end
 end
 
+---@param item InventoryItem|Literature
+local function onDepositContext(item, player, x, y)
+    getPlayerInfoPanel(player:getPlayerNum()).charScreen:depositMoney(item)
+end
 
 local function addContext(playerID, context, items)
     local playerObj = getSpecificPlayer(playerID)
@@ -330,7 +334,13 @@ local function addContext(playerID, context, items)
         if not instanceof(v, "InventoryItem") then item = v.items[1] end
         if _internal.isMoneyType(item:getFullType()) then
             local itemValue = item:getModData().value
-            if itemValue and itemValue>1 then context:addOption(getText("IGUI_SPLIT"), item, onSplitStack, playerObj) end
+            if itemValue and itemValue>1 then
+                context:addOption(getText("IGUI_SPLIT"), item, onSplitStack, playerObj)
+
+                if SandboxVars.ShopsAndTraders.PlayerWallets then
+                    context:addOption(getText("IGUI_PLACEINWALLET"), item, onDepositContext, playerObj)
+                end
+            end
         end
     end
 end
