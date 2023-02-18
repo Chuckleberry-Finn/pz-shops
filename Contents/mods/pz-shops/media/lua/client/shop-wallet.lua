@@ -38,7 +38,7 @@ end
 
 
 ---@param moneyItem InventoryItem
-local function safelyRemoveMoney(moneyItem)
+function safelyRemoveMoney(moneyItem)
     local worldItem = moneyItem:getWorldItem()
     if worldItem then
         ---@type IsoGridSquare
