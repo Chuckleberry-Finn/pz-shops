@@ -27,9 +27,9 @@ function getOrSetWalletID(playerObj)
     if not playerModData.wallet_UUID then playerModData.wallet_UUID = getRandomUUID() end
 
     local playerWallet = CLIENT_WALLETS[playerModData.wallet_UUID]
-    local forceMoneyOut = (SandboxVars.ShopsAndTraders.PlayerWallets==false and playerWallet and playerWallet.amount>0)
+    local forceMoneyOut = (SandboxVars.ShopsAndTraders.PlayerWallets==false and playerWallet and playerWallet.amount>0) or false
 
-    if not playerWallet or (playerWallet and (not playerWallet.playerUsername or forceMoneyOut)) then
+    if not playerWallet or (playerWallet and (not playerWallet.playerUsername or forceMoneyOut==true)) then
         sendClientCommand(playerObj, "shop", "getOrSetWallet", {playerID=playerModData.wallet_UUID, steamID=playerObj:getSteamID(), playerUsername=playerObj:getUsername()})
     end
 
@@ -265,9 +265,7 @@ function ISInventoryPane:onMouseUp(x, y)
 
     local noSpecialKeys = (not isShiftKeyDown() and not isCtrlKeyDown())
 
-    if (noSpecialKeys and x >= self.column2 and  x == self.downX and y == self.downY) and self.mouseOverOption ~= 0 and self.items[self.mouseOverOption] ~= nil then
-        busy = true
-    end
+    if (noSpecialKeys and x >= self.column2 and  x == self.downX and y == self.downY) and self.mouseOverOption ~= 0 and self.items[self.mouseOverOption] ~= nil then busy = true end
 
     local result = ISInventoryPane_onMouseUp(self, x, y)
     if not result then
