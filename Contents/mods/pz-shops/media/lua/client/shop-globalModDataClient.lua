@@ -34,6 +34,7 @@ Events.OnReceiveGlobalModData.Add(receiveGlobalModData)
 
 function getWalletBalance(player)
     local walletBalance = 0
+
     if player and player:getModData() then
         local pID = player:getModData().wallet_UUID
         if pID then
@@ -41,5 +42,8 @@ function getWalletBalance(player)
             if wallet then walletBalance = wallet.amount end
         end
     end
+
+    if not SandboxVars.ShopsAndTraders.PlayerWallets then return 0 end
+
     return walletBalance
 end

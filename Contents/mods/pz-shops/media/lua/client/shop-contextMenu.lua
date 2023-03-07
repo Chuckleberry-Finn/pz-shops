@@ -2,12 +2,12 @@ require "shop-window"
 
 local CONTEXT_HANDLER = {}
 
----@param mapObject MapObjects|IsoObject
-function CONTEXT_HANDLER.browseStore(worldObjects, playerObj, mapObject, storeObj)
+---@param worldObject IsoObject
+function CONTEXT_HANDLER.browseStore(worldObjects, playerObj, worldObject, storeObj)
     if not storeObj then
         if not (isAdmin() or isCoopHost() or getDebug()) then print(" ERROR: non-admin accessed context menu meant for assigning shops.") return end
     end
-    storeWindow:onBrowse(storeObj, mapObject)
+    storeWindow:onBrowse(storeObj, worldObject)
 end
 
 
@@ -26,7 +26,7 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects)
     triggerEvent("SHOPPING_ClientModDataReady")
 
     for i=0,square:getObjects():size()-1 do
-        ---@type IsoObject|MapObjects
+        ---@type IsoObject
         local object = square:getObjects():get(i)
         if object and (not instanceof(object, "IsoWorldInventoryObject")) then
 
@@ -54,14 +54,14 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects)
             currentMenu = subMenu
         end
 
-        for mapObject,storeObject in pairs(validObjects) do
-            local objectName = _internal.getMapObjectDisplayName(mapObject)
+        for worldObject,storeObject in pairs(validObjects) do
+            local objectName = _internal.getWorldObjectDisplayName(worldObject)
             if objectName then
                 local contextText = objectName.." [ "..getText("ContextMenu_ASSIGN_STORE").." ]"
                 if storeObject then
                     contextText = getText("ContextMenu_SHOP_AT").." "..(storeObject.name or objectName)
                 end
-                currentMenu:addOptionOnTop(contextText, worldObjects, CONTEXT_HANDLER.browseStore, playerObj, mapObject, storeObject)
+                currentMenu:addOptionOnTop(contextText, worldObjects, CONTEXT_HANDLER.browseStore, playerObj, worldObject, storeObject)
             end
         end
     end

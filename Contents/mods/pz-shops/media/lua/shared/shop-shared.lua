@@ -47,7 +47,7 @@ function _internal.copyAgainst(tableA,tableB)
 end
 
 
-function _internal.getMapObjectName(obj)
+function _internal.getWorldObjectName(obj)
     if not obj then return nil end
     if not obj:getSprite() then return nil end
     local props = obj:getSprite():getProperties()
@@ -60,8 +60,8 @@ function _internal.getMapObjectName(obj)
 end
 
 
-function _internal.getMapObjectDisplayName(obj)
-    local nameFound = _internal.getMapObjectName(obj)
+function _internal.getWorldObjectDisplayName(obj)
+    local nameFound = _internal.getWorldObjectName(obj)
     if nameFound then return Translator.getMoveableDisplayName(nameFound) end
 end
 

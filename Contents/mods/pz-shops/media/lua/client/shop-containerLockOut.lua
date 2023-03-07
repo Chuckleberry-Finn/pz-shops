@@ -3,14 +3,14 @@ require "ISUI/ISInventoryPage"
 
 local containerLockOut = {}
 
----Validates if the mapObject can be interacted with
-function containerLockOut.canInteract(mapObject)
-    if not mapObject then return true end
+---Validates if the worldObject can be interacted with
+function containerLockOut.canInteract(worldObject)
+    if not worldObject then return true end
 
     local canView = true
-    local mapObjectModData = mapObject:getModData()
-    if mapObjectModData then
-        local storeObjID = mapObjectModData.storeObjID
+    local worldObjectModData = worldObject:getModData()
+    if worldObjectModData then
+        local storeObjID = worldObjectModData.storeObjID
         if storeObjID then
             local storeObj = CLIENT_STORES[storeObjID]
             canView = false
@@ -40,8 +40,8 @@ function ISInventoryPage:dropItemsInContainer(button)
     local allow = true
 
     if container then
-        local mapObj = container:getParent()
-        if mapObj then allow = containerLockOut.canInteract(mapObj) end
+        local worldObj = container:getParent()
+        if worldObj then allow = containerLockOut.canInteract(worldObj) end
     end
 
     if allow then ISInventoryPage_dropItemsInContainer(self, button)
@@ -117,10 +117,10 @@ local function hideButtons(UI, STEP)
     if STEP == "end" and (not UI.onCharacter) then
 
         for index,containerButton in ipairs(UI.backpacks) do
-            local mapObj = containerButton.inventory:getParent()
-            if mapObj then
+            local worldObj = containerButton.inventory:getParent()
+            if worldObj then
 
-                local canView = containerLockOut.canInteract(mapObj)
+                local canView = containerLockOut.canInteract(worldObj)
 
                 if not canView then
                     if containerButton then

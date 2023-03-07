@@ -2,14 +2,14 @@ require "ISObjectClickHandler"
 
 local clickHandler = {}
 
----Validates if the mapObject can be interacted with
-function clickHandler.canInteract(mapObject)
-    if not mapObject then return true end
+---Validates if the worldObject can be interacted with
+function clickHandler.canInteract(worldObject)
+    if not worldObject then return true end
 
     local canView = true
-    local mapObjectModData = mapObject:getModData()
-    if mapObjectModData then
-        local storeObjID = mapObjectModData.storeObjID
+    local worldObjectModData = worldObject:getModData()
+    if worldObjectModData then
+        local storeObjID = worldObjectModData.storeObjID
         if storeObjID then
             local storeObj = GLOBAL_STORES[storeObjID]
             canView = false
