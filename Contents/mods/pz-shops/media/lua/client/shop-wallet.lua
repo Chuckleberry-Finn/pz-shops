@@ -38,7 +38,7 @@ end
 
 
 ---@param moneyItem InventoryItem
-function safelyRemoveMoney(moneyItem)
+function safelyRemoveMoney(moneyItem, player)
     local worldItem = moneyItem:getWorldItem()
     if worldItem then
         ---@type IsoGridSquare
@@ -53,7 +53,9 @@ function safelyRemoveMoney(moneyItem)
     ---@type ItemContainer
     local container = moneyItem:getContainer()
     if container then
-
+        if (not player) or player and not container:isInCharacterInventory(player) then
+            container:removeItemOnServer(moneyItem)
+        end
         container:DoRemoveItem(moneyItem)
     end
 end
@@ -350,7 +352,7 @@ function ISCharacterScreen:depositMoney(moneyItem)
     local playerModData = self.char:getModData()
     local value = moneyItem:getModData().value
     sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=playerModData.wallet_UUID, receive=nil})
-    safelyRemoveMoney(moneyItem)
+    safelyRemoveMoney(moneyItem, self.char)
     self.withdrawButton:setTitle(string.lower(getText("IGUI_WITHDRAW")))
 end
 
