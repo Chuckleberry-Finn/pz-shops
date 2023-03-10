@@ -194,64 +194,25 @@ function ISInventoryPane:refreshContainer()
     end
 end
 
---[[
-local _refreshContainer = ISInventoryPane.refreshContainer
-function ISInventoryPane:refreshContainer()
-    _refreshContainer(self)
 
-    local scrubThese = {}
+local function applyToCashInCont(ItemContainer)
 
-    for _, entry in ipairs(self.itemslist) do
-        for _,item in pairs(entry.items) do
-            if item ~= nil and _moneyTypes[item:getType()] then
-                print(" item:getType():"..item:getType())
-                generateMoneyValue(item)
-                scrubThese[item:getName()] = true
-                local itemName = item:getScriptItem():getDisplayName()
-                if self.itemindex[itemName] == nil then self.itemindex[itemName] = {items = {}, count = 0} end
-                local ind = self.itemindex[itemName]
-                ind.count = ind.count + 1
-                ind.items[ind.count] = item
-            end
-        end
-    end
-
-    for k,entry in pairs(self.itemindex) do
-        if entry ~= nil and scrubThese[k] then
-            print("  -- k:"..entry.name)
-            self.itemindex[k] = nil
-        end
-    end
-
-    for k, v in pairs(self.itemindex) do
-        if v ~= nil then
-            table.insert(self.itemslist, v);
-            local count = 1;
-            local weight = 0;
-            for k2, v2 in ipairs(v.items) do
-                if v2 == nil then table.remove(v.items, k2);
-                else
-                    count = count + 1;
-                    weight = weight + v2:getUnequippedWeight();
-                end
-            end
-            v.count = count;
-            v.invPanel = self;
-            v.name = k -- v.items[1]:getName();
-            v.cat = v.items[1]:getDisplayCategory() or v.items[1]:getCategory();
-            v.weight = weight;
-            if self.collapsed[v.name] == nil then self.collapsed[v.name] = true; end
-        end
-    end
-
-    for k,entry in pairs(self.itemslist) do
-        if entry ~= nil and scrubThese[entry.name] then
-            print("  -- entry.name:"..entry.name)
-            self.itemslist[k] = nil
-        end
+    if not ItemContainer then return end
+    local items = ItemContainer:getItems()
+    for iteration=0, items:size()-1 do
+        ---@type InventoryItem
+        local item = items:get(iteration)
+        if item and _internal.isMoneyType(item:getFullType()) then generateMoneyValue(item) end
     end
 end
---]]
+
+
+local function applyToInventory(ISInventoryPage, step) applyToCashInCont(ISInventoryPage.inventory) end
+Events.OnRefreshInventoryWindowContainers.Add(applyToInventory)
+
+local function applyToFillContainer(contName, contType, container) applyToCashInCont(container) end
+Events.OnFillContainer.Add(applyToFillContainer)
+
 
 local ISInventoryPane_onMouseUp = ISInventoryPane.onMouseUp
 function ISInventoryPane:onMouseUp(x, y)
