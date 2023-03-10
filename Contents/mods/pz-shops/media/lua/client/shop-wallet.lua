@@ -151,35 +151,42 @@ function ISSliderBox:new(x, y, width, height, text, onclick, playerObj, item)
 end
 
 
+local function canManipulateMoney(item, playerObj)
+    if item then
+        local cont = item and item:getOutermostContainer()
+        if cont then
+            local parent = cont:getParent()
+            if parent and parent== playerObj then return true end
+        end
+    end
+    return false
+end
+
 ---@param item InventoryItem
 function ISSliderBox:onClick(button, playerObj, item)
     if button.internal == "OK" then
+        if canManipulateMoney(item, playerObj) then
+            local transferValue = button.parent.slider:getCurrentValue()
+            local moneyTypes = _internal.getMoneyTypes()
+            local type = moneyTypes[ZombRand(#moneyTypes)+1]
+            local money = InventoryItemFactory.CreateItem(type)
 
-        if item then
-            local cont = item and item:getOutermostContainer()
-            if not cont or (cont and cont~=playerObj) then return end
+            if money then
+                generateMoneyValue(money, transferValue)
+                playerObj:getInventory():AddItem(money)
+
+                if item and _internal.isMoneyType(item:getFullType()) and item:getModData() and item:getModData().value > 0 then
+                    local newValue = item:getModData().value-transferValue
+                    generateMoneyValue(item, newValue, true)
+                end
+
+                if not item then
+                    local playerModData = playerObj:getModData()
+                    sendClientCommand("shop", "transferFunds", {giver=playerModData.wallet_UUID, give=transferValue, receiver=nil, receive=nil})
+                end
+
+            else print("ERROR: Split/Withdraw Wallet: No money object created. \<"..type.."\>") end
         end
-
-        local transferValue = button.parent.slider:getCurrentValue()
-        local moneyTypes = _internal.getMoneyTypes()
-        local type = moneyTypes[ZombRand(#moneyTypes)+1]
-        local money = InventoryItemFactory.CreateItem(type)
-
-        if money then
-            generateMoneyValue(money, transferValue)
-            playerObj:getInventory():AddItem(money)
-
-            if item and _internal.isMoneyType(item:getFullType()) and item:getModData() and item:getModData().value > 0 then
-                local newValue = item:getModData().value-transferValue
-                generateMoneyValue(item, newValue, true)
-            end
-
-            if not item then
-                local playerModData = playerObj:getModData()
-                sendClientCommand("shop", "transferFunds", {giver=playerModData.wallet_UUID, give=transferValue, receiver=nil, receive=nil})
-            end
-
-        else print("ERROR: Split/Withdraw Wallet: No money object created. \<"..type.."\>") end
     end
 end
 
@@ -265,27 +272,29 @@ function ISInventoryPane:onMouseUp(x, y)
                 end
             end
         end
-        self.selected = {}
-        getPlayerLoot(self.player).inventoryPane.selected = {}
-        getPlayerInventory(self.player).inventoryPane.selected = {}
+        if #moneyFound > 0 then
+            self.selected = {}
+            getPlayerLoot(self.player).inventoryPane.selected = {}
+            getPlayerInventory(self.player).inventoryPane.selected = {}
 
-        local pushTo = self.items[self.mouseOverOption]
-        if not pushTo then return end
+            local pushTo = self.items[self.mouseOverOption]
+            if not pushTo then return end
 
-        local pushToActual
-        if instanceof(pushTo, "InventoryItem") then pushToActual = pushTo else pushToActual = pushTo.items[1] end
+            local pushToActual
+            if instanceof(pushTo, "InventoryItem") then pushToActual = pushTo else pushToActual = pushTo.items[1] end
 
-        for _,money in pairs(moneyFound) do if money==pushToActual then return end end
+            for _,money in pairs(moneyFound) do if money==pushToActual then return end end
 
-        if pushToActual and _internal.isMoneyType(pushToActual:getFullType()) then
-            local ptValue = pushToActual:getModData().value
-            local consolidatedValue = 0
-            for _,money in pairs(moneyFound) do
-                local valueFound = (money:getModData().value or 0)
-                consolidatedValue = consolidatedValue+valueFound
-                safelyRemoveMoney(money)
+            if pushToActual and _internal.isMoneyType(pushToActual:getFullType()) then
+                local ptValue = pushToActual:getModData().value
+                local consolidatedValue = 0
+                for _,money in pairs(moneyFound) do
+                    local valueFound = (money:getModData().value or 0)
+                    consolidatedValue = consolidatedValue+valueFound
+                    safelyRemoveMoney(money)
+                end
+                generateMoneyValue(pushToActual, ptValue+consolidatedValue, true)
             end
-            generateMoneyValue(pushToActual, ptValue+consolidatedValue, true)
         end
     end
 end
@@ -302,9 +311,8 @@ local function addContext(playerID, context, items)
         if not instanceof(v, "InventoryItem") then item = v.items[1] end
         if _internal.isMoneyType(item:getFullType()) then
             local itemValue = item:getModData().value
-            if itemValue and itemValue>1 then
+            if itemValue and itemValue>1 and canManipulateMoney(item, playerObj) then
                 context:addOption(getText("IGUI_SPLIT"), item, onSplitStack, playerObj)
-
                 if SandboxVars.ShopsAndTraders.PlayerWallets then
                     context:addOption(getText("IGUI_PLACEINWALLET"), item, onDepositContext, playerObj)
                 end
