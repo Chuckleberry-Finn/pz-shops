@@ -158,6 +158,8 @@ local function canManipulateMoney(item, playerObj)
             local parent = cont:getParent()
             if parent and parent== playerObj then return true end
         end
+    else
+        return true
     end
     return false
 end
