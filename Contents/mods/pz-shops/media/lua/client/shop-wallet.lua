@@ -175,7 +175,7 @@ function ISSliderBox:onClick(button, playerObj, item)
 end
 
 
----@param item InventoryItem|Literature
+---@param item InventoryItem
 local function onSplitStack(item, player, x, y)
     x = x or getMouseX()
     y = y or getMouseY()
