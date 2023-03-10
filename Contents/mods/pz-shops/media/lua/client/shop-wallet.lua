@@ -248,6 +248,7 @@ function ISInventoryPane:onMouseUp(x, y)
     local result = ISInventoryPane_onMouseUp(self, x, y)
     if not result then return end
     if busy or (not noSpecialKeys) then return end
+
     self.selected = selectedOld
 
     if (draggingOld ~= nil) and (draggingFocusOld == self) and (draggingFocusOld ~= nil) then
@@ -268,13 +269,11 @@ function ISInventoryPane:onMouseUp(x, y)
             end
         end
 
-        print("#moneyFound: "..#moneyFound)
         if #moneyFound <= 0 then
             ISMouseDrag.dragging = draggingOld
             ISMouseDrag.draggingFocus = draggingFocusOld
-            print("no money")
-            --ISInventoryPane_onMouseUp(self, x, y)
-            return
+            self.selected = selectedOld
+            return true
         end
 
         self.selected = {}
