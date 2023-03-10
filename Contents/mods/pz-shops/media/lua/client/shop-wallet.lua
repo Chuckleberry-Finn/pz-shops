@@ -243,18 +243,11 @@ function ISInventoryPane:onMouseUp(x, y)
     self.previousMouseUp = self.mouseOverOption
 
     local noSpecialKeys = (not isShiftKeyDown() and not isCtrlKeyDown())
-
     if (noSpecialKeys and x >= self.column2 and  x == self.downX and y == self.downY) and self.mouseOverOption ~= 0 and self.items[self.mouseOverOption] ~= nil then busy = true end
 
     local result = ISInventoryPane_onMouseUp(self, x, y)
-    if not result then
-        --if getDebug() then print("ISInventoryPane_onMouseUp: no result") end
-        return
-    end
-    if busy or (not noSpecialKeys) then
-        --if getDebug() then print("ISInventoryPane_onMouseUp: busy|(not noSpecialKeys)") end
-        return
-    end
+    if not result then return end
+    if busy or (not noSpecialKeys) then return end
     self.selected = selectedOld
 
     if (draggingOld ~= nil) and (draggingFocusOld == self) and (draggingFocusOld ~= nil) then
@@ -274,29 +267,37 @@ function ISInventoryPane:onMouseUp(x, y)
                 end
             end
         end
-        if #moneyFound > 0 then
-            self.selected = {}
-            getPlayerLoot(self.player).inventoryPane.selected = {}
-            getPlayerInventory(self.player).inventoryPane.selected = {}
 
-            local pushTo = self.items[self.mouseOverOption]
-            if not pushTo then return end
+        print("#moneyFound: "..#moneyFound)
+        if #moneyFound <= 0 then
+            ISMouseDrag.dragging = draggingOld
+            ISMouseDrag.draggingFocus = draggingFocusOld
+            print("no money")
+            --ISInventoryPane_onMouseUp(self, x, y)
+            return
+        end
 
-            local pushToActual
-            if instanceof(pushTo, "InventoryItem") then pushToActual = pushTo else pushToActual = pushTo.items[1] end
+        self.selected = {}
+        getPlayerLoot(self.player).inventoryPane.selected = {}
+        getPlayerInventory(self.player).inventoryPane.selected = {}
 
-            for _,money in pairs(moneyFound) do if money==pushToActual then return end end
+        local pushTo = self.items[self.mouseOverOption]
+        if not pushTo then return end
 
-            if pushToActual and _internal.isMoneyType(pushToActual:getFullType()) then
-                local ptValue = pushToActual:getModData().value
-                local consolidatedValue = 0
-                for _,money in pairs(moneyFound) do
-                    local valueFound = (money:getModData().value or 0)
-                    consolidatedValue = consolidatedValue+valueFound
-                    safelyRemoveMoney(money)
-                end
-                generateMoneyValue(pushToActual, ptValue+consolidatedValue, true)
+        local pushToActual
+        if instanceof(pushTo, "InventoryItem") then pushToActual = pushTo else pushToActual = pushTo.items[1] end
+
+        for _,money in pairs(moneyFound) do if money==pushToActual then return end end
+
+        if pushToActual and _internal.isMoneyType(pushToActual:getFullType()) then
+            local ptValue = pushToActual:getModData().value
+            local consolidatedValue = 0
+            for _,money in pairs(moneyFound) do
+                local valueFound = (money:getModData().value or 0)
+                consolidatedValue = consolidatedValue+valueFound
+                safelyRemoveMoney(money)
             end
+            generateMoneyValue(pushToActual, ptValue+consolidatedValue, true)
         end
     end
 end
