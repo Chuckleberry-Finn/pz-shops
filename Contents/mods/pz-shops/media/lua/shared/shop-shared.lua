@@ -2,11 +2,6 @@
 _internal = {}
 
 local moneyTypes = {"Base.Money"}
-local activeModIDs = getActivatedMods()
-for i=1, activeModIDs:size() do
-    local modID = activeModIDs:get(i-1)
-    if modID == "Authentic Z - Current" then table.insert(moneyTypes, "AuthenticZClothing.Authentic_MoneyStack") end
-end
 
 local _moneyTypes
 function _internal.validateMoneyTypes()
