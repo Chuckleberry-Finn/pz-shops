@@ -149,8 +149,15 @@ function ISSliderBox:new(x, y, width, height, text, onclick, playerObj, item)
 end
 
 
+---@param item InventoryItem
 function ISSliderBox:onClick(button, playerObj, item)
     if button.internal == "OK" then
+
+        if item then
+            local cont = item and item:getOutermostContainer()
+            if not cont or (cont and cont~=playerObj) then return end
+        end
+
         local transferValue = button.parent.slider:getCurrentValue()
         local moneyTypes = _internal.getMoneyTypes()
         local type = moneyTypes[ZombRand(#moneyTypes)+1]
