@@ -1,7 +1,7 @@
 Sandbox_EN = {
 	Sandbox_ShopsAndTraders = "Shops and Traders",
 	Sandbox_ShopsAndTraders_PercentageDropOnDeath = "Money-Drop Percentage",
-	Sandbox_ShopsAndTraders_PercentageDropOnDeath_tooltip = "This percentage will be how much money is dropped when a player dies.",
+	Sandbox_ShopsAndTraders_PercentageDropOnDeath_tooltip = "This percentage will be how much money is dropped when a player dies.\nIf player wallets are disabled ALL the money will be dropped.\nWARNING: Death results in the remainder of the wallet being destroyed.",
 
     Sandbox_ShopsAndTraders_PlayerWallets = "Players Wallets"
     Sandbox_ShopsAndTraders_PlayerWallets_tooltip = "Disabling this would force players to always carry their cash."
