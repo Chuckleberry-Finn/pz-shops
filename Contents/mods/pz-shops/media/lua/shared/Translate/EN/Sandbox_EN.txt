@@ -10,9 +10,9 @@ Sandbox_EN = {
     Sandbox_ShopsAndTraders_CanWithdraw_tooltip = "If players can withdraw money-items from their wallets. Requires "Players Wallets" to be 'True' to have an impact.",
 
     Sandbox_ShopsAndTraders_ShopsUseCash = "Shops Change Policy",
-    Sandbox_ShopsAndTraders_ShopsUseCashOptions_option1 = "Shops Give Change"
-    Sandbox_ShopsAndTraders_ShopsUseCashOptions_option2 = "Shops Use Credit",
-    Sandbox_ShopsAndTraders_ShopsUseCashOptions_option3 = "Shops Use Neither",
+    Sandbox_ShopsAndTraders_CashOptions_option1 = "Shops Give Change"
+    Sandbox_ShopsAndTraders_CashOptions_option2 = "Shops Use Credit",
+    Sandbox_ShopsAndTraders_CashOptions_option3 = "Shops Use Neither",
     Sandbox_ShopsAndTraders_ShopsUseCash_tooltip = "Change: Shops will return the difference of a transaction as cash.\nCredit: Shop will store a credit-line owed to you if the transaction is not even.\nNeither: Shops will not return anything for transactions in their favor."
 
     Sandbox_ShopsAndTraders_MoneySpawnMin = "Minimum Value For Money-Item",
