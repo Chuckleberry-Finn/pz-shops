@@ -34,4 +34,6 @@ Sandbox_EN = {
     Sandbox_ShopsAndTraders_TradersResetStock = "Restocking Traders Reset Their Stock",
     Sandbox_ShopsAndTraders_TradersResellItems_tooltip = "When traders restock they clear out items sold to them.",
 
+    Sandbox_ShopsAndTraders_DeedRecipe = "Player-Shop Deed Recipe"
+    Sandbox_ShopsAndTraders_DeedRecipe_tooltip = "Syntax is as follows:\nEach item is separated by ';'.\nFor money values: '$n' for n amount of currency.",
 	}

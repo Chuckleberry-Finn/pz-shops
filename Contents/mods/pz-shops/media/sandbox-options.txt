@@ -29,3 +29,6 @@ option ShopsAndTraders.TradersResellItems
 
 option ShopsAndTraders.TradersResetStock
 {type = boolean, default = false, page = ShopsAndTraders, translation = ShopsAndTraders_TradersResetStock,}
+
+option ShopsAndTraders.PlayerOwnedShopDeeds
+{type = string, default = $1000;SheetPaper2, page = ShopsAndTraders, translation = ShopsAndTraders_DeedRecipe,}

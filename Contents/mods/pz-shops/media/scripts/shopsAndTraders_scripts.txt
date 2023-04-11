@@ -1,0 +1,25 @@
+module ShopsAndTraders
+{
+		item ShopDeed
+	{
+		DisplayCategory = Tool,
+		Weight = 0.1,
+		Type = Normal,
+		DisplayName = Shop Deed,
+		WorldStaticModel = SheetOfPaper,
+		Tooltip = Tooltip_shopDeed,
+		Icon = Paper,
+	}
+
+        recipe Activate Deed
+    {
+        ShopsAndTraders.ShopDeed,
+        Result:SheetPaper2,
+        RemoveResultItem:true,
+        Time:30.0,
+        Category:Shops,
+
+        OnCanPerform:shopsAndTraders_checkDeedValid,
+    }
+
+}

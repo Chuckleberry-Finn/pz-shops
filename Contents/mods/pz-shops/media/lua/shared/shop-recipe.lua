@@ -20,3 +20,23 @@ local function recipeOverride()
     end
 end
 Events.OnGameBoot.Add(recipeOverride)
+
+
+function shopsAndTraders_checkDeedValid()
+    return true
+end
+
+--Creates Recipe for Shop Deeds
+local ran = false
+function shopsAndTraders_addDeedRecipe()
+    if ran then return else ran = true end
+
+    local deedRecipe = SandboxVars.ShopsAndTraders.PlayerOwnedShopDeeds
+    if not deedRecipe or deedRecipe=="" then return end
+
+    local deedScript = "recipe Create Shop Deed { ShopsAndTraders.ShopDeed, Result:Money, Time:30.0, }"
+
+    local scriptManager = getScriptManager()
+    scriptManager:ParseScript()
+end
+Events.OnGameBoot.Add(shopsAndTraders_addDeedRecipe)
