@@ -10,7 +10,7 @@ option ShopsAndTraders.CanWithdraw
 {type = boolean, default = true, page = ShopsAndTraders, translation = ShopsAndTraders_CanWithdraw,}
 
 option ShopsAndTraders.ShopsUseCash
-{type = enum, numValues = 3, default = 1, page = ShopsAndTraders, translation = ShopsAndTraders_ShopsUseCash, valueTranslation = ShopsAndTraders_CashOptions}
+{type = enum, numValues = 3, default = 1, page = ShopsAndTraders, translation = ShopsAndTraders_ShopsUseCash, valueTranslation = ShopsAndTraders_CashPolicy,}
 
 option ShopsAndTraders.StartingWallet
 {type = double, min = 0.01, max = 1000000, default = 25, page = ShopsAndTraders, translation = ShopsAndTraders_StartingWallet,}
