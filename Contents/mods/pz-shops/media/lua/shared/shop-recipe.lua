@@ -26,6 +26,10 @@ function shopsAndTraders_checkDeedValid()
     return true
 end
 
+function shopsAndTraders_activateDeed()
+
+end
+
 --Creates Recipe for Shop Deeds
 local ran = false
 function shopsAndTraders_addDeedRecipe()
