@@ -38,7 +38,17 @@ function shopsAndTraders_addDeedRecipe()
     local deedRecipe = SandboxVars.ShopsAndTraders.PlayerOwnedShopDeeds
     if not deedRecipe or deedRecipe=="" then return end
 
-    local deedScript = "recipe Create Shop Deed { ShopsAndTraders.ShopDeed, Result:Money, Time:30.0, }"
+    local deedScript = {
+        header="recipe Create Shop Deed { ",
+        footer=" Result:ShopsAndTraders.ShopDeed, Time:30.0, }"
+    }
+
+    --	   destroy PanFriedVegetables2,
+    --	   	   BaseballBat,
+    --       	   Nails=5,
+    --       	   keep [Recipe.GetItemTypes.Hammer],
+    --       	           TreeBranch,
+    --                      keep [Recipe.GetItemTypes.SharpKnife]/MeatCleaver,
 
     local scriptManager = getScriptManager()
     scriptManager:ParseScript()
