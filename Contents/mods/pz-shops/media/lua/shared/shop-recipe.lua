@@ -30,11 +30,19 @@ end
 
 
 local moneyValueForDeedRecipe
-function shopsAndTradersRecipe.spendMoney() end
+function shopsAndTradersRecipe.addMoneyTypesToRecipe(scriptItems)
+    for _,type in pairs(_internal.getMoneyTypes()) do
+        if not scriptItems:contains(type) then
+            scriptItems:add(type)
+        end
+    end
+end
 
+function shopsAndTradersRecipe.onCanPerform() end
 
-function shopsAndTradersRecipe.activateDeed() end
+function shopsAndTradersRecipe.onCreate() end
 
+function shopsAndTradersRecipe.onActivateDeed() end
 
 --Creates Recipe for Shop Deeds
 local ran = false
@@ -47,17 +55,16 @@ function shopsAndTradersRecipe.addDeedRecipe()
 
     local deedScript = {
         header="recipe Create Shop Deed { ",
-        footer=" Result:ShopsAndTraders.ShopDeed, Time:30.0, }",
+        footer="Result:ShopsAndTraders.ShopDeed, OnCreate:shopsAndTradersRecipe.onCreate, OnCanPerform:shopsAndTradersRecipe.onCanPerform, Time:30.0, }",
     }
 
     local rebuiltScript = ""
-
     for str in string.gmatch(deedRecipe, "([^,]+)") do
 
         local value, money = string.gsub(str, "%$", "")
         if money > 0 then
             moneyValueForDeedRecipe = value
-            rebuiltScript = rebuiltScript.."[shopsAndTradersRecipe.spendMoney]"..", "
+            rebuiltScript = rebuiltScript.."[shopsAndTradersRecipe.addMoneyTypesToRecipe]"..", "
             print("DEED SCRIPT: CURRENCY: ",value)
         else
             rebuiltScript = rebuiltScript..str..", "
