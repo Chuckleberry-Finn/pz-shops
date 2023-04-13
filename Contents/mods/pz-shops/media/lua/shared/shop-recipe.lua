@@ -1,10 +1,12 @@
 require "shop-wallet"
 
+shopsAndTradersRecipe = {}
+
 ---Authentic Z
 --recipe Make a Stack of Money { Money, Result:Authentic_MoneyStack, Time:30.0, }
 --recipe Convert into Item { Authentic_MoneyStack, Result:Money, Time:30.0, }
 
-function ShopsAndTradersOnAuthZMoneyStack(items, result, player) return false end
+function shopsAndTradersRecipe.OnAuthZMoneyStack(items, result, player) return false end
 
 local function recipeOverride()
     local allRecipes = getAllRecipes()
@@ -13,7 +15,7 @@ local function recipeOverride()
         local recipe = allRecipes:get(i)
         if recipe then
             if recipe:getResult():getFullType()=="AuthenticZClothing.Authentic_MoneyStack" then
-                recipe:setLuaTest("ShopsAndTradersOnAuthZMoneyStack")
+                recipe:setLuaTest("shopsAndTradersRecipe.OnAuthZMoneyStack")
                 recipe:setIsHidden(true)
             end
         end
@@ -22,17 +24,22 @@ end
 Events.OnGameBoot.Add(recipeOverride)
 
 
-function shopsAndTraders_checkDeedValid()
+function shopsAndTradersRecipe.checkDeedValid()
     return true
 end
 
-function shopsAndTraders_activateDeed()
 
-end
+local moneyValueForDeedRecipe
+function shopsAndTradersRecipe.spendMoney() end
+
+
+function shopsAndTradersRecipe.activateDeed() end
+
 
 --Creates Recipe for Shop Deeds
 local ran = false
-function shopsAndTraders_addDeedRecipe()
+
+function shopsAndTradersRecipe.addDeedRecipe()
     if ran then return else ran = true end
 
     local deedRecipe = SandboxVars.ShopsAndTraders.PlayerOwnedShopDeeds
@@ -40,17 +47,25 @@ function shopsAndTraders_addDeedRecipe()
 
     local deedScript = {
         header="recipe Create Shop Deed { ",
-        footer=" Result:ShopsAndTraders.ShopDeed, Time:30.0, }"
+        footer=" Result:ShopsAndTraders.ShopDeed, Time:30.0, }",
     }
 
-    --	   destroy PanFriedVegetables2,
-    --	   	   BaseballBat,
-    --       	   Nails=5,
-    --       	   keep [Recipe.GetItemTypes.Hammer],
-    --       	           TreeBranch,
-    --                      keep [Recipe.GetItemTypes.SharpKnife]/MeatCleaver,
+    local rebuiltScript = ""
+
+    for str in string.gmatch(deedRecipe, "([^,]+)") do
+
+        local value, money = string.gsub(str, "%$", "")
+        if money > 0 then
+            moneyValueForDeedRecipe = value
+            rebuiltScript = rebuiltScript.."[shopsAndTradersRecipe.spendMoney]"..", "
+            print("DEED SCRIPT: CURRENCY: ",value)
+        else
+            rebuiltScript = rebuiltScript..str..", "
+            print("DEED SCRIPT:",str)
+        end
+    end
 
     local scriptManager = getScriptManager()
-    scriptManager:ParseScript()
+    scriptManager:ParseScript(deedScript.header..rebuiltScript..deedScript.footer)
 end
-Events.OnGameBoot.Add(shopsAndTraders_addDeedRecipe)
+Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe)

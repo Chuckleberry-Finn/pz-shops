@@ -19,8 +19,8 @@ module ShopsAndTraders
         Time:30.0,
         Category:Shops,
         CanBeDoneFromFloor:true,
-        OnCreate:shopsAndTraders_activateDeed,
-        OnCanPerform:shopsAndTraders_checkDeedValid,
+        OnCreate:shopsAndTradersRecipe.activateDeed,
+        OnCanPerform:shopsAndTradersRecipe.checkDeedValid,
     }
 
 }
