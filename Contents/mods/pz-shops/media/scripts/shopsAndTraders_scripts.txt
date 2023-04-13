@@ -10,8 +10,21 @@ module ShopsAndTraders
 		DisplayName = Shop Deed,
 		WorldStaticModel = SheetOfPaper,
 		Tooltip = Tooltip_shopDeed,
-		Icon = Paper,
+		Icon = ShopDeed,
 	}
+
+/*
+        recipe Create Shop Deed
+    {
+        keep [shopsAndTradersRecipe.addMoneyTypesToRecipe],
+        SheetPaper2,
+        Result:ShopsAndTraders.ShopDeed,
+        OnCreate:shopsAndTradersRecipe.onCreate,
+        OnCanPerform:shopsAndTradersRecipe.onCanPerform,
+        Time:30.0,
+        Category:Shops,
+    }
+*/
 
         recipe Activate Deed
     {

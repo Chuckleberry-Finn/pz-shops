@@ -25,25 +25,31 @@ end
 Events.OnGameBoot.Add(recipeOverride)
 
 
-function shopsAndTradersRecipe.checkDeedValid()
+function shopsAndTradersRecipe.checkDeedValid(recipe, playerObj, item) --onCanPerform
     return true
 end
 
+function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
 
+end
+
+
+--[[
 local moneyValueForDeedRecipe
 function shopsAndTradersRecipe.addMoneyTypesToRecipe(scriptItems)
     print(" -- recipe adding: ")
     for _,type in pairs(_internal.getMoneyTypes()) do
         print(" --- ?: "..type)
-        addExistingItemType(scriptItems, type)
+        local scriptItem = getScriptManager():getItem(type)
+        if not scriptItems:contains(scriptItem) then scriptItems:add(scriptItem) end
     end
 end
 
-function shopsAndTradersRecipe.onCanPerform() end
+function shopsAndTradersRecipe.onCanPerform(recipe, playerObj, item)
+    return true
+end
 
-function shopsAndTradersRecipe.onCreate() end
-
-function shopsAndTradersRecipe.onActivateDeed() end
+function shopsAndTradersRecipe.onCreate(items, result, player) end
 
 --Creates Recipe for Shop Deeds
 function shopsAndTradersRecipe.addDeedRecipe()
@@ -52,7 +58,7 @@ function shopsAndTradersRecipe.addDeedRecipe()
 
     local deedScript = {
         header="module ShopsAndTraders { imports { Base } recipe Create Shop Deed { ",
-        footer="Result:ShopsAndTraders.ShopDeed, OnCreate:shopsAndTradersRecipe.onCreate, OnCanPerform:shopsAndTradersRecipe.onCanPerform, Time:30.0, Category:Shops,} }",
+        footer="Result:ShopsAndTraders.ShopDeed, Time:30.0, Category:Shops,} }",
     }
 
     local rebuiltScript = ""
@@ -61,7 +67,7 @@ function shopsAndTradersRecipe.addDeedRecipe()
         local value, money = string.gsub(str, "%$", "")
         if money > 0 then
             moneyValueForDeedRecipe = value
-            rebuiltScript = rebuiltScript.."keep [shopsAndTradersRecipe.addMoneyTypesToRecipe], "
+            rebuiltScript = rebuiltScript.."keep Base.Money, "
             print("DEED SCRIPT: CURRENCY: ", value)
         else
             rebuiltScript = rebuiltScript..str..", "
@@ -69,9 +75,13 @@ function shopsAndTradersRecipe.addDeedRecipe()
         end
     end
 
+    print("SCRIPT:", rebuiltScript)
+
     local scriptManager = getScriptManager()
     scriptManager:ParseScript(deedScript.header..rebuiltScript..deedScript.footer)
 end
+--]]
 
-Events.OnLoad.Add(shopsAndTradersRecipe.addDeedRecipe)
-if isServer() then Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe) end
+--Events.OnResetLua.Add(shopsAndTradersRecipe.addDeedRecipe)
+--Events.OnLoad.Add(shopsAndTradersRecipe.addDeedRecipe)
+--if isServer() then Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe) end
