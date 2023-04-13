@@ -1,5 +1,7 @@
 module ShopsAndTraders
 {
+	    imports { Base }
+
 		item ShopDeed
 	{
 		DisplayCategory = Tool,

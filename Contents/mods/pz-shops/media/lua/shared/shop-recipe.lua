@@ -1,4 +1,5 @@
 require "shop-wallet"
+require "shop-shared"
 
 shopsAndTradersRecipe = {}
 
@@ -31,10 +32,10 @@ end
 
 local moneyValueForDeedRecipe
 function shopsAndTradersRecipe.addMoneyTypesToRecipe(scriptItems)
+    print(" -- recipe adding: ")
     for _,type in pairs(_internal.getMoneyTypes()) do
-        if not scriptItems:contains(type) then
-            scriptItems:add(type)
-        end
+        print(" --- ?: "..type)
+        addExistingItemType(scriptItems, type)
     end
 end
 
@@ -45,34 +46,32 @@ function shopsAndTradersRecipe.onCreate() end
 function shopsAndTradersRecipe.onActivateDeed() end
 
 --Creates Recipe for Shop Deeds
-local ran = false
-
 function shopsAndTradersRecipe.addDeedRecipe()
-    if ran then return else ran = true end
-
     local deedRecipe = SandboxVars.ShopsAndTraders.PlayerOwnedShopDeeds
     if not deedRecipe or deedRecipe=="" then return end
 
     local deedScript = {
-        header="recipe Create Shop Deed { ",
-        footer="Result:ShopsAndTraders.ShopDeed, OnCreate:shopsAndTradersRecipe.onCreate, OnCanPerform:shopsAndTradersRecipe.onCanPerform, Time:30.0, }",
+        header="module ShopsAndTraders { imports { Base } recipe Create Shop Deed { ",
+        footer="Result:ShopsAndTraders.ShopDeed, OnCreate:shopsAndTradersRecipe.onCreate, OnCanPerform:shopsAndTradersRecipe.onCanPerform, Time:30.0, Category:Shops,} }",
     }
 
     local rebuiltScript = ""
-    for str in string.gmatch(deedRecipe, "([^,]+)") do
+    for str in string.gmatch(deedRecipe, "([^|]+)") do
 
         local value, money = string.gsub(str, "%$", "")
         if money > 0 then
             moneyValueForDeedRecipe = value
-            rebuiltScript = rebuiltScript.."[shopsAndTradersRecipe.addMoneyTypesToRecipe]"..", "
-            print("DEED SCRIPT: CURRENCY: ",value)
+            rebuiltScript = rebuiltScript.."keep [shopsAndTradersRecipe.addMoneyTypesToRecipe], "
+            print("DEED SCRIPT: CURRENCY: ", value)
         else
             rebuiltScript = rebuiltScript..str..", "
-            print("DEED SCRIPT:",str)
+            print("DEED SCRIPT:", str)
         end
     end
 
     local scriptManager = getScriptManager()
     scriptManager:ParseScript(deedScript.header..rebuiltScript..deedScript.footer)
 end
-Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe)
+
+Events.OnLoad.Add(shopsAndTradersRecipe.addDeedRecipe)
+if isServer() then Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe) end
