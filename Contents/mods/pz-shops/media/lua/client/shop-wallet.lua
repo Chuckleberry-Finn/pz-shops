@@ -95,7 +95,7 @@ local function onPlayerDeath(playerObj)
         local type = moneyTypes[ZombRand(#moneyTypes)+1]
         local money = InventoryItemFactory.CreateItem(type)
         if money then
-            sendClientCommand("shop", "transferFunds", {giver=playerModData.wallet_UUID, give=transferAmount, receiver=nil, receive=nil})
+            sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=(0-transferAmount)})
             generateMoneyValue(money, transferAmount)
             playerObj:getInventory():AddItem(money)
         else print("ERROR: Split/Withdraw Wallet: No money object created. \<"..type.."\>") end
@@ -184,7 +184,7 @@ function ISSliderBox:onClick(button, playerObj, item)
 
                 if not item then
                     local playerModData = playerObj:getModData()
-                    sendClientCommand("shop", "transferFunds", {giver=playerModData.wallet_UUID, give=transferValue, receiver=nil, receive=nil})
+                    sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=(0-transferValue)})
                 end
 
             else print("ERROR: Split/Withdraw Wallet: No money object created. \<"..type.."\>") end
@@ -361,7 +361,7 @@ function ISCharacterScreen:depositMoney(moneyItem)
     if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
     local playerModData = self.char:getModData()
     local value = moneyItem:getModData().value
-    sendClientCommand("shop", "transferFunds", {giver=nil, give=value, receiver=playerModData.wallet_UUID, receive=nil})
+    sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=value})
     safelyRemoveMoney(moneyItem, self.char)
     self.withdrawButton:setTitle(string.lower(getText("IGUI_WITHDRAW")))
 end

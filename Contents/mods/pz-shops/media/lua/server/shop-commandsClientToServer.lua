@@ -37,20 +37,36 @@ local function onClientCommand(_module, _command, _player, _data)
     end
 
     if _command == "transferFunds" then
-        local giverID, give, receiverID, receive = _data.giver, _data.give, _data.receiver, _data.receive
-        local giverWallet, receiverWallet
+        local playerWalletID, amount, playerWallet = _data.playerWalletID, _data.amount
+        if playerWalletID then playerWallet = WALLET_HANDLER.getOrSetPlayerWallet(playerWalletID) end
+        if playerWallet and amount then WALLET_HANDLER.validateMoneyOrWallet(playerWallet,_player,amount) end
+    end
 
-        if giverID then giverWallet = WALLET_HANDLER.getOrSetPlayerWallet(giverID) end
-        if receiverID then receiverWallet = WALLET_HANDLER.getOrSetPlayerWallet(receiverID) end
+    if _command == "exchangeFunds" then
 
-        if giverWallet then
-            if give then WALLET_HANDLER.validateMoneyOrWallet(giverWallet,_player,0-give) end
-            if receive then WALLET_HANDLER.validateMoneyOrWallet(giverWallet,_player,receive) end
+        local playerA, playerObjA = {offer=_data.offerA}, _data.playerA
+        local playerB, playerObjB = {offer=_data.offerB}, _data.playerB
+
+        playerA.walletID = playerObjA:getModData().wallet_UUID
+        playerB.walletID = playerObjB:getModData().wallet_UUID
+
+        local walletA, walletB
+
+        if playerA.walletID then walletA = WALLET_HANDLER.getOrSetPlayerWallet(playerA.walletID) end
+        if playerB.walletID then walletB = WALLET_HANDLER.getOrSetPlayerWallet(playerB.walletID) end
+
+        if walletA then
+            if playerA.offer then WALLET_HANDLER.validateMoneyOrWallet(walletA,playerObjA,0-playerA.offer) end
+            if playerB.offer then WALLET_HANDLER.validateMoneyOrWallet(walletA,playerObjA,playerB.offer) end
+        else
+            print("ERR: walletA not found for exchange.")
         end
 
-        if receiverWallet then
-            if give then WALLET_HANDLER.validateMoneyOrWallet(receiverWallet,_player,give) end
-            if receive then WALLET_HANDLER.validateMoneyOrWallet(receiverWallet,_player,0-receive) end
+        if walletB then
+            if playerA.offer then WALLET_HANDLER.validateMoneyOrWallet(walletB,playerObjB,playerA.offer) end
+            if playerB.offer then WALLET_HANDLER.validateMoneyOrWallet(walletB,playerObjB,0-playerB.offer) end
+        else
+            print("ERR: walletB not found for exchange.")
         end
         
         triggerEvent("SHOPPING_ServerModDataReady")

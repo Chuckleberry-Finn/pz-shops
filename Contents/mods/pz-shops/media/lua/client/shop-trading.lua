@@ -110,10 +110,7 @@ function ISTradingUI:finalizeDeal()
         local offeredAmount = tonumber(self.transferFunds:getInternalText()) or 0
         local otherOffer = self.setOfferedAmount
 
-        local playerID = self.player:getModData().wallet_UUID
-        local otherID = self.otherPlayer:getModData().wallet_UUID
-
-        sendClientCommand("shop", "transferFunds", {giver=playerID, give=offeredAmount, receiver=otherID, receive=otherOffer})
+        sendClientCommand("shop", "exchangeFunds", {playerA=self.player, OfferA=offeredAmount, PlayerB=self.otherPlayer, OfferB=otherOffer})
     end
     ISTradingUI_finalizeDeal(self)
 end
