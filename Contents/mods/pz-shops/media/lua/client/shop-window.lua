@@ -663,7 +663,10 @@ function storeWindow:displayOrderTotal()
 
     if SandboxVars.ShopsAndTraders.PlayerWallets then
         self:drawRect(x, y+h+8, w, h, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
-        local walletBalance = getWalletBalance(self.player)
+
+        local wallet, walletBalance = getWallet(self.player), 0
+        if wallet then walletBalance = wallet.amount end
+
         local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
         local bColor = balanceColor.normal
         if (walletBalance-totalForTransaction) < 0 then bColor = balanceColor.red end
@@ -918,7 +921,11 @@ function storeWindow:render()
     self.importText:isEditable(shouldSeeStorePresetOptions and self.importBtn.toggled)
 
     local totalForTransaction, invalidOrder = self:getOrderTotal()
-    local validIfWallets = (SandboxVars.ShopsAndTraders.PlayerWallets and ((getWalletBalance(self.player)-totalForTransaction) >= 0))
+
+    local wallet, walletBalance = getWallet(self.player), 0
+    if wallet then walletBalance = wallet.amount end
+
+    local validIfWallets = (SandboxVars.ShopsAndTraders.PlayerWallets and ( (walletBalance-totalForTransaction) >= 0))
     local validIfNotWallets = ((not SandboxVars.ShopsAndTraders.PlayerWallets) and (totalForTransaction<=0))
     local purchaseValid = (validIfWallets or validIfNotWallets) and (not invalidOrder)
     self.purchase.enable = (not managed and not blocked and #self.yourCartData.items>0 and purchaseValid)

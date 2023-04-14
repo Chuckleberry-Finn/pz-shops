@@ -58,7 +58,9 @@ function ISTradingUI:render()
     if SandboxVars.ShopsAndTraders.PlayerWallets then
         local color = {r=1, g=1, b=1, a=0.9}
 
-        local walletBalance = getWalletBalance(self.player)
+        local wallet, walletBalance = getWallet(self.player), 0
+        if wallet then walletBalance = wallet.amount end
+
         local walletBalanceLine = _internal.numToCurrency(walletBalance)
         self.walletFunds:drawText(walletBalanceLine, 10, 2, color.r, color.g, color.b, color.a, self.font)
 

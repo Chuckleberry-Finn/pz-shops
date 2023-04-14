@@ -87,7 +87,8 @@ local function onPlayerDeath(playerObj)
     if not playerModData then print("WARN: Player without modData.") return end
     if not playerModData.wallet_UUID then print("- No Player wallet_UUID.") return end
 
-    local walletBalance = getWalletBalance(playerObj)
+    local wallet, walletBalance = getWallet(playerObj), 0
+    if wallet then walletBalance = wallet.amount end
     local transferAmount = math.floor((walletBalance*(SandboxVars.ShopsAndTraders.PercentageDropOnDeath/100) * 100) / 100)
 
     if transferAmount > 0 then
@@ -120,7 +121,10 @@ function ISSliderBox:initialise()
     local x,y,w,margin = 10,10,self.width-30,5
     local maxValue = 0
     if self.item then maxValue = self.item:getModData().value-0.01
-    else maxValue = getWalletBalance(self.playerObj) end
+    else
+        local wallet = getWallet(self.playerObj)
+        if wallet then maxValue = wallet.amount end
+    end
 
     local halfMax = _internal.floorCurrency(maxValue/2)
     self.slider = ISSliderPanel:new(self.entry.x, self.entry.y, w-margin, 20, self, ISSliderBox.onValueChange)
@@ -328,7 +332,9 @@ Events.OnPreFillInventoryObjectContextMenu.Add(addContext)
 function ISCharacterScreen:withdrawMoney(button)
     if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
     if SandboxVars.ShopsAndTraders.CanWithdraw then
-        local walletBalance = getWalletBalance(self.char)
+        local wallet, walletBalance = getWallet(self.char), 0
+        if wallet then walletBalance = wallet.amount end
+
         if walletBalance <= 0 then return end
         onSplitStack(nil, self.char, ISCharacterInfoWindow.instance.x+button.x+button.width+10, ISCharacterInfoWindow.instance.y+button.y+button.height+15)
     end
@@ -439,7 +445,10 @@ function ISCharacterScreen:render()
         self.withdrawButton:setX(self.avatarX+self.avatarWidth+25)
         self.withdrawButton:setY(self.literatureButton.y+52)
         self.withdrawButton:setWidthToTitle(55)
-        local walletBalance = getWalletBalance(self.char)
+
+        local wallet, walletBalance = getWallet(self.char), 0
+        if wallet then walletBalance = wallet.amount end
+
         self.withdrawButton.enable = (walletBalance > 0)
         local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
         self:drawText(walletBalanceLine, self.withdrawButton.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
