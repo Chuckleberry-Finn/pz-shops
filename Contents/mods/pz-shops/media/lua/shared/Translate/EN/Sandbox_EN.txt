@@ -34,6 +34,9 @@ Sandbox_EN = {
     Sandbox_ShopsAndTraders_TradersResetStock = "Restocking Traders Reset Their Stock",
     Sandbox_ShopsAndTraders_TradersResellItems_tooltip = "When traders restock they clear out items sold to them.",
 
+    /*
     Sandbox_ShopsAndTraders_DeedRecipe = "Player-Shop Deed Recipe"
     Sandbox_ShopsAndTraders_DeedRecipe_tooltip = "Syntax is as follows:\nEach item is separated by '|'.\nUnique for money values: '$n' for n amount of currency.\nIncluding 'destroy n' where n is an item type will consume that item.\nIncluding 'keep n' where n is an item type will save that item.\nUsing 'n = 5' will require 5 of that item.\nUsing 'n;5' will require 5 'units' from that item in the case of drainable ingredients.\nUsing [function] will utilize the recipe functions for special cases.\n\nAll of these are a part of the vanilla recipe syntax.\nAnything not listed here will also work as it would with a recipe script.",
+    */
+
 	}
