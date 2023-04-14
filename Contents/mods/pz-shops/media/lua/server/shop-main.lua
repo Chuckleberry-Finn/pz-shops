@@ -30,12 +30,20 @@ function WALLET_HANDLER.scrubWallet(playerID)
 end
 
 
+function WALLET_HANDLER.processCreditToStore(playerWallet,amount,storeID)
+    if SandboxVars.ShopsAndTraders.ShopsUseCash ~= 2 then return end
+    playerWallet.credit = playerWallet.credit or {}
+    playerWallet.credit[storeID] = (playerWallet.credit[storeID] or 0) + amount
+end
+
+
 function WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,amount)
     if SandboxVars.ShopsAndTraders.PlayerWallets then
         playerWallet.amount = _internal.floorCurrency(playerWallet.amount+amount)
     else
         if amount>0 then
             amount = _internal.floorCurrency(amount)
+
             if isServer() then
                 sendServerCommand(playerObj, "shop", "sendMoneyItem", {value=amount})
             else
@@ -246,7 +254,7 @@ end
 
 
 ---@param playerObj IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
-function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling,money)
+function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,money)
     if not playerID then print("ERROR: validatePurchases: No playerID") return end
     if not storeID then print("ERROR: validatePurchases: No storeID") return end
 
@@ -260,8 +268,17 @@ function STORE_HANDLER.validateOrder(playerObj, playerID,storeID,buying,selling,
 
         local listing = STORE_HANDLER.validateItemType(storeID,itemType)
         if listing then
+
             local adjustedPrice = listing.price*(listing.buybackRate/100)
-            WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,adjustedPrice)
+            if SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then --credit
+                WALLET_HANDLER.processCreditToStore(playerWallet,adjustedPrice,storeID)
+
+            elseif SandboxVars.ShopsAndTraders.ShopsUseCash == 3 then --nothing
+
+            else --- if 1 or nil (not set)
+
+                WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,adjustedPrice)
+            end
 
             if listing.reselling == true then
                 if listing.item ~= itemType then
