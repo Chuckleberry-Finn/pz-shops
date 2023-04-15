@@ -68,13 +68,32 @@ function storeWindow:onStoreItemSelected()
     if not self.storeStockData.items[row] then return end
     local item = self.storeStockData.items[row].item
 
-    if self:isBeingManaged() then return end
+    local listing = self.storeObj.listings[item]
+
+    if self:isBeingManaged() then
+        self.addStockEntry:setText(item)
+        self.addStockPrice:setText(tostring(listing.price))
+        self.addStockBuyBackRate:setText(tostring(listing.buybackRate))
+
+        self.alwaysShow.selected[1] = listing.alwaysShow
+        self.resell.selected[1] = listing.reselling
+
+        local isCategory = not getScriptManager():getItem(item)
+        self.categorySet.selected[1] = isCategory
+
+        if isCategory then
+            self.addStockQuantity:setText("")
+        else
+            self.addStockQuantity:setText(tostring(listing.stock))
+        end
+        return
+    end
 
     if #self.yourCartData.items >= storeWindow.MaxItems then return end
     local inCart = 0
     for _,v in pairs(self.yourCartData.items) do if v.item == item then inCart = inCart+1 end end
 
-    if self.storeObj and ((self.storeObj.listings[item].available >= inCart+1) or (self.storeObj.listings[item].available == -1)) then
+    if self.storeObj and ((listing.available >= inCart+1) or (listing.available == -1)) then
         local script = getScriptManager():getItem(item)
         local scriptName = script:getDisplayName()
         self.yourCartData:addItem(scriptName, item)
@@ -150,7 +169,7 @@ function storeWindow:initialise()
 
     local manageStockButtonsX = (self.storeStockData.x+self.storeStockData.width)
     local manageStockButtonsY = self.storeStockData.y+self.storeStockData.height
-    self.addStockBtn = ISButton:new(manageStockButtonsX-22, manageStockButtonsY+5, btnHgt-3, btnHgt-3, "+", self, storeWindow.onClick)
+    self.addStockBtn = ISButton:new(manageStockButtonsX-22, manageStockButtonsY+6, btnHgt-3, btnHgt-3, "+", self, storeWindow.onClick)
     self.addStockBtn.internal = "ADDSTOCK"
     self.addStockBtn:initialise()
     self.addStockBtn:instantiate()
