@@ -50,16 +50,25 @@ function storeWindow:storeItemRowAt(y)
 end
 
 
+function storeWindow:onStoreItemDoubleClick()
+    if self:isBeingManaged() then
+        local row = self:storeItemRowAt(self.storeStockData:getMouseY())
+        if not self.storeStockData.items[row] then return end
+        local item = self.storeStockData.items[row].item
+
+        self.storeStockData:removeItemByIndex(self.storeStockData.selected)
+        sendClientCommand("shop", "removeListing", { item=item, storeID=self.storeObj.ID })
+        return
+    end
+end
+
+
 function storeWindow:onStoreItemSelected()
     local row = self:storeItemRowAt(self.storeStockData:getMouseY())
     if not self.storeStockData.items[row] then return end
     local item = self.storeStockData.items[row].item
 
-    if self:isBeingManaged() then
-        self.storeStockData:removeItemByIndex(self.storeStockData.selected)
-        sendClientCommand("shop", "removeListing", { item=item, storeID=self.storeObj.ID })
-        return
-    end
+    if self:isBeingManaged() then return end
 
     if #self.yourCartData.items >= storeWindow.MaxItems then return end
     local inCart = 0
@@ -128,6 +137,7 @@ function storeWindow:initialise()
     self.storeStockData:initialise()
     self.storeStockData:instantiate()
     self.storeStockData:setOnMouseDownFunction(self, self.onStoreItemSelected)
+    self.storeStockData:setOnMouseDoubleClick(self, self.onStoreItemDoubleClick)
     self.storeStockData.itemheight = 30
     self.storeStockData.selected = 0
     self.storeStockData.joypadParent = self
