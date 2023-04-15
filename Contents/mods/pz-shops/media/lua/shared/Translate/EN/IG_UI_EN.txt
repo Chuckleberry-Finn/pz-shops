@@ -27,6 +27,7 @@ IGUI_EN = {
     IGUI_TOTAL = "Total",
     IGUI_OFFERING = "Offering",
     IGUI_RESTOCK_HR = "Restocking in: %1 Hrs",
+    IGUI_credit = "Credit"
 
     IGUI_SPLIT = "Split",
     IGUI_WITHDRAW = "Withdraw",
@@ -38,6 +39,7 @@ IGUI_EN = {
     IGUI_NOTRADE_ONLYSELL = "I only sell these.",
     IGUI_NOTRADE_DAMAGED = "This is too damaged.",
     IGUI_NOTRADE_OUTSIDEINV = "You have to be holding it.",
+    IGUI_NOTRADE_NOCASH = "I don't deal with cash.",
 
     IGUI_IMPORT = "Import",
     IGUI_EXPORT = "Export",

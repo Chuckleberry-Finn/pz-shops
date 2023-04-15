@@ -296,7 +296,10 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
     for _,itemType in pairs(buying) do
         local listing = STORE_HANDLER.validateItemType(storeID,itemType)
         if listing then
-            local purchasePower = playerWallet.amount+money
+
+            local credit = playerWallet and playerWallet.credit and playerWallet.credit[storeID] or 0
+
+            local purchasePower = playerWallet.amount+money+credit
             if purchasePower-listing.price < 0 then break end
 
             local moneyNeeded = math.min(listing.price, money)
@@ -306,7 +309,14 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
             if listing.available > 0 then
                 if listing.available <  1 then return end
                 listing.available = listing.available-1
-                WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,0-costRemainder)
+
+                --credit[self.storeObj.ID]
+                if SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then --credit
+                    WALLET_HANDLER.processCreditToStore(playerWallet,0-costRemainder,storeID)
+                else
+                    WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,0-costRemainder)
+                end
+
                 table.insert(itemsToTransmit,listing.item)
             end
         end

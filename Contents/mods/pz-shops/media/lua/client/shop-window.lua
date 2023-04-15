@@ -344,7 +344,10 @@ function storeWindow:rtrnTypeIfValid(item)
         if self.player and luautils.haveToBeTransfered(self.player, item) then return false, "IGUI_NOTRADE_OUTSIDEINV" end
         if (item:getCondition()/item:getConditionMax())<0.75 or item:isBroken() then return false, "IGUI_NOTRADE_DAMAGED" end
         itemType = item:getFullType()
-        if (_internal.isMoneyType(itemType) and item:getModData().value) then return itemType end
+        if (_internal.isMoneyType(itemType) and item:getModData().value) then
+            if SandboxVars.ShopsAndTraders.ShopsUseCash >= 2 then return false,"IGUI_NOTRADE_NOCASH" end
+            return itemType
+        end
 
         itemCat = item:getDisplayCategory()
 
@@ -605,22 +608,32 @@ end
 function storeWindow:getOrderTotal()
     local totalForTransaction = 0
     local invalidOrder = false
+    local itemListedInCart = false
+
     for i,v in ipairs(self.yourCartData.items) do
         local itemType, reason, itemCat = self:rtrnTypeIfValid(v.item)
         if itemType then
             if reason then invalidOrder = true end
             if type(v.item) ~= "string" then
-                if _internal.isMoneyType(itemType) then totalForTransaction = totalForTransaction-(v.item:getModData().value)
+                if _internal.isMoneyType(itemType) then
+                    totalForTransaction = totalForTransaction-(v.item:getModData().value)
                 else
                     local itemListing = self.storeObj.listings[itemType] or self.storeObj.listings["category:"..tostring(itemCat)]
-                    if itemListing then totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100)) end
+                    if itemListing then
+                        itemListedInCart = true
+                        totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100))
+                    end
                 end
             else
                 local itemListing = self.storeObj.listings[v.item]
-                if itemListing then totalForTransaction = totalForTransaction+itemListing.price end
+                if itemListing then
+                    itemListedInCart = true
+                    totalForTransaction = totalForTransaction+itemListing.price
+                end
             end
         end
     end
+    if not itemListedInCart then invalidOrder = true end
     return totalForTransaction, invalidOrder
 end
 
@@ -638,18 +651,29 @@ function storeWindow:getPurchaseTotal()
     return totalForPurchase
 end
 
+
 function storeWindow:displayOrderTotal()
     local x = self.yourCartData.x
     local y = self.yourCartData.y+self.yourCartData.height
     local w = self.yourCartData.width
     local fontH = getTextManager():MeasureFont(self.font)
-    local h = fontH+(fontH/2)
+    local fontPadded = (fontH*1.5)+2
 
-    local balanceColor = { normal = {r=1, g=1, b=1, a=0.9}, red = {r=1, g=0.2, b=0.2, a=0.9}, green = {r=0.2, g=1, b=0.2, a=0.9} }
-    self:drawRect(x, y+4, w, h, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
+    local rowPadding = 4
+    local rows = 0
+
+    local balanceColor = {
+        normal = {r=1, g=1, b=1, a=0.9},
+        red = {r=1, g=0.2, b=0.2, a=0.9},
+        green = {r=0.2, g=1, b=0.2, a=0.9},
+        gray = {r=0.5, g=0.5, b=0.5, a=0.5}
+    }
+
+    self:drawRect(x, y+(rows*fontPadded)+(rowPadding*(rows+1)), w, fontPadded, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
+    self:drawRectBorder(x, y+(rows*fontPadded)+(rowPadding*(rows+1)), w, fontPadded, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
 
     local totalLine = getText("IGUI_TOTAL")..": "
-    self:drawText(totalLine, x+10, y+(fontH/2), balanceColor.normal.r, balanceColor.normal.g, balanceColor.normal.b, balanceColor.normal.a, self.font)
+    self:drawText(totalLine, x+10, y+(rows*fontPadded)+(rowPadding*(rows+1))+rowPadding, balanceColor.normal.r, balanceColor.normal.g, balanceColor.normal.b, balanceColor.normal.a, self.font)
 
     local totalForTransaction, invalidOrder = self:getOrderTotal()
     local textForTotal = _internal.numToCurrency(math.abs(totalForTransaction))
@@ -658,27 +682,55 @@ function storeWindow:displayOrderTotal()
     elseif totalForTransaction > 0 then tColor, textForTotal = balanceColor.red, "-"..textForTotal
     else textForTotal = " "..textForTotal end
     local xOffset = getTextManager():MeasureStringX(self.font, textForTotal)+15
-    self:drawText(textForTotal, w-xOffset+5, y+(fontH/2), tColor.r, tColor.g, tColor.b, tColor.a, self.font)
-    self:drawRectBorder(x, y+4, w, h, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+    self:drawText(textForTotal, w-xOffset+5, y+(rows*fontPadded)+(rowPadding*(rows+1))+rowPadding, tColor.r, tColor.g, tColor.b, tColor.a, self.font)
+
+    local wallet, walletBalance = getWallet(self.player), 0
+    if wallet then walletBalance = wallet.amount end
 
     if SandboxVars.ShopsAndTraders.PlayerWallets then
-        self:drawRect(x, y+h+8, w, h, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
-
-        local wallet, walletBalance = getWallet(self.player), 0
-        if wallet then walletBalance = wallet.amount end
+        rows = rows+1
+        self:drawRect(x, y+(rows*fontPadded)+(rowPadding*(rows+1)), w, fontPadded, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
+        self:drawRectBorder(x, y+(rows*fontPadded)+(rowPadding*(rows+1)), w, fontPadded, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
 
         local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
         local bColor = balanceColor.normal
-        if (walletBalance-totalForTransaction) < 0 then bColor = balanceColor.red end
-        self:drawText(walletBalanceLine, x+10, y+h+4+(fontH/2), bColor.r, bColor.g, bColor.b, bColor.a, self.font)
+        if SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then bColor = balanceColor.gray
+        elseif (walletBalance-totalForTransaction) < 0 then bColor = balanceColor.red end
 
+        self:drawText(walletBalanceLine, x+10, y+(rows*fontPadded)+(rowPadding*(rows+1))+rowPadding, bColor.r, bColor.g, bColor.b, bColor.a, self.font)
+    end
+
+    if SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then
+
+        if SandboxVars.ShopsAndTraders.PlayerWallets then
+            local bColor = balanceColor.red
+            self:drawTextRight(getText("IGUI_NOTRADE_NOCASH"), w-10, y+(rows*fontPadded)+(rowPadding*(rows+1))+rowPadding, bColor.r, bColor.g, bColor.b, bColor.a, self.font)
+        end
+
+        local credit = wallet.credit or {}
+        if credit then
+            local storeCredit = credit[self.storeObj.ID] or 0
+            if storeCredit then
+                rows = rows+1
+
+                walletBalance = storeCredit
+
+                self:drawRect(x, y+(rows*fontPadded)+(rowPadding*(rows+1)), w, fontPadded, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
+                self:drawRectBorder(x, y+(rows*fontPadded)+(rowPadding*(rows+1)), w, fontPadded, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+
+                local creditLine = getText("IGUI_credit")..": ".._internal.numToCurrency(storeCredit)
+                self:drawText(creditLine, x+10, y+(rows*fontPadded)+(rowPadding*(rows+1))+rowPadding, balanceColor.normal.r, balanceColor.normal.g, balanceColor.normal.b, balanceColor.normal.a, self.font)
+            end
+        end
+    end
+
+    if totalForTransaction ~= 0 then
         local walletBalanceAfter = walletBalance-totalForTransaction
         local sign = " "
         if walletBalanceAfter < 0 then sign = "-" end
         local wbaText = sign.._internal.numToCurrency(math.abs(walletBalanceAfter))
         local xOffset2 = getTextManager():MeasureStringX(self.font, wbaText)+15
-        self:drawText(wbaText, w-xOffset2+5, y+h+4+(fontH/2), 0.7, 0.7, 0.7, 0.7, self.font)
-        self:drawRectBorder(x, y+h+8, w, h, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+        self:drawText(wbaText, w-xOffset2+5, y+(rows*fontPadded)+(rowPadding*(rows+1))+rowPadding, 0.7, 0.7, 0.7, 0.7, self.font)
     end
 end
 
@@ -925,9 +977,15 @@ function storeWindow:render()
     local wallet, walletBalance = getWallet(self.player), 0
     if wallet then walletBalance = wallet.amount end
 
-    local validIfWallets = (SandboxVars.ShopsAndTraders.PlayerWallets and ( (walletBalance-totalForTransaction) >= 0))
+    local validIfWallets = (SandboxVars.ShopsAndTraders.PlayerWallets and ((walletBalance-totalForTransaction) >= 0))
+    if validIfWallets and totalForTransaction >= 0 then totalForTransaction = totalForTransaction-walletBalance end
+
     local validIfNotWallets = ((not SandboxVars.ShopsAndTraders.PlayerWallets) and (totalForTransaction<=0))
-    local purchaseValid = (validIfWallets or validIfNotWallets) and (not invalidOrder)
+
+    local validIfCredit = wallet.credit and wallet.credit[self.storeObj.ID] and ((wallet.credit[self.storeObj.ID]-totalForTransaction) >= 0)
+    if validIfCredit and totalForTransaction >= 0 then totalForTransaction = totalForTransaction-wallet.credit[self.storeObj.ID] end
+
+    local purchaseValid = (validIfWallets or validIfNotWallets or validIfCredit) and (not invalidOrder) and totalForTransaction<=0
     self.purchase.enable = (not managed and not blocked and #self.yourCartData.items>0 and purchaseValid)
 
     local gb = 1
@@ -1130,9 +1188,7 @@ function storeWindow:finalizeDeal()
                     table.insert(itemsToSell, itemType)
                 end
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
-                if removeItem then
-                    self.player:getInventory():Remove(v.item)
-                end
+                if removeItem then self.player:getInventory():Remove(v.item) end
             end
         end
     end
