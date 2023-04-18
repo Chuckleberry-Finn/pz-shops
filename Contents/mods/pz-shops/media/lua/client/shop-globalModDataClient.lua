@@ -1,6 +1,6 @@
 ---Credit to Konijima (Konijima#9279) for clearing up networking :thumbsup:
 require "shop-commandsServerToClient"
-require "shop-shared"
+local _internal = require "shop-shared"
 
 CLIENT_STORES = {}
 CLIENT_WALLETS = {}

@@ -1,5 +1,5 @@
 ---internal functions for handling tables more object-like (copy/new/etc)
-_internal = {}
+local _internal = {}
 
 local moneyTypes = {"Base.Money"}
 
@@ -83,3 +83,5 @@ function _internal.stringToTable(inputstr)
     local tblTbl = loadstring("return "..inputstr)()
     return tblTbl
 end
+
+return _internal

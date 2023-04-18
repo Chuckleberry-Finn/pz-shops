@@ -3,7 +3,7 @@ require "shop-globalModDataClient"
 require "shop-wallet"
 require "luautils"
 require "shop-itemLookup"
-require "shop-shared"
+local _internal = require "shop-shared"
 
 ---@class storeWindow : ISPanel
 storeWindow = ISPanelJoypad:derive("storeWindow")

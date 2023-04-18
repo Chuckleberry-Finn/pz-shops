@@ -1,5 +1,5 @@
 require "shop-globalModDataServer"
-require "shop-shared"
+local _internal = require "shop-shared"
 
 WALLET_HANDLER = {}
 STORE_HANDLER = {}
@@ -136,6 +136,7 @@ store.ID = false
 store.isBeingManaged = false
 store.restockHrs = 48
 store.nextRestock = 48
+store.ownerSteamID = nil
 
 function STORE_HANDLER.new(copyThisID)
     local original = store

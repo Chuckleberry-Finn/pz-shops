@@ -1,5 +1,5 @@
 require "shop-wallet"
-require "shop-shared"
+local _internal = require "shop-shared"
 
 shopsAndTradersRecipe = {}
 
