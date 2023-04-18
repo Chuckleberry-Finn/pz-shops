@@ -3,6 +3,7 @@ require "shop-globalModDataClient"
 require "ISUI/ISInventoryPaneContextMenu"
 require "ISUI/ISTextBox"
 require "luautils"
+local _internal = require "shop-shared"
 
 local function modifyScript()
     for _,type in pairs(_internal.getMoneyTypes()) do

@@ -1,6 +1,7 @@
 LuaEventManager.AddEvent("SHOPPING_ServerModDataReady")
 
 local itemDictionaryUpdated = false
+local _internal = require "shop-shared"
 
 local function onClientCommand(_module, _command, _player, _data)
     --if getDebug() then print("Received command from " .. _player:getUsername() .." [".._module..".".._command.."]") end
