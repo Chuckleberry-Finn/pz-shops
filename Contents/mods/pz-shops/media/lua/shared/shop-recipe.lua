@@ -24,13 +24,34 @@ local function recipeOverride()
 end
 Events.OnGameBoot.Add(recipeOverride)
 
-
+---@param item InventoryItem
 function shopsAndTradersRecipe.checkDeedValid(recipe, playerObj, item) --onCanPerform
+
+    print("item:"..tostring(item))
+
+    local cont = item:getContainer()
+    local worldObj = cont and (not cont:isInCharacterInventory()) and cont:getParent()
+
+    if worldObj and worldObj:getModData().storeObjID then
+        return false
+    end
+
     return true
 end
 
+---@param items ArrayList
 function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
+    local item = items:get(0)
 
+    local cont = item:getContainer()
+    local worldObj = cont and (not cont:isInCharacterInventory()) and cont:getParent()
+
+    if worldObj and worldObj:getModData().storeObjID then
+        return false
+    end
+
+    local x, y, z, worldObjName = self.worldObject:getX(), self.worldObject:getY(), self.worldObject:getZ(), _internal.getWorldObjectName(self.worldObject)
+    sendClientCommand("shop", "assignStore", { x=x, y=y, z=z, worldObjName=worldObjName })
 end
 
 
