@@ -31,8 +31,8 @@ Sandbox_EN = {
     Sandbox_ShopsAndTraders_TradersResellItems = "Traders Resell Option Default",
     Sandbox_ShopsAndTraders_TradersResellItems_tooltip = "This setting changes the default setting when creating listings.\nIf toggled on traders will stock items sold to them.",
 
-    Sandbox_ShopsAndTraders_TradersResetStock = "Restocking Traders Reset Their Stock",
-    Sandbox_ShopsAndTraders_TradersResellItems_tooltip = "When traders restock they clear out items sold to them.",
+    Sandbox_ShopsAndTraders_TradersResetStock = "Restocking Resets the Store's Stock Entirely",
+    Sandbox_ShopsAndTraders_TradersResetStock_tooltip = "When traders restock any items being resold (originally sold by players) will be cleared out.",
 
     /*
     Sandbox_ShopsAndTraders_DeedRecipe = "Player-Shop Deed Recipe"
