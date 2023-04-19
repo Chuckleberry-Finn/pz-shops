@@ -1,4 +1,5 @@
 require "shop-window"
+local _internal = require "shop-shared"
 
 local CONTEXT_HANDLER = {}
 
