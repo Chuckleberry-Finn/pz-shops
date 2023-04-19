@@ -26,34 +26,57 @@ Events.OnGameBoot.Add(recipeOverride)
 
 ---@param item InventoryItem
 function shopsAndTradersRecipe.checkDeedValid(recipe, playerObj, item) --onCanPerform
-
-    print("item:"..tostring(item))
+    if not item then return false end
+    print("checkDeedValid: item:"..tostring(item))
 
     local cont = item:getContainer()
-    if not cont then return false end
+    if not cont then
+        print("not cont")
+        return false
+    end
 
     local worldObj = cont and (not cont:isInCharacterInventory(playerObj)) and cont:getParent()
-    if not worldObj then return false end
-    if worldObj and worldObj:getModData().storeObjID then return false end
+    if not worldObj then
+        print("not worldObj")
+        return false
+    end
+    if worldObj and worldObj:getModData().storeObjID then
+        print("storeObjID present")
+        return false
+    end
+
 
     return true
 end
 
 ---@param items ArrayList
+---@param player IsoPlayer|IsoGameCharacter
 function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
     local item = items:get(0)
+    print("onActivateDeed: item:"..tostring(item))
 
     local cont = item:getContainer()
-    if not cont then return false end
-
-    local worldObj = cont and (not cont:isInCharacterInventory()) and cont:getParent()
-
-    if worldObj and worldObj:getModData().storeObjID then
+    if not cont then
+        print("not cont")
         return false
     end
 
-    local x, y, z, worldObjName = self.worldObject:getX(), self.worldObject:getY(), self.worldObject:getZ(), _internal.getWorldObjectName(self.worldObject)
-    sendClientCommand("shop", "assignStore", { x=x, y=y, z=z, worldObjName=worldObjName })
+    local worldObj = cont and (not cont:isInCharacterInventory(player)) and cont:getParent()
+    if not worldObj then
+        print("not worldObj")
+        return false
+    end
+    if worldObj and worldObj:getModData().storeObjID then
+        print("storeObjID present")
+        return false
+    end
+
+    cont:DoRemoveItem(item)
+
+    print("deed activated")
+
+    local x, y, z, worldObjName = worldObj:getX(), worldObj:getY(), worldObj:getZ(), _internal.getWorldObjectName(worldObj)
+    sendClientCommand("shop", "assignStore", { x=x, y=y, z=z, worldObjName=worldObjName, owner=player:getSteamID() })
 end
 
 

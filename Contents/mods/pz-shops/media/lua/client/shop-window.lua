@@ -738,7 +738,7 @@ function storeWindow:displayOrderTotal()
 
         local credit = wallet.credit or {}
         if credit then
-            local storeCredit = credit[self.storeObj.ID] or 0
+            local storeCredit = self.storeObj and credit[self.storeObj.ID]
             if storeCredit then
                 rows = rows+1
 
@@ -1011,7 +1011,7 @@ function storeWindow:render()
 
     local validIfNotWallets = ((not SandboxVars.ShopsAndTraders.PlayerWallets) and (totalForTransaction<=0))
 
-    local validIfCredit = wallet.credit and wallet.credit[self.storeObj.ID] and ((wallet.credit[self.storeObj.ID]-totalForTransaction) >= 0)
+    local validIfCredit = self.storeObj and wallet.credit and wallet.credit[self.storeObj.ID] and ((wallet.credit[self.storeObj.ID]-totalForTransaction) >= 0)
     if validIfCredit and totalForTransaction >= 0 then totalForTransaction = totalForTransaction-wallet.credit[self.storeObj.ID] end
 
     local purchaseValid = (validIfWallets or validIfNotWallets or validIfCredit) and (not invalidOrder) and totalForTransaction<=0

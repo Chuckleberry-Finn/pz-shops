@@ -90,7 +90,7 @@ local function onClientCommand(_module, _command, _player, _data)
 
     if _command == "assignStore" or _command == "copyStorePreset" or _command == "connectStorePreset" or _command == "clearStoreFromWorldObj" then
 
-        local storeID, x, y, z, worldObjName = _data.storeID, _data.x, _data.y, _data.z, _data.worldObjName
+        local storeID, x, y, z, worldObjName, owner = _data.storeID, _data.x, _data.y, _data.z, _data.worldObjName, _data.owner
         local sq = getSquare(x, y, z)
         if not sq then print("ERROR: Could not find square for assigning store.") return end
 
@@ -125,7 +125,7 @@ local function onClientCommand(_module, _command, _player, _data)
         elseif _command == "clearStoreFromWorldObj" then
             STORE_HANDLER.clearStoreFromObject(foundObjToApplyTo)
         else --assign or copy
-            STORE_HANDLER.copyStoreOntoObject(foundObjToApplyTo,storeID,true)
+            STORE_HANDLER.copyStoreOntoObject(foundObjToApplyTo,storeID,true, owner)
         end
         triggerEvent("SHOPPING_ServerModDataReady")
 

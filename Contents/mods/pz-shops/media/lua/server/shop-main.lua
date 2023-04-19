@@ -197,12 +197,13 @@ function STORE_HANDLER.connectStoreByID(isoObj,ID)
 end
 
 ---@param isoObj IsoObject
-function STORE_HANDLER.copyStoreOntoObject(isoObj,ID,managed)
+function STORE_HANDLER.copyStoreOntoObject(isoObj,ID,managed,owner)
     local modData = isoObj:getModData()
     if not modData then print("ERROR: Can't apply store to obj:"..tostring(isoObj)) return end
     if modData.storeObjID and (not GLOBAL_STORES[modData.storeObjID]) then STORE_HANDLER.clearStoreFromObject(isoObj) end
     if modData.storeObjID then print("ERROR: Object already has store assigned. obj:"..tostring(isoObj)) return end
     local newStore = STORE_HANDLER.new(ID)
+    newStore.ownerSteamID = owner
     newStore.isBeingManaged = managed or false
     modData.storeObjID = newStore.ID
     isoObj:transmitModData()
