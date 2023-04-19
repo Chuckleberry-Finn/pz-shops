@@ -52,6 +52,7 @@ end
 ---@param items ArrayList
 ---@param player IsoPlayer|IsoGameCharacter
 function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
+    if player and player:getSteamID()==0 then return end
     local item = items:get(0)
     print("onActivateDeed: item:"..tostring(item))
 
