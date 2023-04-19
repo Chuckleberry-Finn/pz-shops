@@ -355,6 +355,18 @@ function storeWindow:populateComboList()
 end
 
 
+function storeWindow:canManage(player)
+    if not self.storeObj then return false end
+    local adminEquivalent = (isAdmin() or isCoopHost() or getDebug())
+    local shopSteamID = self.storeObj.ownerSteamID
+    local playerSteamID = player and player:getSteamID()
+    if playerSteamID and playerSteamID~=0 and shopSteamID and playerSteamID==shopSteamID then
+        return true
+    end
+    return false
+end
+
+
 function storeWindow:isBeingManaged()
     if self.storeObj and self.storeObj.isBeingManaged then return true end
     return false
