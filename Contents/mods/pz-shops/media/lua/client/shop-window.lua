@@ -12,6 +12,19 @@ storeWindow.CoolDownMessage = 300
 storeWindow.MaxItems = 20
 
 
+function storeWindow:getPlayerOwnedStock(itemType)
+    ---@type IsoObject
+    local worldObject = self.worldObject
+    if not worldObject then return end
+
+    local container = worldObject:getContainer()
+    if not container then return end
+
+    local items = container:getAllType(itemType)
+    if items then return items:size() end
+end
+
+
 function storeWindow:onCartItemSelected()
     local row = self.yourCartData:rowAt(self.yourCartData:getMouseX(), self.yourCartData:getMouseY())
     if row ~= self.yourCartData.selected then return end
@@ -971,7 +984,7 @@ function storeWindow:render()
     end
 
     local blocked = false
-    if _internal.canManageStore(self.storeObj,self.player) then
+    if not _internal.canManageStore(self.storeObj,self.player) then
         self.manageBtn:setVisible(false)
         if managed then blocked = true end
     end
@@ -996,7 +1009,7 @@ function storeWindow:render()
     self.manageStoreName:setVisible(managed and not blocked)
     self.addStockEntry:setVisible(managed and not blocked)
     self.addStockPrice:setVisible(managed and not blocked)
-    self.addStockQuantity:setVisible((isAdmin() or isCoopHost() or getDebug()) and not blocked)
+    self.addStockQuantity:setVisible((isAdmin() or isCoopHost() or getDebug()) and managed and not blocked)
     self.addStockBuyBackRate:setVisible(managed and not blocked)
     self.clearStore:setVisible(managed and not blocked)
     self.restockHours:setVisible(managed and not blocked)
