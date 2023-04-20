@@ -39,7 +39,7 @@ function storeWindow:storeItemRowAt(y)
 
         local showListing = ((listing.stock ~= 0 or listing.reselling==true) and (listing.available ~= 0) and (texture or #validCategory>0))
         if listing.alwaysShow==true then showListing = true end
-        local managing = (self:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug()))
+        local managing = (self:isBeingManaged() and _internal.canManageStore(self.storeObj,self.player))
 
         if showListing or managing then
             if y >= y0 and y < y0 + v.height then return i end
@@ -355,14 +355,11 @@ function storeWindow:populateComboList()
 end
 
 
-function storeWindow:canManage(player)
-    if not self.storeObj then return false end
-    local adminEquivalent = (isAdmin() or isCoopHost() or getDebug())
-    local shopSteamID = self.storeObj.ownerSteamID
-    local playerSteamID = player and player:getSteamID()
-    if playerSteamID and playerSteamID~=0 and shopSteamID and playerSteamID==shopSteamID then
-        return true
-    end
+function storeWindow:isOwner(player)
+    if not self.storeObj or not player then return false end
+    local shopOwnerID = self.storeObj.ownerID
+    local playerUsername = player:getUsername()
+    if playerUsername and shopOwnerID and playerUsername==shopOwnerID then return true end
     return false
 end
 
@@ -498,7 +495,7 @@ function storeWindow:drawStock(y, item, alt)
 
             local showListing = ((listing.stock ~= 0 or listing.reselling==true) and (listing.available ~= 0) and (texture or validCategoryLen>0))
             if listing.alwaysShow==true then showListing = true end
-            local managing = (self.parent:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug()))
+            local managing = (self.parent:isBeingManaged() and _internal.canManageStore(storeObj,self.player))
 
             if showListing or managing then
 
@@ -538,7 +535,7 @@ function storeWindow:displayStoreStock()
         return
     end
 
-    local managed = self:isBeingManaged() and (isAdmin() or isCoopHost() or getDebug())
+    local managed = self:isBeingManaged() and _internal.canManageStore(storeObj,self.player)
 
     for _,listing in pairs(storeObj.listings) do
 
@@ -797,14 +794,16 @@ function storeWindow:prerender()
         local cat = "category:"
         local catX = getTextManager():MeasureStringX(UIFont.Small, cat)+4
 
-        if self.categorySet.selected[1] == true then
-            local addStockEntryColor = self.addStockEntry.textColor
-            self.addStockEntry:setX(self.storeStockData.x+catX)
-            self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3-catX)
-            self:drawText(cat, self.storeStockData.x+1, self.addStockEntry.y-1, addStockEntryColor.r,addStockEntryColor.g,addStockEntryColor.b,addStockEntryColor.a, UIFont.Small)
-        else
-            self.addStockEntry:setX(self.storeStockData.x)
-            self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3)
+        if (isAdmin() or isCoopHost() or getDebug()) then
+            if self.categorySet.selected[1] == true then
+                local addStockEntryColor = self.addStockEntry.textColor
+                self.addStockEntry:setX(self.storeStockData.x+catX)
+                self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3-catX)
+                self:drawText(cat, self.storeStockData.x+1, self.addStockEntry.y-1, addStockEntryColor.r,addStockEntryColor.g,addStockEntryColor.b,addStockEntryColor.a, UIFont.Small)
+            else
+                self.addStockEntry:setX(self.storeStockData.x)
+                self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3)
+            end
         end
 
         self:validateElementColor(self.addStockPrice)
@@ -921,7 +920,7 @@ function storeWindow:updateButtons()
         return
     end
 
-    if (isAdmin() or isCoopHost() or getDebug()) then
+    if _internal.canManageStore(self.storeObj,self.player) then
         self.manageBtn.enable = true
         if self:isBeingManaged() then
             self.clearStore.enable = true
@@ -972,7 +971,7 @@ function storeWindow:render()
     end
 
     local blocked = false
-    if not (isAdmin() or isCoopHost() or getDebug()) then
+    if _internal.canManageStore(self.storeObj,self.player) then
         self.manageBtn:setVisible(false)
         if managed then blocked = true end
     end
@@ -997,7 +996,7 @@ function storeWindow:render()
     self.manageStoreName:setVisible(managed and not blocked)
     self.addStockEntry:setVisible(managed and not blocked)
     self.addStockPrice:setVisible(managed and not blocked)
-    self.addStockQuantity:setVisible(managed and not blocked)
+    self.addStockQuantity:setVisible((isAdmin() or isCoopHost() or getDebug()) and not blocked)
     self.addStockBuyBackRate:setVisible(managed and not blocked)
     self.clearStore:setVisible(managed and not blocked)
     self.restockHours:setVisible(managed and not blocked)

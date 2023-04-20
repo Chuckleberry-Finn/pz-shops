@@ -1,4 +1,5 @@
 require "ISObjectClickHandler"
+local _internal = require "shop-shared"
 
 local clickHandler = {}
 
@@ -13,7 +14,8 @@ function clickHandler.canInteract(worldObject)
         if storeObjID then
             local storeObj = GLOBAL_STORES[storeObjID]
             canView = false
-            if storeObj and storeObj.isBeingManaged and (isAdmin() or isCoopHost() or getDebug()) then canView = true end
+
+            if storeObj and _internal.canManageStore(storeObj,getSpecificPlayer(0)) then canView = true end
         end
     end
 

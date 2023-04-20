@@ -52,7 +52,7 @@ end
 ---@param items ArrayList
 ---@param player IsoPlayer|IsoGameCharacter
 function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
-    if player and player:getSteamID()==0 then return end
+
     local item = items:get(0)
     print("onActivateDeed: item:"..tostring(item))
 
@@ -72,12 +72,14 @@ function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
         return false
     end
 
-    cont:DoRemoveItem(item)
-
     print("deed activated")
 
+    storeWindow:onBrowse(nil, worldObj)
+
     local x, y, z, worldObjName = worldObj:getX(), worldObj:getY(), worldObj:getZ(), _internal.getWorldObjectName(worldObj)
-    sendClientCommand("shop", "assignStore", { x=x, y=y, z=z, worldObjName=worldObjName, owner=player:getSteamID() })
+    sendClientCommand("shop", "assignStore", { x=x, y=y, z=z, worldObjName=worldObjName, owner=player:getUsername() })
+
+    cont:DoRemoveItem(item)
 end
 
 

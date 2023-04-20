@@ -136,7 +136,7 @@ store.ID = false
 store.isBeingManaged = false
 store.restockHrs = 48
 store.nextRestock = 48
-store.ownerSteamID = nil
+store.ownerID = nil
 
 function STORE_HANDLER.new(copyThisID)
     local original = store
@@ -203,7 +203,7 @@ function STORE_HANDLER.copyStoreOntoObject(isoObj,ID,managed,owner)
     if modData.storeObjID and (not GLOBAL_STORES[modData.storeObjID]) then STORE_HANDLER.clearStoreFromObject(isoObj) end
     if modData.storeObjID then print("ERROR: Object already has store assigned. obj:"..tostring(isoObj)) return end
     local newStore = STORE_HANDLER.new(ID)
-    newStore.ownerSteamID = owner
+    newStore.ownerID = owner
     newStore.isBeingManaged = managed or false
     modData.storeObjID = newStore.ID
     isoObj:transmitModData()

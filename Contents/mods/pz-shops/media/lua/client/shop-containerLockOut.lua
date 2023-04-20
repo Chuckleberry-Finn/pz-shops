@@ -1,10 +1,11 @@
 require "ISUI/ISInventoryPane"
 require "ISUI/ISInventoryPage"
+local _internal = require "shop-shared"
 
 local containerLockOut = {}
 
 ---Validates if the worldObject can be interacted with
-function containerLockOut.canInteract(worldObject)
+function containerLockOut.canInteract(worldObject,player)
     if not worldObject then return true end
 
     local canView = true
@@ -14,7 +15,7 @@ function containerLockOut.canInteract(worldObject)
         if storeObjID then
             local storeObj = CLIENT_STORES[storeObjID]
             canView = false
-            if storeObj and storeObj.isBeingManaged and (isAdmin() or isCoopHost() or getDebug()) then canView = true end
+            if storeObj and _internal.canManageStore(storeObj,player) then canView = true end
         end
     end
 
@@ -26,7 +27,7 @@ end
 local ISInventoryTransferAction_isValid = ISInventoryTransferAction.isValid
 function ISInventoryTransferAction:isValid()
     if self.destContainer and self.srcContainer then
-        if containerLockOut.canInteract(self.destContainer:getParent()) and containerLockOut.canInteract(self.srcContainer:getParent()) then
+        if containerLockOut.canInteract(self.destContainer:getParent(),self.character) and containerLockOut.canInteract(self.srcContainer:getParent(),self.character) then
             return ISInventoryTransferAction_isValid(self)
         end
     end
@@ -41,7 +42,7 @@ function ISInventoryPage:dropItemsInContainer(button)
 
     if container then
         local worldObj = container:getParent()
-        if worldObj then allow = containerLockOut.canInteract(worldObj) end
+        if worldObj then allow = containerLockOut.canInteract(worldObj,getSpecificPlayer(self.player)) end
     end
 
     if allow then ISInventoryPage_dropItemsInContainer(self, button)
@@ -64,7 +65,7 @@ function ISInventoryPage:prevUnlockedContainer(index, wrap)
     if _index ~= -1 then
         local backpack = self.backpacks[_index]
         local object = backpack.inventory:getParent()
-        if not containerLockOut.canInteract(object) then
+        if not containerLockOut.canInteract(object,getSpecificPlayer(self.player)) then
             return self:prevUnlockedContainer(_index, true)
         end
     end
@@ -79,7 +80,7 @@ function ISInventoryPage:nextUnlockedContainer(index, wrap)
     if _index ~= -1 then
         local backpack = self.backpacks[_index]
         local object = backpack.inventory:getParent()
-        if not containerLockOut.canInteract(object) then
+        if not containerLockOut.canInteract(object,getSpecificPlayer(self.player)) then
             return self:nextUnlockedContainer(_index, true)
         end
     end
@@ -94,7 +95,7 @@ function ISInventoryPage:update()
     if not self.onCharacter then
         -- If the currently-selected container is locked to the player, select another container.
         local object = self.inventory and self.inventory:getParent() or nil
-        if object and #self.backpacks > 1 and (not containerLockOut.canInteract(object)) then
+        if object and #self.backpacks > 1 and (not containerLockOut.canInteract(object,getSpecificPlayer(self.player))) then
             local currentIndex = self:getCurrentBackpackIndex()
             local unlockedIndex = self:prevUnlockedContainer(currentIndex, false)
             if unlockedIndex == -1 then
@@ -115,29 +116,25 @@ end
 ---Places the lock texture over the button and prevents it from working
 local function hideButtons(UI, STEP)
     if STEP == "end" and (not UI.onCharacter) then
-
         for index,containerButton in ipairs(UI.backpacks) do
             local worldObj = containerButton.inventory:getParent()
             if worldObj then
-
-                local canView = containerLockOut.canInteract(worldObj)
-
-                if not canView then
-                    if containerButton then
+                local canView = containerLockOut.canInteract(worldObj,getSpecificPlayer(UI.player))
+                if containerButton then
+                    if worldObj:getModData().storeObjID then containerButton.textureOverride = getTexture("media/ui/lock.png") end
+                    if not canView then
                         containerButton.onclick = nil
                         containerButton.onmousedown = nil
                         containerButton.onMouseUp = nil
                         containerButton.onRightMouseDown = nil
                         containerButton:setOnMouseOverFunction(nil)
                         containerButton:setOnMouseOutFunction(nil)
-                        containerButton.textureOverride = getTexture("media/ui/lock.png")
                     end
                 end
             end
         end
     end
 end
-
 Events.OnRefreshInventoryWindowContainers.Add(hideButtons)
 
 return containerLockOut

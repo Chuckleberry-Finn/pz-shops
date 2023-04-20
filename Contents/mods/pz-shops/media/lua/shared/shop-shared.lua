@@ -61,6 +61,17 @@ function _internal.getWorldObjectDisplayName(obj)
 end
 
 
+function _internal.canManageStore(storeObj,player)
+    if not storeObj then return false end
+    if (isAdmin() or isCoopHost() or getDebug()) then return true end
+    if not player then return false end
+    local shopOwnerID = storeObj.ownerID
+    local playerUsername = player:getUsername()
+    if playerUsername and shopOwnerID and playerUsername==shopOwnerID then return true end
+    return false
+end
+
+
 function _internal.tableToString(object,nesting)
     nesting = nesting or 0
     local text = ""..string.rep("  ", nesting)
