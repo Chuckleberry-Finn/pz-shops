@@ -90,13 +90,11 @@ end
 
 function storeWindow:yourStockingMouseUp(x, y)
     if self.vscroll then self.vscroll.scrolling = false end
-    local counta = 1
     if ISMouseDrag.dragging then
-
-        local woX, woY, woZ, worldObjName = self.worldObject:getX(), self.worldObject:getY(), self.worldObject:getZ(), _internal.getWorldObjectName(self.worldObject)
-
-        local store = self.storeObj
-
+        local worldObject = self.parent.worldObject
+        local woX, woY, woZ, worldObjName = worldObject:getX(), worldObject:getY(), worldObject:getZ(), _internal.getWorldObjectName(worldObject)
+        local store = self.parent.storeObj
+        
         for i,v in ipairs(ISMouseDrag.dragging) do
             if instanceof(v, "InventoryItem") then
                 ---@type InventoryItem
@@ -218,7 +216,7 @@ function storeWindow:initialise()
     self.storeStockData.joypadParent = self
     self.storeStockData.font = UIFont.NewSmall
     self.storeStockData.doDrawItem = self.drawStock
-    self.yourCartData.onMouseUp = self.yourStockingMouseUp
+    self.storeStockData.onMouseUp = self.yourStockingMouseUp
     self.storeStockData.drawBorder = true
     self:addChild(self.storeStockData)
 
