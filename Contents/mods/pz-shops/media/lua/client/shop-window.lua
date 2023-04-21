@@ -89,12 +89,13 @@ end
 
 
 function storeWindow:yourStockingMouseUp(x, y)
+    local store = self.parent.storeObj
+    if (not self.parent:isBeingManaged()) or (not _internal.canManageStore(store,self.parent.player)) then return end
     if self.vscroll then self.vscroll.scrolling = false end
     if ISMouseDrag.dragging then
         local worldObject = self.parent.worldObject
         local woX, woY, woZ, worldObjName = worldObject:getX(), worldObject:getY(), worldObject:getZ(), _internal.getWorldObjectName(worldObject)
-        local store = self.parent.storeObj
-        
+
         for i,v in ipairs(ISMouseDrag.dragging) do
             if instanceof(v, "InventoryItem") then
                 ---@type InventoryItem
