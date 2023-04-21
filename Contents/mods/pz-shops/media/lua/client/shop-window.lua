@@ -1238,14 +1238,23 @@ function storeWindow:finalizeDeal()
 
     for i,v in ipairs(self.yourCartData.items) do
         if type(v.item) == "string" then
-
-
-
-            table.insert(itemToPurchase, v.item)
+            if self.storeObj.ownerID then
+                local storeStock = self:getPlayerOwnedStock(v.item)
+                if storeStock then
+                    local item = storeStock:get(0)
+                    if item then
+                        local itemCont = item:getContainer()
+                        if itemCont then itemCont:Remove(v.item) end
+                        self.player:getInventory():addItem(item)
+                    end
+                end
+            else
+                table.insert(itemToPurchase, v.item)
+            end
         else
             local itemType, _, _ = self:rtrnTypeIfValid(v.item)
             if itemType then
-                local removeItem = false
+                local removeItem, isMoney = false, false
                 if _internal.isMoneyType(itemType) then
                     local moneyAmount = v.item:getModData().value
 
@@ -1258,6 +1267,7 @@ function storeWindow:finalizeDeal()
 
                         if remainder <= 0 then
                             removeItem = true
+                            isMoney = true
                         else
                             generateMoneyValue(v.item, remainder, true)
                         end
@@ -1267,7 +1277,13 @@ function storeWindow:finalizeDeal()
                     table.insert(itemsToSell, itemType)
                 end
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
-                if removeItem then self.player:getInventory():Remove(v.item) end
+                if removeItem then
+                    self.player:getInventory():Remove(v.item)
+                    if (not isMoney) and self.storeObj.ownerID then
+                        local worldObjectCont = self.worldObject and self.worldObject:getContainer()
+                        if worldObjectCont then worldObjectCont:addItem(v.item) end
+                    end
+                end
             end
         end
     end
