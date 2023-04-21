@@ -21,7 +21,17 @@ function storeWindow:getPlayerOwnedStock(itemType)
     if not container then return end
 
     local items = container:getAllType(itemType)
-    if items then return items:size() end
+    if items then return items end
+end
+
+
+function storeWindow:getAvailableStock(listing)
+    if not self.storeObj or not listing then return end
+    if self.storeObj.ownerID then
+        local stock = self:getPlayerOwnedStock(listing.item)
+        if stock then return stock:size() end
+    end
+    return listing.available
 end
 
 
@@ -50,7 +60,9 @@ function storeWindow:storeItemRowAt(y)
             texture = v.item:getTex()
         end
 
-        local showListing = ((listing.stock ~= 0 or listing.reselling==true) and (listing.available ~= 0) and (texture or #validCategory>0))
+        local availableStock = self:getAvailableStock(listing)
+
+        local showListing = ((listing.stock ~= 0 or listing.reselling==true) and (availableStock ~= 0) and (texture or #validCategory>0))
         if listing.alwaysShow==true then showListing = true end
         local managing = (self:isBeingManaged() and _internal.canManageStore(self.storeObj,self.player))
 
@@ -106,7 +118,9 @@ function storeWindow:onStoreItemSelected()
     local inCart = 0
     for _,v in pairs(self.yourCartData.items) do if v.item == item then inCart = inCart+1 end end
 
-    if self.storeObj and ((listing.available >= inCart+1) or (listing.available == -1)) then
+    local availableStock = self:getAvailableStock(listing)
+
+    if self.storeObj and ((availableStock >= inCart+1) or (availableStock == -1)) then
         local script = getScriptManager():getItem(item)
         local scriptName = script:getDisplayName()
         self.yourCartData:addItem(scriptName, item)
@@ -506,7 +520,9 @@ function storeWindow:drawStock(y, item, alt)
             local validCategoryLen = 0
             if type(validCategory)=="table" then validCategoryLen = #validCategory or 0 end
 
-            local showListing = ((listing.stock ~= 0 or listing.reselling==true) and (listing.available ~= 0) and (texture or validCategoryLen>0))
+            local availableStock = self.parent:getAvailableStock(listing)
+
+            local showListing = ((listing.stock ~= 0 or listing.reselling==true) and (availableStock ~= 0) and (texture or validCategoryLen>0))
             if listing.alwaysShow==true then showListing = true end
             local managing = (self.parent:isBeingManaged() and _internal.canManageStore(storeObj,self.player))
 
@@ -515,7 +531,7 @@ function storeWindow:drawStock(y, item, alt)
                 if not string.match(item.item, "category:") then
                     local inCart = 0
                     for _,v in pairs(self.parent.yourCartData.items) do if v.item == item.item then inCart = inCart+1 end end
-                    local availableTemp = listing.available-inCart
+                    local availableTemp = availableStock-inCart
                     if availableTemp == 0 then color = {r=0.7, g=0.7, b=0.7, a=0.3} end
                 end
 
@@ -563,9 +579,12 @@ function storeWindow:displayStoreStock()
 
         local inCart = 0
         for _,v in pairs(self.yourCartData.items) do if v.item == listing.item then inCart = inCart+1 end end
-        local availableTemp = listing.available-inCart
 
-        local stockText = " ("..availableTemp.."/"..math.max(listing.available, listing.stock)..")"
+        local availableStock = self:getAvailableStock(listing)
+
+        local availableTemp = availableStock-inCart
+
+        local stockText = " ("..availableTemp.."/"..math.max(availableStock, listing.stock)..")"
         if listing.stock == -1 or string.match(listing.item, "category:") then stockText = "" end
 
         if string.match(itemDisplayName, "category:") then
@@ -1215,6 +1234,9 @@ function storeWindow:finalizeDeal()
 
     for i,v in ipairs(self.yourCartData.items) do
         if type(v.item) == "string" then
+
+
+
             table.insert(itemToPurchase, v.item)
         else
             local itemType, _, _ = self:rtrnTypeIfValid(v.item)
