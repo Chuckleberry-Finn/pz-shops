@@ -88,6 +88,27 @@ function storeWindow:onStoreItemDoubleClick()
 end
 
 
+function storeWindow:setStockInput(listing)
+    if not self:isBeingManaged() then return end
+
+    self.addStockEntry:setText(listing.item)
+    self.addStockPrice:setText(tostring(listing.price))
+    self.addStockBuyBackRate:setText(tostring(listing.buybackRate))
+
+    self.alwaysShow.selected[1] = listing.alwaysShow
+    self.resell.selected[1] = listing.reselling
+
+    local isCategory = not getScriptManager():getItem(listing.item)
+    self.categorySet.selected[1] = isCategory
+
+    if isCategory then
+        self.addStockQuantity:setText("")
+    else
+        self.addStockQuantity:setText(tostring(listing.stock))
+    end
+end
+
+
 function storeWindow:onStoreItemSelected()
     local row = self:storeItemRowAt(self.storeStockData:getMouseY())
     if not self.storeStockData.items[row] then return end
@@ -95,24 +116,7 @@ function storeWindow:onStoreItemSelected()
 
     local listing = self.storeObj.listings[item]
 
-    if self:isBeingManaged() then
-        self.addStockEntry:setText(item)
-        self.addStockPrice:setText(tostring(listing.price))
-        self.addStockBuyBackRate:setText(tostring(listing.buybackRate))
-
-        self.alwaysShow.selected[1] = listing.alwaysShow
-        self.resell.selected[1] = listing.reselling
-
-        local isCategory = not getScriptManager():getItem(item)
-        self.categorySet.selected[1] = isCategory
-
-        if isCategory then
-            self.addStockQuantity:setText("")
-        else
-            self.addStockQuantity:setText(tostring(listing.stock))
-        end
-        return
-    end
+    if self:isBeingManaged() then self:setStockInput(listing) return end
 
     if #self.yourCartData.items >= storeWindow.MaxItems then return end
     local inCart = 0
