@@ -88,6 +88,31 @@ function storeWindow:onStoreItemDoubleClick()
 end
 
 
+function storeWindow:yourStockingMouseUp(x, y)
+    if self.vscroll then self.vscroll.scrolling = false end
+    local counta = 1
+    if ISMouseDrag.dragging then
+
+        local woX, woY, woZ, worldObjName = self.worldObject:getX(), self.worldObject:getY(), self.worldObject:getZ(), _internal.getWorldObjectName(self.worldObject)
+
+        local store = self.storeObj
+
+        for i,v in ipairs(ISMouseDrag.dragging) do
+            if instanceof(v, "InventoryItem") then
+                ---@type InventoryItem
+                local item = v
+                local itemType = item:getFullType()
+
+                sendClientCommand("shop", "listNewItem",
+                        { isBeingManaged=store.isBeingManaged, alwaysShow = false,
+                          item=itemType, price=0, quantity=0, buybackRate=0, reselling=false,
+                          storeID=store.ID, x=woX, y=woY, z=woZ, worldObjName=worldObjName })
+            end
+        end
+    end
+end
+
+
 function storeWindow:setStockInput(listing)
     if not self:isBeingManaged() then return end
 
@@ -193,6 +218,7 @@ function storeWindow:initialise()
     self.storeStockData.joypadParent = self
     self.storeStockData.font = UIFont.NewSmall
     self.storeStockData.doDrawItem = self.drawStock
+    self.yourCartData.onMouseUp = self.yourStockingMouseUp
     self.storeStockData.drawBorder = true
     self:addChild(self.storeStockData)
 
