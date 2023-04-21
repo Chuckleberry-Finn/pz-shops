@@ -118,7 +118,7 @@ function storeWindow:onStoreItemSelected()
 
     if self:isBeingManaged() then self:setStockInput(listing) return end
 
-    if #self.yourCartData.items >= storeWindow.MaxItems then return end
+    if #self.yourCartData.items >= self.MaxItems then return end
     local inCart = 0
     for _,v in pairs(self.yourCartData.items) do if v.item == item then inCart = inCart+1 end end
 
