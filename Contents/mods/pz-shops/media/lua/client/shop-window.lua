@@ -84,7 +84,14 @@ function storeWindow:onStoreItemDoubleClick()
 
         self.storeStockData:removeItemByIndex(self.storeStockData.selected)
 
+        self.addStockEntry:setText("")
+        self.addStockPrice:setText("")
+        self.addStockBuyBackRate:setText("")
 
+        self.alwaysShow.selected[1] = false
+        self.resell.selected[1] = true
+        self.categorySet.selected[1] = false
+        self.addStockQuantity:setText("")
 
         sendClientCommand("shop", "removeListing", { item=item, storeID=self.storeObj.ID })
         return
