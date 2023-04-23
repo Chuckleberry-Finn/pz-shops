@@ -157,16 +157,19 @@ end
 function STORE_HANDLER.restocking()
     if not GLOBAL_STORES or type(GLOBAL_STORES)~="table" then print("ERROR: GLOBAL_STORES not present or not table: "..tostring(GLOBAL_STORES)) end
     for ID,_ in pairs(GLOBAL_STORES) do
-        if not GLOBAL_STORES[ID].restockHrs then GLOBAL_STORES[ID].restockHrs = 48 end
-        GLOBAL_STORES[ID].nextRestock = (GLOBAL_STORES[ID].nextRestock or GLOBAL_STORES[ID].restockHrs)-1
-        if GLOBAL_STORES[ID].nextRestock > GLOBAL_STORES[ID].restockHrs then GLOBAL_STORES[ID].nextRestock = GLOBAL_STORES[ID].restockHrs-1 end
-        if GLOBAL_STORES[ID].nextRestock < 0 then
-            GLOBAL_STORES[ID].nextRestock = GLOBAL_STORES[ID].restockHrs
-            for type,_ in pairs(GLOBAL_STORES[ID].listings) do
-                local listing = GLOBAL_STORES[ID].listings[type]
-                if listing and listing.stock ~= -1 then
-                    if SandboxVars.ShopsAndTraders.TradersResetStock == true then listing.available = listing.stock
-                    else listing.available = math.max(listing.available,listing.stock) end
+        local storeObj = GLOBAL_STORES[ID]
+        if not storeObj.ownerID then
+            if not storeObj.restockHrs then storeObj.restockHrs = 48 end
+            storeObj.nextRestock = (storeObj.nextRestock or storeObj.restockHrs)-1
+            if storeObj.nextRestock > storeObj.restockHrs then storeObj.nextRestock = storeObj.restockHrs-1 end
+            if storeObj.nextRestock < 0 then
+                storeObj.nextRestock = storeObj.restockHrs
+                for type,_ in pairs(storeObj.listings) do
+                    local listing = storeObj.listings[type]
+                    if listing and listing.stock ~= -1 then
+                        if SandboxVars.ShopsAndTraders.TradersResetStock == true then listing.available = listing.stock
+                        else listing.available = math.max(listing.available,listing.stock) end
+                    end
                 end
             end
         end
