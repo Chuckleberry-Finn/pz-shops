@@ -50,7 +50,7 @@ function storeWindow:storeItemRowAt(y)
 
         local listing = listings[v.item]
 
-        local texture, script, validCategory
+        local texture, script, validCategory = nil, nil, {}
         if type(v.item) == "string" then
             script = getScriptManager():getItem(v.item)
             if script then texture = script:getNormalTexture()
