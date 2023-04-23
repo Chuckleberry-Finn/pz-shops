@@ -3,6 +3,7 @@ require "shop-globalModDataClient"
 require "shop-wallet"
 require "luautils"
 require "shop-itemLookup"
+require "TimedActions/ISInventoryTransferAction"
 local _internal = require "shop-shared"
 
 ---@class storeWindow : ISPanel
@@ -82,18 +83,29 @@ function storeWindow:onStoreItemDoubleClick()
         local item = self.storeStockData.items[row].item
 
         self.storeStockData:removeItemByIndex(self.storeStockData.selected)
+
+
+
         sendClientCommand("shop", "removeListing", { item=item, storeID=self.storeObj.ID })
         return
     end
 end
 
 
-function storeWindow:addItemToYourStock(itemType, store, x, y, z, worldObjName)
+function storeWindow:addItemToYourStock(itemType, store, x, y, z, worldObjName, item, worldObject)
+    if worldObject and item then
+        local worldObjectContainer = worldObject:getContainer()
+        if worldObjectContainer then
+            ISTimedActionQueue.add(ISInventoryTransferAction:new(self.player, item, self.player:getInventory(), worldObjectContainer))
+        end
+    end
+
     sendClientCommand("shop", "listNewItem",
             { isBeingManaged=store.isBeingManaged, alwaysShow = false,
               item=itemType, price=0, quantity=0, buybackRate=0, reselling=false,
               storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
 end
+
 
 
 function storeWindow:yourStockingMouseUp(x, y)
@@ -113,7 +125,7 @@ function storeWindow:yourStockingMouseUp(x, y)
                 ---@type InventoryItem
                 local item = v
                 local itemType = item:getFullType()
-                self.parent:addItemToYourStock(itemType, store, woX, woY, woZ, worldObjName)
+                self.parent:addItemToYourStock(itemType, store, woX, woY, woZ, worldObjName, v, worldObject)
 
             else
                 if v.invPanel.collapsed[v.name] then
@@ -122,7 +134,7 @@ function storeWindow:yourStockingMouseUp(x, y)
                         if counta > 1 then
                             local item = v2
                             local itemType = item:getFullType()
-                            self.parent:addItemToYourStock(itemType, store, woX, woY, woZ, worldObjName)
+                            self.parent:addItemToYourStock(itemType, store, woX, woY, woZ, worldObjName, v2, worldObject)
                         end
                         counta = counta + 1
                     end
