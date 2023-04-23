@@ -187,10 +187,10 @@ function storeWindow:initialise()
     local storeName = "new store"
     if self.storeObj then storeName = self.storeObj.name end
 
-    self.manageStoreName = ISTextEntryBox:new(storeName, 10, 10, self.width-20, btnHgt)
+    self.manageStoreName = ISTextEntryBox:new(storeName, 10, 12, self.width-20, btnHgt)
+    self.manageStoreName.font = UIFont.Medium
     self.manageStoreName:initialise()
     self.manageStoreName:instantiate()
-    self.manageStoreName.font = UIFont.Medium
     self.manageStoreName.borderColor = { r = 1, g = 0, b = 0, a = 0.7 }
     self:addChild(self.manageStoreName)
 
@@ -225,14 +225,15 @@ function storeWindow:initialise()
 
     local manageStockButtonsX = (self.storeStockData.x+self.storeStockData.width)
     local manageStockButtonsY = self.storeStockData.y+self.storeStockData.height
-    self.addStockBtn = ISButton:new(manageStockButtonsX-22, manageStockButtonsY+6, btnHgt-3, btnHgt-3, "+", self, storeWindow.onClick)
+    self.addStockBtn = ISButton:new(manageStockButtonsX-23, manageStockButtonsY+4, btnHgt-3, btnHgt-3, "+", self, storeWindow.onClick)
     self.addStockBtn.internal = "ADDSTOCK"
+    self.addStockBtn.font = UIFont.Small
     self.addStockBtn:initialise()
     self.addStockBtn:instantiate()
     self:addChild(self.addStockBtn)
 
     self.addStockEntry = ISTextEntryBox:new("", self.storeStockData.x, self.addStockBtn.y, self.storeStockData.width-self.addStockBtn.width-3, self.addStockBtn.height)
-    self.addStockEntry.font = UIFont.Medium
+    self.addStockEntry.font = UIFont.Small
     self.addStockEntry.onTextChange = storeWindow.addItemEntryChange
     self.addStockEntry:initialise()
     self.addStockEntry:instantiate()
@@ -293,7 +294,7 @@ function storeWindow:initialise()
     self.purchase:instantiate()
     self:addChild(self.purchase)
 
-    self.manageBtn = ISButton:new((self.width/2)-45, 70-btnHgt, 70, 25, getText("IGUI_MANAGESTORE"), self, storeWindow.onClick)
+    self.manageBtn = ISButton:new((self.width/2)-45, 77-btnHgt, 70, 20, getText("IGUI_MANAGESTORE"), self, storeWindow.onClick)
     self.manageBtn.internal = "MANAGE"
     self.manageBtn:initialise()
     self.manageBtn:instantiate()
@@ -301,14 +302,14 @@ function storeWindow:initialise()
 
     local restockHours = ""
     if self.storeObj then restockHours = tostring(self.storeObj.restockHrs) end
-    self.restockHours = ISTextEntryBox:new(restockHours, self.width-60, 70-btnHgt, 50, self.addStockBtn.height)
+    self.restockHours = ISTextEntryBox:new(restockHours, self.width-50, 70-btnHgt, 40, self.addStockBtn.height)
     self.restockHours.font = UIFont.Medium
     self.restockHours.borderColor = { r = 1, g = 0, b = 0, a = 0.7 }
     self.restockHours:initialise()
     self.restockHours:instantiate()
     self:addChild(self.restockHours)
 
-    self.clearStore = ISButton:new(self.manageBtn.x+self.manageBtn.width+4, self.manageBtn.y+6, 10, 14, "X", self, storeWindow.onClick)
+    self.clearStore = ISButton:new(self.manageBtn.x+self.manageBtn.width+4, self.manageBtn.y, 10, 20, "X", self, storeWindow.onClick)
     self.clearStore.internal = "CLEAR_STORE"
     self.clearStore.font = UIFont.NewSmall
     self.clearStore.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
@@ -835,32 +836,42 @@ end
 
 
 function storeWindow:prerender()
-    local z = 15
-    local splitPoint = 100
-    local x = 10
+
     self:drawRect(0, 0, self.width, self.height, self.backgroundColor.a, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
 
+    local topPadding = 8
+    local font = UIFont.NewSmall
+    local fontHeight = getTextManager():getFontHeight(font)
 
     if not self:isBeingManaged() then
         local storeName = "No Name Set"
         if self.storeObj then storeName = self.storeObj.name end
-        self:drawText(storeName, self.width/2 - (getTextManager():MeasureStringX(UIFont.Medium, storeName)/2), z, 1,1,1,1, UIFont.Medium)
+        local lengthStoreName = (getTextManager():MeasureStringX(UIFont.Medium, storeName)/2)
+        self:drawText(storeName, (self.width/2)-lengthStoreName, topPadding-2, 1,1,1,1, UIFont.Medium)
 
         if self.storeObj then
             local restockingIn = tostring(self.storeObj.nextRestock)
-            if restockingIn then self:drawTextRight(getText("IGUI_RESTOCK_HR", restockingIn), self.width-10, 10, 0.9,0.9,0.9,0.8, UIFont.NewSmall) end
+            if restockingIn then self:drawTextRight(getText("IGUI_RESTOCK_HR", restockingIn), self.width-10, topPadding, 0.9,0.9,0.9,0.8, font) end
+
+            local ownerID = self.storeObj.ownerID
+            if ownerID then
+                local textOwnerID = getText("IGUI_ownedBy", ownerID)
+                local lengthOwnerID = (getTextManager():MeasureStringX(font, textOwnerID)/2)
+                self:drawText(textOwnerID, (self.width/2)-lengthOwnerID, topPadding+fontHeight+2, 0.9,0.9,0.9,0.8, font)
+            end
+
         end
 
     else
         local cat = "category:"
-        local catX = getTextManager():MeasureStringX(UIFont.Small, cat)+4
+        local catX = getTextManager():MeasureStringX(font, cat)+4
 
         if (isAdmin() or isCoopHost() or getDebug()) then
             if self.categorySet.selected[1] == true then
                 local addStockEntryColor = self.addStockEntry.textColor
                 self.addStockEntry:setX(self.storeStockData.x+catX)
                 self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3-catX)
-                self:drawText(cat, self.storeStockData.x+1, self.addStockEntry.y-1, addStockEntryColor.r,addStockEntryColor.g,addStockEntryColor.b,addStockEntryColor.a, UIFont.Small)
+                self:drawText(cat, self.storeStockData.x+1, self.addStockEntry.y-1, addStockEntryColor.r,addStockEntryColor.g,addStockEntryColor.b,addStockEntryColor.a, font)
             else
                 self.addStockEntry:setX(self.storeStockData.x)
                 self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3)
@@ -869,29 +880,27 @@ function storeWindow:prerender()
 
         self:validateElementColor(self.addStockPrice)
         local color = self.addStockPrice.textColor
-        self:drawText(getText("IGUI_CURRENCY_PREFIX"), self.addStockPrice.x-12, self.addStockPrice.y, color.r,color.g,color.b,color.a, UIFont.Small)
-        self:drawText(" "..getText("IGUI_CURRENCY_SUFFIX"), self.addStockPrice.x+self.addStockPrice.width+12, self.addStockPrice.y, color.r,color.g,color.b,color.a, UIFont.Small)
+        self:drawText(getText("IGUI_CURRENCY_PREFIX"), self.addStockPrice.x-12, self.addStockPrice.y, color.r,color.g,color.b,color.a, font)
+        self:drawText(" "..getText("IGUI_CURRENCY_SUFFIX"), self.addStockPrice.x+self.addStockPrice.width+12, self.addStockPrice.y, color.r,color.g,color.b,color.a, font)
 
         self:validateElementColor(self.addStockQuantity)
         color = self.addStockQuantity.textColor
-        self:drawText(getText("IGUI_STOCK"), self.addStockQuantity.x-12, self.addStockQuantity.y, color.r,color.g,color.b,color.a, UIFont.Small)
+        self:drawText(getText("IGUI_STOCK"), self.addStockQuantity.x-12, self.addStockQuantity.y, color.r,color.g,color.b,color.a, font)
 
         self:validateElementColor(self.addStockBuyBackRate)
         color = self.addStockBuyBackRate.textColor
-        self:drawText(getText("IGUI_RATE"), self.addStockBuyBackRate.x-14, self.addStockBuyBackRate.y, color.r,color.g,color.b,color.a, UIFont.Small)
+        self:drawText(getText("IGUI_RATE"), self.addStockBuyBackRate.x-14, self.addStockBuyBackRate.y, color.r,color.g,color.b,color.a, font)
     end
 
+    local cartText = getText("IGUI_STORESTOCK")
+    local cartTextX = (self.yourCartData.x+(self.yourCartData.width/2))-(getTextManager():MeasureStringX(font, cartText)/2)
+    self:drawText(cartText, cartTextX, self.yourCartData.y-20, 1,1,1,1, font)
 
-    self:drawText(getText("IGUI_YOURCART"), self.yourCartData.x+10, self.yourCartData.y - 32, 1,1,1,1, UIFont.Small)
-
-    local yourItems = getText("IGUI_TradingUI_Items", #self.yourCartData.items, storeWindow.MaxItems)
-    self:drawText(yourItems, self.yourCartData.x+10, self.yourCartData.y - 20, 1,1,1,1, UIFont.Small)
-
-    local stockTextX = (self.storeStockData.x+(self.storeStockData.width/2))-(getTextManager():MeasureStringX(UIFont.Small, getText("IGUI_STORESTOCK"))/2)
-    self:drawText(getText("IGUI_STORESTOCK"), stockTextX, self.storeStockData.y - 26, 1,1,1,1, UIFont.Small)
-
-    z = z + 30
+    local stockText = getText("IGUI_STORESTOCK")
+    local stockTextX = (self.storeStockData.x+(self.storeStockData.width/2))-(getTextManager():MeasureStringX(font, stockText)/2)
+    self:drawText(stockText, stockTextX, self.storeStockData.y-20, 1,1,1,1, font)
 end
+
 
 function storeWindow:updateTooltip()
     local x = self:getMouseX()

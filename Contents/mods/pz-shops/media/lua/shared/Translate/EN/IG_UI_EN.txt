@@ -27,7 +27,8 @@ IGUI_EN = {
     IGUI_TOTAL = "Total",
     IGUI_OFFERING = "Offering",
     IGUI_RESTOCK_HR = "Restocking in: %1 Hrs",
-    IGUI_credit = "Credit"
+    IGUI_credit = "Credit",
+    IGUI_ownedBy = "Owned by %1",
 
     IGUI_SPLIT = "Split",
     IGUI_WITHDRAW = "Withdraw",
