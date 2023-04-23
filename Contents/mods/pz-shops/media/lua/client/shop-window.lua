@@ -88,24 +88,45 @@ function storeWindow:onStoreItemDoubleClick()
 end
 
 
+function storeWindow:addItemToYourStock(itemType, store, x, y, z, worldObjName)
+    sendClientCommand("shop", "listNewItem",
+            { isBeingManaged=store.isBeingManaged, alwaysShow = false,
+              item=itemType, price=0, quantity=0, buybackRate=0, reselling=false,
+              storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
+end
+
+
 function storeWindow:yourStockingMouseUp(x, y)
     local store = self.parent.storeObj
     if (not self.parent:isBeingManaged()) or (not _internal.canManageStore(store,self.parent.player)) then return end
     if self.vscroll then self.vscroll.scrolling = false end
     if ISMouseDrag.dragging then
+
         local worldObject = self.parent.worldObject
         local woX, woY, woZ, worldObjName = worldObject:getX(), worldObject:getY(), worldObject:getZ(), _internal.getWorldObjectName(worldObject)
 
+        local counta = 1
         for i,v in ipairs(ISMouseDrag.dragging) do
+
+            counta = 1
             if instanceof(v, "InventoryItem") then
                 ---@type InventoryItem
                 local item = v
                 local itemType = item:getFullType()
+                self.parent:addItemToYourStock(itemType, store, woX, woY, woZ, worldObjName)
 
-                sendClientCommand("shop", "listNewItem",
-                        { isBeingManaged=store.isBeingManaged, alwaysShow = false,
-                          item=itemType, price=0, quantity=0, buybackRate=0, reselling=false,
-                          storeID=store.ID, x=woX, y=woY, z=woZ, worldObjName=worldObjName })
+            else
+                if v.invPanel.collapsed[v.name] then
+                    counta = 1
+                    for i2,v2 in ipairs(v.items) do
+                        if counta > 1 then
+                            local item = v2
+                            local itemType = item:getFullType()
+                            self.parent:addItemToYourStock(itemType, store, woX, woY, woZ, worldObjName)
+                        end
+                        counta = counta + 1
+                    end
+                end
             end
         end
     end
