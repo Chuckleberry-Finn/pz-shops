@@ -83,7 +83,7 @@ function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
 end
 
 
---[[
+
 local moneyValueForDeedRecipe
 function shopsAndTradersRecipe.addMoneyTypesToRecipe(scriptItems)
     print(" -- recipe adding: ")
@@ -108,20 +108,30 @@ function shopsAndTradersRecipe.addDeedRecipe()
     local deedScript = {
         header="module ShopsAndTraders { imports { Base } recipe Create Shop Deed { ",
         footer="Result:ShopsAndTraders.ShopDeed, Time:30.0, Category:Shops,} }",
+        --        OnCreate:shopsAndTradersRecipe.onCreate,
+        --        OnCanPerform:shopsAndTradersRecipe.onCanPerform,
     }
 
     local rebuiltScript = ""
     for str in string.gmatch(deedRecipe, "([^|]+)") do
 
-        local value, money = string.gsub(str, "%$", "")
+        local item = str
+
+        local value, money = string.gsub(item, "%$", "")
         if money > 0 then
             moneyValueForDeedRecipe = value
-            rebuiltScript = rebuiltScript.."keep Base.Money, "
-            print("DEED SCRIPT: CURRENCY: ", value)
-        else
-            rebuiltScript = rebuiltScript..str..", "
-            print("DEED SCRIPT:", str)
+            item = "keep Base.Money"
         end
+
+        print("DEED SCRIPT:", item)
+        if (item:sub(1, #"keep ")=="keep ") then
+            rebuiltScript = rebuiltScript..item..", "
+        elseif (item:sub(1, #"destroy ")=="destroy ") then
+            rebuiltScript = rebuiltScript..item..", "
+        else
+            rebuiltScript = item..", "..rebuiltScript
+        end
+
     end
 
     print("SCRIPT:", rebuiltScript)
@@ -129,8 +139,8 @@ function shopsAndTradersRecipe.addDeedRecipe()
     local scriptManager = getScriptManager()
     scriptManager:ParseScript(deedScript.header..rebuiltScript..deedScript.footer)
 end
---]]
 
+--Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe)
 --Events.OnResetLua.Add(shopsAndTradersRecipe.addDeedRecipe)
---Events.OnLoad.Add(shopsAndTradersRecipe.addDeedRecipe)
---if isServer() then Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe) end
+Events.OnLoad.Add(shopsAndTradersRecipe.addDeedRecipe)
+if isServer() then Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe) end
