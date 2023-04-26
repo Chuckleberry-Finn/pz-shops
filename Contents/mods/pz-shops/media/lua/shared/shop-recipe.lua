@@ -98,6 +98,7 @@ function shopsAndTradersRecipe.onCanPerform(recipe, playerObj, item)
     return true
 end
 
+
 function shopsAndTradersRecipe.onCreate(items, result, player) end
 
 --Creates Recipe for Shop Deeds
@@ -106,10 +107,8 @@ function shopsAndTradersRecipe.addDeedRecipe()
     if not deedRecipe or deedRecipe=="" then return end
 
     local deedScript = {
-        header="module ShopsAndTraders { imports { Base } recipe Create Shop Deed { ",
-        footer="Result:ShopsAndTraders.ShopDeed, Time:30.0, Category:Shops,} }",
-        --        OnCreate:shopsAndTradersRecipe.onCreate,
-        --        OnCanPerform:shopsAndTradersRecipe.onCanPerform,
+        header = "module ShopsAndTraders { imports { Base } recipe Create Shop Deed { ",
+        footer = "Result:ShopsAndTraders.ShopDeed, OnCreate:shopsAndTradersRecipe.onCreate, OnCanPerform:shopsAndTradersRecipe.onCanPerform, Time:30.0, Category:Shops,} }",
     }
 
     local rebuiltScript = ""
@@ -123,7 +122,12 @@ function shopsAndTradersRecipe.addDeedRecipe()
             item = "keep Base.Money"
         end
 
-        print("DEED SCRIPT:", item)
+        local extracted = string.match(item, " (.*)") or item
+
+        if not string.match(extracted,"%.") then
+            item = string.gsub(item, extracted, "Base."..extracted)
+        end
+
         if (item:sub(1, #"keep ")=="keep ") then
             rebuiltScript = rebuiltScript..item..", "
         elseif (item:sub(1, #"destroy ")=="destroy ") then
@@ -131,7 +135,6 @@ function shopsAndTradersRecipe.addDeedRecipe()
         else
             rebuiltScript = item..", "..rebuiltScript
         end
-
     end
 
     print("SCRIPT:", rebuiltScript)
