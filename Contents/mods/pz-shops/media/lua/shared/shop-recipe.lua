@@ -3,6 +3,8 @@ local _internal = require "shop-shared"
 
 shopsAndTradersRecipe = {}
 
+local moneyValueForDeedRecipe
+
 ---Authentic Z
 --recipe Make a Stack of Money { Money, Result:Authentic_MoneyStack, Time:30.0, }
 --recipe Convert into Item { Authentic_MoneyStack, Result:Money, Time:30.0, }
@@ -83,8 +85,6 @@ function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
 end
 
 
-
-local moneyValueForDeedRecipe
 function shopsAndTradersRecipe.addMoneyTypesToRecipe(scriptItems)
     print(" -- recipe adding: ")
     for _,type in pairs(_internal.getMoneyTypes()) do
@@ -94,12 +94,42 @@ function shopsAndTradersRecipe.addMoneyTypesToRecipe(scriptItems)
     end
 end
 
+
+---@param recipe Recipe
+---@param playerObj IsoPlayer|IsoGameCharacter
+---@param item InventoryItem
 function shopsAndTradersRecipe.onCanPerform(recipe, playerObj, item)
-    return true
+    if not moneyValueForDeedRecipe then return true end
+    local wallet, walletBalance = getWallet(playerObj), 0
+    if wallet then walletBalance = wallet.amount end
+
+    local money = walletBalance
+
+    for _,moneyType in pairs(_internal.getMoneyTypes()) do
+        local moneyItems = playerObj:getInventory():getAllType(moneyType)
+        for i=0, moneyItems:size()-1 do
+            local moneyItem = moneyItems:get(i)
+            if moneyItem and moneyItem:getModData().value then
+                money = money + moneyItem:getModData().value
+            end
+        end
+    end
+
+    print("recipe:"..tostring(recipe))
+    print("playerObj:"..tostring(playerObj))
+    print("item:getType()"..(item and item:getType() or "null"))
+
+    if money >= moneyValueForDeedRecipe then return true end
+    return false
 end
 
 
-function shopsAndTradersRecipe.onCreate(items, result, player) end
+function shopsAndTradersRecipe.onCreate(items, result, player)
+    print("items:"..tostring(items))
+    print("result:"..tostring(result))
+    print("player"..tostring(player))
+end
+
 
 --Creates Recipe for Shop Deeds
 function shopsAndTradersRecipe.addDeedRecipe()
@@ -138,6 +168,7 @@ function shopsAndTradersRecipe.addDeedRecipe()
     end
 
     print("SCRIPT:", rebuiltScript)
+    print("$VALUE: ", moneyValueForDeedRecipe)
 
     local scriptManager = getScriptManager()
     scriptManager:ParseScript(deedScript.header..rebuiltScript..deedScript.footer)
