@@ -117,7 +117,7 @@ function shopsAndTradersRecipe.onCanPerform(recipe, playerObj, item)
     --print("recipe:"..tostring(recipe))
     --print("playerObj:"..tostring(playerObj))
     --print("item:getType()"..(item and item:getType() or "null"))
-    print("money: "..money)
+    --print("money: "..money)
 
     if money >= moneyValueForDeedRecipe then return true end
     return false
@@ -148,7 +148,7 @@ function shopsAndTradersRecipe.addDeedRecipe()
 
         local value, money = string.gsub(item, "%$", "")
         if money > 0 then
-            moneyValueForDeedRecipe = value
+            moneyValueForDeedRecipe = tonumber(value)
             item = "keep Base.Money"
         end
 
@@ -167,8 +167,8 @@ function shopsAndTradersRecipe.addDeedRecipe()
         end
     end
 
-    print("SCRIPT:", rebuiltScript)
-    print("$VALUE: ", moneyValueForDeedRecipe)
+    --print("SCRIPT:", rebuiltScript)
+    --print("$VALUE: ", moneyValueForDeedRecipe)
 
     local scriptManager = getScriptManager()
     scriptManager:ParseScript(deedScript.header..rebuiltScript..deedScript.footer)
