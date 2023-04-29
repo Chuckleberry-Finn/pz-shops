@@ -114,10 +114,10 @@ function shopsAndTradersRecipe.onCanPerform(recipe, playerObj, item)
             end
         end
     end
-
-    print("recipe:"..tostring(recipe))
-    print("playerObj:"..tostring(playerObj))
-    print("item:getType()"..(item and item:getType() or "null"))
+    --print("recipe:"..tostring(recipe))
+    --print("playerObj:"..tostring(playerObj))
+    --print("item:getType()"..(item and item:getType() or "null"))
+    print("money: "..money)
 
     if money >= moneyValueForDeedRecipe then return true end
     return false
