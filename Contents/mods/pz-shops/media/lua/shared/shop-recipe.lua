@@ -124,10 +124,28 @@ function shopsAndTradersRecipe.onCanPerform(recipe, playerObj, item)
 end
 
 
-function shopsAndTradersRecipe.onCreate(items, result, player)
+function shopsAndTradersRecipe.onCreate(items, result, playerObj)
     print("items:"..tostring(items))
     print("result:"..tostring(result))
-    print("player"..tostring(player))
+    print("player"..tostring(playerObj))
+    if not moneyValueForDeedRecipe then return true end
+
+    local costNeeded = moneyValueForDeedRecipe
+
+    local wallet, walletBalance = getWallet(playerObj), 0
+    if wallet then walletBalance = wallet.amount end
+
+    local money = walletBalance
+
+    for _,moneyType in pairs(_internal.getMoneyTypes()) do
+        local moneyItems = playerObj:getInventory():getAllType(moneyType)
+        for i=0, moneyItems:size()-1 do
+            local moneyItem = moneyItems:get(i)
+            if moneyItem and moneyItem:getModData().value then
+                money = money + moneyItem:getModData().value
+            end
+        end
+    end
 end
 
 
@@ -138,10 +156,11 @@ function shopsAndTradersRecipe.addDeedRecipe()
 
     local deedScript = {
         header = "module ShopsAndTraders { imports { Base } recipe Create Shop Deed { ",
-        footer = "Result:ShopsAndTraders.ShopDeed, OnCreate:shopsAndTradersRecipe.onCreate, OnCanPerform:shopsAndTradersRecipe.onCanPerform, Time:30.0, Category:Shops,} }",
+        body = "Result:ShopsAndTraders.ShopDeed, OnCreate:shopsAndTradersRecipe.onCreate, OnCanPerform:shopsAndTradersRecipe.onCanPerform, ",
+        footer = "Time:30.0, Category:Shops,} }",
     }
 
-    local rebuiltScript = ""
+    local ingredients = ""
     for str in string.gmatch(deedRecipe, "([^|]+)") do
 
         local item = str
@@ -159,19 +178,25 @@ function shopsAndTradersRecipe.addDeedRecipe()
         end
 
         if (item:sub(1, #"keep ")=="keep ") then
-            rebuiltScript = rebuiltScript..item..", "
+            ingredients = ingredients..item..", "
         elseif (item:sub(1, #"destroy ")=="destroy ") then
-            rebuiltScript = rebuiltScript..item..", "
+            ingredients = ingredients..item..", "
         else
-            rebuiltScript = item..", "..rebuiltScript
+            ingredients = item..", "..ingredients
         end
+    end
+
+    local tooltip = ""
+    if moneyValueForDeedRecipe and moneyValueForDeedRecipe > 0 then
+        tooltip = "Tooltip:"..getText("IGUI_requires").." ".._internal.numToCurrency(moneyValueForDeedRecipe)..", "
+        print("TOOLTIP: "..tooltip)
     end
 
     --print("SCRIPT:", rebuiltScript)
     --print("$VALUE: ", moneyValueForDeedRecipe)
 
     local scriptManager = getScriptManager()
-    scriptManager:ParseScript(deedScript.header..rebuiltScript..deedScript.footer)
+    scriptManager:ParseScript(deedScript.header .. ingredients .. deedScript.body .. tooltip.. deedScript.footer)
 end
 
 --Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe)

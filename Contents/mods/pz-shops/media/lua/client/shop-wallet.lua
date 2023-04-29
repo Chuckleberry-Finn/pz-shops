@@ -66,6 +66,9 @@ local valuedMoney = {}
 ---@param item InventoryItem
 function generateMoneyValue(item, value, force)
     if item ~= nil and _internal.isMoneyType(item:getFullType()) and (not valuedMoney[item] or force) then
+
+
+
         if (not item:getModData().value) or force then
 
             local min = (SandboxVars.ShopsAndTraders.MoneySpawnMin or 1.5)*100
@@ -318,6 +321,7 @@ local function addContext(playerID, context, items)
         if not instanceof(v, "InventoryItem") then item = v.items[1] end
         if _internal.isMoneyType(item:getFullType()) then
             local itemValue = item:getModData().value
+            if not itemValue then generateMoneyValue(item) end
             if itemValue and itemValue>1 and canManipulateMoney(item, playerObj) then
                 context:addOption(getText("IGUI_SPLIT"), item, onSplitStack, playerObj)
                 if SandboxVars.ShopsAndTraders.PlayerWallets then

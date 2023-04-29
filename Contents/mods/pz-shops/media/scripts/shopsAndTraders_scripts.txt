@@ -13,18 +13,6 @@ module ShopsAndTraders
 		Icon = ShopDeed,
 	}
 
-/*
-        recipe Create Shop Deed
-    {
-        keep [shopsAndTradersRecipe.addMoneyTypesToRecipe],
-        SheetPaper2,
-        Result:ShopsAndTraders.ShopDeed,
-        OnCreate:shopsAndTradersRecipe.onCreate,
-        OnCanPerform:shopsAndTradersRecipe.onCanPerform,
-        Time:30.0,
-        Category:Shops,
-    }
-*/
 
         recipe Activate Deed
     {
@@ -36,6 +24,7 @@ module ShopsAndTraders
         CanBeDoneFromFloor:true,
         OnCreate:shopsAndTradersRecipe.onActivateDeed,
         OnCanPerform:shopsAndTradersRecipe.checkDeedValid,
+        Tooltip:Tooltip_shopDeed,
     }
 
 }
