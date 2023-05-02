@@ -1202,7 +1202,15 @@ function storeWindow:onClick(button)
     end
 
     if button.internal == "CLEAR_STORE" and self.storeObj and self:isBeingManaged() then
+        local tempWorldObj = self.worldObject
+        local playerOwnedStore = self.storeObj and self.storeObj.ownerID
         sendClientCommand("shop", "clearStoreFromWorldObj", { storeID=self.storeObj.ID, x=x, y=y, z=z, worldObjName=worldObjName })
+        if tempWorldObj and playerOwnedStore and not self.worldObject then
+            local tempWorldObjCont = tempWorldObj:getContainer()
+            if tempWorldObjCont then
+                tempWorldObj:addItem("ShopsAndTraders.ShopDeed")
+            end
+        end
     end
 
     if button.internal == "MANAGE" then
