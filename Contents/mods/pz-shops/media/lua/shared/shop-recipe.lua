@@ -128,7 +128,7 @@ function shopsAndTradersRecipe.onCreate(items, result, playerObj)
     print("items:"..tostring(items))
     print("result:"..tostring(result))
     print("player"..tostring(playerObj))
-    if not moneyValueForDeedRecipe then return true end
+    if not moneyValueForDeedRecipe or moneyValueForDeedRecipe==0 then return true end
 
     local costNeeded = moneyValueForDeedRecipe
 
@@ -137,12 +137,40 @@ function shopsAndTradersRecipe.onCreate(items, result, playerObj)
 
     local money = walletBalance
 
+    local moneyItems = {}
     for _,moneyType in pairs(_internal.getMoneyTypes()) do
-        local moneyItems = playerObj:getInventory():getAllType(moneyType)
-        for i=0, moneyItems:size()-1 do
-            local moneyItem = moneyItems:get(i)
-            if moneyItem and moneyItem:getModData().value then
-                money = money + moneyItem:getModData().value
+        local playersMoneyItems = playerObj:getInventory():getAllType(moneyType)
+        for i=0, playersMoneyItems:size()-1 do
+            local moneyItem = playersMoneyItems:get(i)
+            if moneyItem then
+                local value = moneyItem:getModData().value
+                if value then
+                    money = money + value
+                    moneyItems[moneyItem] = value
+                end
+            end
+        end
+    end
+
+    if money >= costNeeded then
+        if wallet and wallet.amount > 0 then
+            local playerModData = playerObj:getModData()
+            local transferValue = math.min(wallet.amount, costNeeded)
+            costNeeded = costNeeded-transferValue
+            sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=(0-transferValue)})
+        end
+
+        if costNeeded > 0 then
+            for mItem,mValue in pairs(moneyItems) do
+                if costNeeded <= 0 then break end
+                if costNeeded >= mValue then
+                    local cost = math.min(mValue, costNeeded)
+                    mItem:getModData().value = mValue-cost
+                    costNeeded = costNeeded-cost
+                    if mItem:getModData().value <= 0 then
+                        safelyRemoveMoney(mItem, playerObj)
+                    end
+                end
             end
         end
     end
