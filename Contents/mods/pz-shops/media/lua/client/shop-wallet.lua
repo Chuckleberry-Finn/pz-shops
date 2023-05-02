@@ -182,7 +182,7 @@ function ISSliderBox:onClick(button, playerObj, item)
             local money = InventoryItemFactory.CreateItem(type)
 
             if money then
-                generateMoneyValue(money, transferValue)
+                generateMoneyValue(money, transferValue, true)
                 playerObj:getInventory():AddItem(money)
 
                 if item and _internal.isMoneyType(item:getFullType()) and item:getModData() and item:getModData().value > 0 then
