@@ -128,7 +128,6 @@ function shopsAndTradersRecipe.onCreate(items, result, playerObj)
     if not moneyValueForDeedRecipe or moneyValueForDeedRecipe==0 then return true end
 
     local costNeeded = moneyValueForDeedRecipe
-
     local wallet, walletBalance = getWallet(playerObj), 0
     if wallet then walletBalance = wallet.amount end
 
@@ -160,13 +159,12 @@ function shopsAndTradersRecipe.onCreate(items, result, playerObj)
         if costNeeded > 0 then
             for mItem,mValue in pairs(moneyItems) do
                 if costNeeded <= 0 then break end
-                if costNeeded >= mValue then
-                    local cost = math.min(mValue, costNeeded)
-                    mItem:getModData().value = mValue-cost
-                    costNeeded = costNeeded-cost
-                    if mItem:getModData().value <= 0 then
-                        safelyRemoveMoney(mItem, playerObj)
-                    end
+                local cost = math.min(mValue, costNeeded)
+                costNeeded = costNeeded-cost
+                if mValue-cost <= 0 then
+                    safelyRemoveMoney(mItem, playerObj)
+                else
+                    generateMoneyValue(mItem, mValue-cost, true)
                 end
             end
         end
