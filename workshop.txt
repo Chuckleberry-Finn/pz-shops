@@ -1,6 +1,6 @@
 version=1
-id=2853615523
-title=Shops and Traders
+id=2970585550
+title=Shops and Traders [BETA]
 description=[h2][BETA TESTING] In-game configurable shops.[/h2]
 description=
 description=[img]https://i.imgur.com/p7Fv1Z6.gif[/img]
@@ -24,6 +24,5 @@ description=
 description=[img]https://i.imgur.com/Q88TyNw.gif[/img]
 description=
 description=[img]https://i.imgur.com/6JiuKdV.gif[/img]
-description=
 tags=Build 41;Framework;Misc;Multiplayer
-visibility=public
+visibility=unlisted
