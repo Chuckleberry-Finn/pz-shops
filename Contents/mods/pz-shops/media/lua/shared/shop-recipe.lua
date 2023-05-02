@@ -125,9 +125,6 @@ end
 
 
 function shopsAndTradersRecipe.onCreate(items, result, playerObj)
-    print("items:"..tostring(items))
-    print("result:"..tostring(result))
-    print("player"..tostring(playerObj))
     if not moneyValueForDeedRecipe or moneyValueForDeedRecipe==0 then return true end
 
     local costNeeded = moneyValueForDeedRecipe
