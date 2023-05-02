@@ -1205,12 +1205,11 @@ function storeWindow:onClick(button)
         local tempWorldObj = self.worldObject
         local playerOwnedStore = self.storeObj and self.storeObj.ownerID
         sendClientCommand("shop", "clearStoreFromWorldObj", { storeID=self.storeObj.ID, x=x, y=y, z=z, worldObjName=worldObjName })
-        if tempWorldObj and playerOwnedStore and not self.worldObject then
+        
+        if tempWorldObj and playerOwnedStore then
             ---@type ItemContainer
             local tempWorldObjCont = tempWorldObj:getContainer()
-            if tempWorldObjCont then
-                tempWorldObjCont:addItem("ShopsAndTraders.ShopDeed")
-            end
+            if tempWorldObjCont then tempWorldObjCont:AddItem("ShopsAndTraders.ShopDeed") end
         end
     end
 
