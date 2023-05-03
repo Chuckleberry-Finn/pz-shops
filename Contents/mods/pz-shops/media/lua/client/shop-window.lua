@@ -447,7 +447,11 @@ end
 function storeWindow:populateComboList()
     self.assignComboBox:clear()
     self.assignComboBox:addOptionWithData("BLANK", false)
-    for ID,DATA in pairs(CLIENT_STORES) do self.assignComboBox:addOptionWithData(DATA.name, ID) end
+    for ID,DATA in pairs(CLIENT_STORES) do
+        if not DATA.ownerID then
+            self.assignComboBox:addOptionWithData(DATA.name, ID)
+        end
+    end
     if (not self.assignComboBox.selected) or (self.assignComboBox.selected > #self.assignComboBox.options) then self.assignComboBox.selected = 1 end
 end
 
