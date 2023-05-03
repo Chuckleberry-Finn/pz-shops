@@ -1326,8 +1326,9 @@ function storeWindow:finalizeDeal()
                     local item = storeStock:get(0)
                     if item then
                         local itemCont = item:getContainer()
-                        if itemCont then itemCont:Remove(v.item) end
-                        self.player:getInventory():addItem(item)
+                        if itemCont then
+                            ISInventoryTransferAction:new(self.player, item, itemCont, self.player:getInventory(), 0)
+                        end
                     end
                 end
             else
@@ -1360,10 +1361,14 @@ function storeWindow:finalizeDeal()
                 end
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
                 if removeItem then
-                    self.player:getInventory():Remove(v.item)
+
                     if (not isMoney) and self.storeObj.ownerID then
                         local worldObjectCont = self.worldObject and self.worldObject:getContainer()
-                        if worldObjectCont then worldObjectCont:addItem(v.item) end
+                        if worldObjectCont then
+                            ISInventoryTransferAction:new(self.player, v.item, self.player:getInventory(), worldObjectCont, 0)
+                        end
+                    else
+                        self.player:getInventory():Remove(v.item)
                     end
                 end
             end
