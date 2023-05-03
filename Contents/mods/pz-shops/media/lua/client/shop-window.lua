@@ -927,9 +927,11 @@ function storeWindow:prerender()
         self:drawText(getText("IGUI_CURRENCY_PREFIX"), self.addStockPrice.x-12, self.addStockPrice.y, color.r,color.g,color.b,color.a, font)
         self:drawText(" "..getText("IGUI_CURRENCY_SUFFIX"), self.addStockPrice.x+self.addStockPrice.width+12, self.addStockPrice.y, color.r,color.g,color.b,color.a, font)
 
-        self:validateElementColor(self.addStockQuantity)
-        color = self.addStockQuantity.textColor
-        self:drawText(getText("IGUI_STOCK"), self.addStockQuantity.x-12, self.addStockQuantity.y, color.r,color.g,color.b,color.a, font)
+        if self.addStockQuantity:isVisible() then
+            self:validateElementColor(self.addStockQuantity)
+            color = self.addStockQuantity.textColor
+            self:drawText(getText("IGUI_STOCK"), self.addStockQuantity.x-12, self.addStockQuantity.y, color.r,color.g,color.b,color.a, font)
+        end
 
         self:validateElementColor(self.addStockBuyBackRate)
         color = self.addStockBuyBackRate.textColor
@@ -1110,7 +1112,7 @@ function storeWindow:render()
     self.manageStoreName:setVisible(managed and not blocked)
     self.addStockEntry:setVisible(managed and not blocked)
     self.addStockPrice:setVisible(managed and not blocked)
-    self.addStockQuantity:setVisible((not self.storeObj.ownerID) and managed and not blocked)
+    self.addStockQuantity:setVisible((not self.storeObj or (self.storeObj and not self.storeObj.ownerID)) and managed and not blocked)
     self.addStockBuyBackRate:setVisible(managed and not blocked)
     self.clearStore:setVisible(managed and not blocked)
     self.restockHours:setVisible(managed and not blocked)
