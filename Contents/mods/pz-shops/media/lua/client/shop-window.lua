@@ -447,7 +447,11 @@ end
 function storeWindow:populateComboList()
     self.assignComboBox:clear()
     self.assignComboBox:addOptionWithData("BLANK", false)
-    for ID,DATA in pairs(CLIENT_STORES) do self.assignComboBox:addOptionWithData(DATA.name, ID) end
+    for ID,DATA in pairs(CLIENT_STORES) do
+        if not DATA.ownerID then
+            self.assignComboBox:addOptionWithData(DATA.name, ID)
+        end
+    end
     if (not self.assignComboBox.selected) or (self.assignComboBox.selected > #self.assignComboBox.options) then self.assignComboBox.selected = 1 end
 end
 
@@ -923,9 +927,11 @@ function storeWindow:prerender()
         self:drawText(getText("IGUI_CURRENCY_PREFIX"), self.addStockPrice.x-12, self.addStockPrice.y, color.r,color.g,color.b,color.a, font)
         self:drawText(" "..getText("IGUI_CURRENCY_SUFFIX"), self.addStockPrice.x+self.addStockPrice.width+12, self.addStockPrice.y, color.r,color.g,color.b,color.a, font)
 
-        self:validateElementColor(self.addStockQuantity)
-        color = self.addStockQuantity.textColor
-        self:drawText(getText("IGUI_STOCK"), self.addStockQuantity.x-12, self.addStockQuantity.y, color.r,color.g,color.b,color.a, font)
+        if self.addStockQuantity:isVisible() then
+            self:validateElementColor(self.addStockQuantity)
+            color = self.addStockQuantity.textColor
+            self:drawText(getText("IGUI_STOCK"), self.addStockQuantity.x-12, self.addStockQuantity.y, color.r,color.g,color.b,color.a, font)
+        end
 
         self:validateElementColor(self.addStockBuyBackRate)
         color = self.addStockBuyBackRate.textColor
@@ -1106,7 +1112,7 @@ function storeWindow:render()
     self.manageStoreName:setVisible(managed and not blocked)
     self.addStockEntry:setVisible(managed and not blocked)
     self.addStockPrice:setVisible(managed and not blocked)
-    self.addStockQuantity:setVisible((isAdmin() or isCoopHost() or getDebug()) and managed and not blocked)
+    self.addStockQuantity:setVisible((not self.storeObj or (self.storeObj and not self.storeObj.ownerID)) and managed and not blocked)
     self.addStockBuyBackRate:setVisible(managed and not blocked)
     self.clearStore:setVisible(managed and not blocked)
     self.restockHours:setVisible(managed and not blocked)
@@ -1326,8 +1332,9 @@ function storeWindow:finalizeDeal()
                     local item = storeStock:get(0)
                     if item then
                         local itemCont = item:getContainer()
-                        if itemCont then itemCont:Remove(v.item) end
-                        self.player:getInventory():addItem(item)
+                        if itemCont then
+                            ISInventoryTransferAction:new(self.player, item, itemCont, self.player:getInventory(), 0)
+                        end
                     end
                 end
             else
@@ -1360,10 +1367,14 @@ function storeWindow:finalizeDeal()
                 end
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
                 if removeItem then
-                    self.player:getInventory():Remove(v.item)
+
                     if (not isMoney) and self.storeObj.ownerID then
                         local worldObjectCont = self.worldObject and self.worldObject:getContainer()
-                        if worldObjectCont then worldObjectCont:addItem(v.item) end
+                        if worldObjectCont then
+                            ISInventoryTransferAction:new(self.player, v.item, self.player:getInventory(), worldObjectCont, 0)
+                        end
+                    else
+                        self.player:getInventory():Remove(v.item)
                     end
                 end
             end
