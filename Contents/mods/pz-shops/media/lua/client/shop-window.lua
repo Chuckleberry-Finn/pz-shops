@@ -63,7 +63,12 @@ function storeWindow:storeItemRowAt(y)
 
         local availableStock = self:getAvailableStock(listing)
 
-        local showListing = ((listing.stock ~= 0 or listing.reselling==true) and (availableStock ~= 0) and (texture or #validCategory>0))
+        local validItem = (texture or #validCategory>0)
+        local availableItem = (availableStock ~= 0)
+        local itemReselling = ((listing.stock ~= 0 or self.storeObj.ownerID) or listing.reselling==true)
+        
+        local showListing = itemReselling and availableItem and validItem
+
         if listing.alwaysShow==true then showListing = true end
         local managing = (self:isBeingManaged() and _internal.canManageStore(self.storeObj,self.player))
 
