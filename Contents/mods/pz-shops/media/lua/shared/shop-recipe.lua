@@ -56,25 +56,12 @@ end
 function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
 
     local item = items:get(0)
-    print("onActivateDeed: item:"..tostring(item))
-
     local cont = item:getContainer()
-    if not cont then
-        print("not cont")
-        return false
-    end
+    if not cont then return false end
 
     local worldObj = cont and (not cont:isInCharacterInventory(player)) and cont:getParent()
-    if not worldObj then
-        print("not worldObj")
-        return false
-    end
-    if worldObj and worldObj:getModData().storeObjID then
-        print("storeObjID present")
-        return false
-    end
-
-    print("deed activated")
+    if not worldObj then return false end
+    if worldObj and worldObj:getModData().storeObjID then return false end
 
     storeWindow:onBrowse(nil, worldObj)
 
@@ -86,9 +73,7 @@ end
 
 
 function shopsAndTradersRecipe.addMoneyTypesToRecipe(scriptItems)
-    print(" -- recipe adding: ")
     for _,type in pairs(_internal.getMoneyTypes()) do
-        print(" --- ?: "..type)
         local scriptItem = getScriptManager():getItem(type)
         if not scriptItems:contains(scriptItem) then scriptItems:add(scriptItem) end
     end
@@ -212,7 +197,6 @@ function shopsAndTradersRecipe.addDeedRecipe()
     local tooltip = ""
     if moneyValueForDeedRecipe and moneyValueForDeedRecipe > 0 then
         tooltip = "Tooltip:"..getText("IGUI_requires").." ".._internal.numToCurrency(moneyValueForDeedRecipe)..", "
-        print("TOOLTIP: "..tooltip)
     end
 
     --print("SCRIPT:", rebuiltScript)
