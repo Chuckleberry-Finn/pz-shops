@@ -66,7 +66,7 @@ function storeWindow:storeItemRowAt(y)
         local validItem = (texture or #validCategory>0)
         local availableItem = (availableStock ~= 0)
         local itemReselling = ((listing.stock ~= 0 or self.storeObj.ownerID) or listing.reselling==true)
-        
+
         local showListing = itemReselling and availableItem and validItem
 
         if listing.alwaysShow==true then showListing = true end
@@ -105,17 +105,18 @@ end
 
 
 function storeWindow:addItemToYourStock(itemType, store, x, y, z, worldObjName, item, worldObject)
+
+    sendClientCommand("shop", "listNewItem",
+            { isBeingManaged=store.isBeingManaged, alwaysShow = false,
+              item=itemType, price=0, quantity=0, buybackRate=0, reselling=false,
+              storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
+
     if worldObject and item then
         local worldObjectContainer = worldObject:getContainer()
         if worldObjectContainer then
             ISTimedActionQueue.add(ISInventoryTransferAction:new(self.player, item, self.player:getInventory(), worldObjectContainer))
         end
     end
-
-    sendClientCommand("shop", "listNewItem",
-            { isBeingManaged=store.isBeingManaged, alwaysShow = false,
-              item=itemType, price=0, quantity=0, buybackRate=0, reselling=false,
-              storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
 end
 
 
