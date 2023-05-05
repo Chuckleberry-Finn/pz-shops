@@ -1256,11 +1256,15 @@ function storeWindow:onClick(button)
         local matches, matchesToType = findMatchesFromItemDictionary(newEntry)
         if not matches then return end
 
-        local scriptType = matchesToType[newEntry]
-        if not scriptType then return end
+        if isValidItemDictionaryCategory(newEntry) then
+            newEntry = "category:"..newEntry
+        else
+            local scriptType = matchesToType[newEntry]
+            if not scriptType then return end
 
-        local script = getScriptManager():getItem(scriptType)
-        newEntry = script:getFullName()
+            local script = getScriptManager():getItem(scriptType)
+            newEntry = script:getFullName()
+        end
 
         local price = 0
         if self.addStockPrice.enable and self.addStockPrice:getInternalText() then price = tonumber(self.addStockPrice:getInternalText()) end
