@@ -55,7 +55,7 @@ function storeWindow:storeItemRowAt(y)
         if type(v.item) == "string" then
             script = getScriptManager():getItem(v.item)
             if script then texture = script:getNormalTexture()
-            else validCategory = findMatchesFromCategories(v.item:gsub("category:",""))
+            else validCategory = isValidItemDictionaryCategory(v.item:gsub("category:",""))
             end
         else
             texture = v.item:getTex()
@@ -65,7 +65,7 @@ function storeWindow:storeItemRowAt(y)
 
         local validItem = (texture or #validCategory>0)
         local availableItem = (availableStock ~= 0)
-        local itemReselling = ((listing.stock ~= 0 or self.storeObj.ownerID) or listing.reselling==true)
+        local itemReselling = (listing.stock ~= 0 or listing.reselling==true)
 
         local showListing = itemReselling and availableItem and validItem
 
@@ -205,14 +205,8 @@ end
 function storeWindow:addItemEntryChange()
     local s = storeWindow.instance
     if not s then return end
-    local matches
-
-    if s.categorySet.selected[1] == true then
-        matches = findMatchesFromCategories(s.addStockEntry:getInternalText())
-    else
-        matches = findMatchesFromItemDictionary(s.addStockEntry:getInternalText())
-    end
-
+    local addStockEntry = s.addStockEntry
+    local matches, matchesToType = findMatchesFromItemDictionary(addStockEntry:getInternalText())
     if matches then
         local text
         for _,type in pairs(matches) do text = (text or "")..type.."\n" end
@@ -583,8 +577,10 @@ function storeWindow:drawStock(y, item, alt)
     local texture, script, validCategory
     if type(item.item) == "string" then
         script = getScriptManager():getItem(item.item)
-        if script then texture = script:getNormalTexture()
-        else validCategory = findMatchesFromCategories(item.item:gsub("category:",""))
+        if script then
+            texture = script:getNormalTexture()
+        else
+            validCategory = isValidItemDictionaryCategory(item.item:gsub("category:",""))
         end
     else
         texture = item.item:getTex()
@@ -602,7 +598,12 @@ function storeWindow:drawStock(y, item, alt)
 
             local availableStock = self.parent:getAvailableStock(listing)
 
-            local showListing = ((listing.stock ~= 0 or listing.reselling==true) and (availableStock ~= 0) and (texture or validCategoryLen>0))
+            local validItem = (texture or #validCategory>0)
+            local availableItem = (availableStock ~= 0)
+            local itemReselling = (listing.stock ~= 0 or listing.reselling==true)
+
+            local showListing = itemReselling and availableItem and validItem
+
             if listing.alwaysShow==true then showListing = true end
             local managing = (self.parent:isBeingManaged() and _internal.canManageStore(storeObj,self.player))
 
@@ -652,7 +653,7 @@ function storeWindow:displayStoreStock()
         local itemDisplayName = listing.item
         if script then itemDisplayName = script:getDisplayName() end
 
-        local isCategoryListingAndIsValid = (string.match(listing.item, "category:") and findMatchesFromCategories(listing.item:gsub("category:","")))
+        local isCategoryListingAndIsValid = (string.match(listing.item, "category:") and isValidItemDictionaryCategory(listing.item:gsub("category:","")))
 
         local price = _internal.numToCurrency(listing.price)
         if listing.price <= 0 then price = getText("IGUI_FREE") end
@@ -1058,10 +1059,10 @@ end
 function storeWindow:validateAddStockEntry()
     local entryText = self.addStockEntry:getInternalText()
     if not entryText or entryText=="" then return false end
-    local itemDict = getItemDictionary()
-    if self.categorySet.selected[1] == true then if itemDict.categories[entryText] then return true end
-    else if getScriptManager():getItem(entryText) then return true end
-    end
+    local matches, matchesToType = findMatchesFromItemDictionary(entryText)
+    if not matches then return false end
+    local script = matchesToType[entryText]
+    if script and getScriptManager():getItem(script) then return true end
     return false
 end
 
@@ -1249,17 +1250,17 @@ function storeWindow:onClick(button)
         if not self:isBeingManaged() then return end
         if not self.addStockBtn.enable then return end
 
-        if not self:validateAddStockEntry() then return end
-
         local newEntry = self.addStockEntry:getInternalText()
-        if not newEntry then return end
+        if not newEntry or newEntry=="" then return end
 
-        if self.categorySet.selected[1] == true then
-            newEntry = "category:"..newEntry
-        else
-            local script = getScriptManager():getItem(newEntry)
-            if script then newEntry = script:getFullName() end
-        end
+        local matches, matchesToType = findMatchesFromItemDictionary(newEntry)
+        if not matches then return end
+
+        local scriptType = matchesToType[newEntry]
+        if not scriptType then return end
+
+        local script = getScriptManager():getItem(scriptType)
+        newEntry = script:getFullName()
 
         local price = 0
         if self.addStockPrice.enable and self.addStockPrice:getInternalText() then price = tonumber(self.addStockPrice:getInternalText()) end
