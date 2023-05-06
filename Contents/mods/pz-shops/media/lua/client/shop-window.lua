@@ -1429,9 +1429,6 @@ function storeWindow:onBrowse(storeObj, worldObj)
         storeWindow.instance:removeFromUIManager()
     end
 
-    local itemDictionary = getItemDictionary()
-    sendClientCommand("shop", "updateItemDictionary", { itemsToCategories=itemDictionary.itemsToCategories })
-
     triggerEvent("SHOPPING_ClientModDataReady")
 
     getOrSetWalletID(getPlayer())

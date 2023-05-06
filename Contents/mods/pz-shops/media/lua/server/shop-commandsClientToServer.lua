@@ -9,17 +9,6 @@ local function onClientCommand(_module, _command, _player, _data)
     if _module ~= "shop" then return end
     _data = _data or {}
 
-    if _command == "updateItemDictionary" then
-        if itemDictionaryUpdated then return end
-        itemDictionaryUpdated = true
-        local itemsToCategories = _data.itemsToCategories
-        local scriptManager = getScriptManager()
-        for moduleType,displayCategory in pairs(itemsToCategories) do
-            local scriptFound = scriptManager:getItem(moduleType)
-            if scriptFound then scriptFound:DoParam("DisplayCategory = "..displayCategory) end
-        end
-    end
-
     if _command == "ImportStores" then
         _internal.copyAgainst(GLOBAL_STORES, _data.stores)
         triggerEvent("SHOPPING_ServerModDataReady")
