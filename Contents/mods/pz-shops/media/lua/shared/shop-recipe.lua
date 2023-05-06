@@ -68,6 +68,7 @@ function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
     local x, y, z, worldObjName = worldObj:getX(), worldObj:getY(), worldObj:getZ(), _internal.getWorldObjectName(worldObj)
     sendClientCommand("shop", "assignStore", { x=x, y=y, z=z, worldObjName=worldObjName, owner=player:getUsername() })
 
+    if (not player) or player and not cont:isInCharacterInventory(player) then cont:removeItemOnServer(item) end
     cont:DoRemoveItem(item)
 end
 
@@ -206,7 +207,6 @@ function shopsAndTradersRecipe.addDeedRecipe()
     scriptManager:ParseScript(deedScript.header .. ingredients .. deedScript.body .. tooltip.. deedScript.footer)
 end
 
---Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe)
---Events.OnResetLua.Add(shopsAndTradersRecipe.addDeedRecipe)
+
 Events.OnLoad.Add(shopsAndTradersRecipe.addDeedRecipe)
 if isServer() then Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe) end
