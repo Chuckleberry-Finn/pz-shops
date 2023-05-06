@@ -2,7 +2,7 @@ require "ISUI/ISPanelJoypad"
 require "shop-globalModDataClient"
 require "shop-wallet"
 require "luautils"
-require "shop-itemLookup"
+require "shop-itemDictionary"
 require "TimedActions/ISInventoryTransferAction"
 local _internal = require "shop-shared"
 
