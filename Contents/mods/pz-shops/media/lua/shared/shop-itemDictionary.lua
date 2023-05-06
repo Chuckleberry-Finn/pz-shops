@@ -21,6 +21,12 @@ function getItemDictionary() return itemDictionary end
 
 
 function itemDictionary.addToPartition(partitionID, result, searchKey)
+
+    if not partitionID or not result or not searchKey then
+        print("addToPartition err: ", partitionID, result, searchKey)
+        return
+    end
+
     local input = string.lower(string.sub(searchKey,1,3))
     if input and input ~= "" then
         if not itemDictionary.partition[input] then itemDictionary.partition[input] = {} end
