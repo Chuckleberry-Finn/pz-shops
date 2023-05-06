@@ -51,7 +51,7 @@ function storeWindow:storeItemRowAt(y)
 
         local listing = listings[v.item]
 
-        local texture, script, validCategory = nil, nil, {}
+        local texture, script, validCategory = nil, nil, false
         if type(v.item) == "string" then
             script = getScriptManager():getItem(v.item)
             if script then texture = script:getNormalTexture()
@@ -63,7 +63,7 @@ function storeWindow:storeItemRowAt(y)
 
         local availableStock = self:getAvailableStock(listing)
 
-        local validItem = (texture or #validCategory>0)
+        local validItem = (texture or validCategory)
         local availableItem = (availableStock ~= 0)
         local itemReselling = (listing.stock ~= 0 or listing.reselling==true)
 
@@ -95,7 +95,6 @@ function storeWindow:onStoreItemDoubleClick()
 
         self.alwaysShow.selected[1] = false
         self.resell.selected[1] = true
-        self.categorySet.selected[1] = false
         self.addStockQuantity:setText("")
 
         sendClientCommand("shop", "removeListing", { item=item, storeID=self.storeObj.ID })
@@ -161,7 +160,20 @@ end
 function storeWindow:setStockInput(listing)
     if not self:isBeingManaged() then return end
 
-    self.addStockEntry:setText(listing.item)
+    local SM = getScriptManager()
+    local script = SM:getItem(listing.item)
+    local option = self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)
+    local text
+
+    if option == "category" then
+        text = script:getDisplayCategory()
+    elseif option == "name" then
+        text = script:getDisplayName()
+    elseif option == "type" then
+        text = script:getFullName()
+    end
+
+    self.addStockEntry:setText(text)
     self.addStockPrice:setText(tostring(listing.price))
     self.addStockBuyBackRate:setText(tostring(listing.buybackRate))
 
@@ -169,7 +181,6 @@ function storeWindow:setStockInput(listing)
     self.resell.selected[1] = listing.reselling
 
     local isCategory = not getScriptManager():getItem(listing.item)
-    self.categorySet.selected[1] = isCategory
 
     if isCategory then
         self.addStockQuantity:setText("")
@@ -206,13 +217,13 @@ function storeWindow:addItemEntryChange()
     local s = storeWindow.instance
     if not s then return end
     local addStockEntry = s.addStockEntry
-    local matches, matchesToType = findMatchesFromItemDictionary(addStockEntry:getInternalText())
+    local matches, matchesToType = findMatchesFromItemDictionary(addStockEntry:getInternalText(), s.addStockSearchPartition:getOptionData(s.addStockSearchPartition.selected))
     if matches then
         local text
         for _,type in pairs(matches) do text = (text or "")..type.."\n" end
-        if text then self.tooltip = text return end
+        if text then s.addStockEntry.tooltip = text return end
     end
-    self.tooltip = nil
+    s.addStockEntry.tooltip = nil
 end
 
 
@@ -300,16 +311,18 @@ function storeWindow:initialise()
     self.addStockBuyBackRate:instantiate()
     self:addChild(self.addStockBuyBackRate)
 
-    self.categorySet = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.addStockBuyBackRate.y, 18, 18, "", self, nil)
-    self.categorySet.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
-    self.categorySet.tooltip = getText("IGUI_STOCKCATEGORY_TOOLTIP")
-    self.categorySet:initialise()
-    self.categorySet:instantiate()
-    self.categorySet.selected[1] = false
-    self.categorySet:addOption(getText("IGUI_STOCKCATEGORY"))
-    self:addChild(self.categorySet)
+    local addSearchX = self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10
+    self.addStockSearchPartition = ISComboBox:new(addSearchX, self.addStockBuyBackRate.y, self.width-addSearchX-10, 18)
+    self.addStockSearchPartition.borderColor = { r = 1, g = 1, b = 1, a = 0.4 }
+    self.addStockSearchPartition.onChange = storeWindow.addItemEntryChange
+    self.addStockSearchPartition:initialise()
+    self.addStockSearchPartition:instantiate()
+    self:addChild(self.addStockSearchPartition)
+    self.addStockSearchPartition:addOptionWithData(getText("IGUI_Name"), "name")
+    self.addStockSearchPartition:addOptionWithData(getText("IGUI_invpanel_Type"), "type")
+    self.addStockSearchPartition:addOptionWithData(getText("IGUI_invpanel_Category"), "category")
 
-    self.resell = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.categorySet.y+self.categorySet.height+2, 18, 18, "", self, nil)
+    self.resell = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.addStockSearchPartition.y+self.addStockSearchPartition.height+2, 18, 18, "", self, nil)
     self.resell.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
     self.resell.tooltip = getText("IGUI_IGUI_RESELL_TOOLTIP")
     self.resell:initialise()
@@ -574,7 +587,7 @@ end
 
 
 function storeWindow:drawStock(y, item, alt)
-    local texture, script, validCategory
+    local texture, script, validCategory = nil, nil, nil
     if type(item.item) == "string" then
         script = getScriptManager():getItem(item.item)
         if script then
@@ -593,12 +606,8 @@ function storeWindow:drawStock(y, item, alt)
         local listing = storeObj.listings[item.item]
         if listing then
 
-            local validCategoryLen = 0
-            if type(validCategory)=="table" then validCategoryLen = #validCategory or 0 end
-
             local availableStock = self.parent:getAvailableStock(listing)
-
-            local validItem = (texture or #validCategory>0)
+            local validItem = (texture or validCategory)
             local availableItem = (availableStock ~= 0)
             local itemReselling = (listing.stock ~= 0 or listing.reselling==true)
 
@@ -617,7 +626,7 @@ function storeWindow:drawStock(y, item, alt)
                 end
 
                 local extra = ""
-                if (not texture) and (not (validCategoryLen <= 0)) then extra = "\[!\] " end
+                if (not texture) and (not validCategory) then extra = "\[!\] " end
 
                 self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
                 if texture then self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b) end
@@ -735,7 +744,7 @@ function storeWindow:removeItem(item) self.yourCartData:removeItem(item.text) en
 
 function storeWindow:validateElementColor(e)
     if not e then return end
-    if e==self.addStockQuantity and self.categorySet.selected[1] == true then
+    if e==self.addStockQuantity and self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)=="category" then
         e.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
         e.textColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
         return
@@ -914,20 +923,6 @@ function storeWindow:prerender()
         end
 
     else
-        local cat = "category:"
-        local catX = getTextManager():MeasureStringX(font, cat)+4
-
-        if (isAdmin() or isCoopHost() or getDebug()) then
-            if self.categorySet.selected[1] == true then
-                local addStockEntryColor = self.addStockEntry.textColor
-                self.addStockEntry:setX(self.storeStockData.x+catX)
-                self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3-catX)
-                self:drawText(cat, self.storeStockData.x+1, self.addStockEntry.y-1, addStockEntryColor.r,addStockEntryColor.g,addStockEntryColor.b,addStockEntryColor.a, font)
-            else
-                self.addStockEntry:setX(self.storeStockData.x)
-                self.addStockEntry:setWidth(self.storeStockData.width-self.addStockBtn.width-3)
-            end
-        end
 
         self:validateElementColor(self.addStockPrice)
         local color = self.addStockPrice.textColor
@@ -1009,7 +1004,7 @@ function storeWindow:updateButtons()
     self.manageBtn.enable = false
     self.clearStore.enable = false
     self.addStockBtn.enable = false
-    self.categorySet.enable = false
+    self.addStockSearchPartition.enable = false
     self.alwaysShow.enable = false
     self.resell.enable = false
 
@@ -1048,7 +1043,7 @@ function storeWindow:updateButtons()
         if self:isBeingManaged() then
             self.clearStore.enable = true
             self.addStockBtn.enable = true
-            self.categorySet.enable = true
+            self.addStockSearchPartition.enable = true
             self.alwaysShow.enable = true
             self.resell.enable = true
         end
@@ -1059,7 +1054,7 @@ end
 function storeWindow:validateAddStockEntry()
     local entryText = self.addStockEntry:getInternalText()
     if not entryText or entryText=="" then return false end
-    local matches, matchesToType = findMatchesFromItemDictionary(entryText)
+    local matches, matchesToType = findMatchesFromItemDictionary(entryText, self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected))
     if not matches then return false end
     local script = matchesToType[entryText]
     if script and getScriptManager():getItem(script) then return true end
@@ -1123,14 +1118,14 @@ function storeWindow:render()
     self.addStockBuyBackRate:setVisible(managed and not blocked)
     self.clearStore:setVisible(managed and not blocked)
     self.restockHours:setVisible(managed and not blocked)
-    self.categorySet:setVisible(managed and not blocked)
+    self.addStockSearchPartition:setVisible(managed and not blocked)
     self.alwaysShow:setVisible(managed and not blocked)
     self.resell:setVisible(managed and not blocked)
 
     self.manageStoreName:isEditable(not blocked)
     self.addStockEntry:isEditable(not blocked)
     self.addStockPrice:isEditable(not blocked)
-    self.addStockQuantity:isEditable(not blocked and (self.categorySet.selected[1] == false))
+    self.addStockQuantity:isEditable(not blocked and (self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)~="category"))
     self.addStockBuyBackRate:isEditable(not blocked)
 
     self.importText:isEditable(shouldSeeStorePresetOptions and self.importBtn.toggled)
@@ -1165,11 +1160,11 @@ function storeWindow:render()
         self.addStockPrice.enable = (self.addStockPrice:getInternalText()=="" or tonumber(self.addStockPrice:getInternalText()))
         self.addStockQuantity.enable = (self.addStockQuantity:getInternalText()=="" or tonumber(self.addStockQuantity:getInternalText()))
 
-        if self.categorySet.selected[1] == true then self.addStockQuantity:setText("") end
+        if self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)=="category" then self.addStockQuantity:setText("") end
 
         local convertedBuyBackRate = tonumber(self.addStockBuyBackRate:getInternalText())
         self.addStockBuyBackRate.enable = (self.addStockBuyBackRate:getInternalText()=="" or (convertedBuyBackRate and (convertedBuyBackRate < 100 or convertedBuyBackRate > 0)))
-        self.addStockBtn.enable = (self.addStockEntry.enable and self.addStockPrice.enable and (self.addStockQuantity.enable or self.categorySet.selected[1] == true) and self.addStockBuyBackRate.enable)
+        self.addStockBtn.enable = (self.addStockEntry.enable and self.addStockPrice.enable and (self.addStockQuantity.enable or self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)=="category") and self.addStockBuyBackRate.enable)
 
         for _,e in pairs(elements) do self:validateElementColor(e) end
     end
@@ -1253,7 +1248,7 @@ function storeWindow:onClick(button)
         local newEntry = self.addStockEntry:getInternalText()
         if not newEntry or newEntry=="" then return end
 
-        local matches, matchesToType = findMatchesFromItemDictionary(newEntry)
+        local matches, matchesToType = findMatchesFromItemDictionary(newEntry, self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected))
         if not matches then return end
 
         if isValidItemDictionaryCategory(newEntry) then
