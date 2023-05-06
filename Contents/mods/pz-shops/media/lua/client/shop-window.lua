@@ -615,7 +615,7 @@ function storeWindow:drawStock(y, item, alt)
             local showListing = itemReselling and availableItem and validItem
 
             if listing.alwaysShow==true then showListing = true end
-            local managing = (self.parent:isBeingManaged() and _internal.canManageStore(storeObj,self.player))
+            local managing = (self.parent:isBeingManaged() and _internal.canManageStore(storeObj,self.parent.player))
 
             if showListing or managing then
 
