@@ -162,6 +162,7 @@ function storeWindow:setStockInput(listing)
 
     local SM = getScriptManager()
     local script = SM:getItem(listing.item)
+    if not script then return end
     local option = self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)
     local text
 
