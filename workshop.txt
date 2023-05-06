@@ -1,6 +1,6 @@
 version=1
 id=2970585550
-title=Shops and Traders [BETA]
+title=[BETA] Shops and Traders [BETA]
 description=[h2][BETA TESTING] In-game configurable shops.[/h2]
 description=
 description=[img]https://i.imgur.com/p7Fv1Z6.gif[/img]
