@@ -61,9 +61,15 @@ function _internal.getWorldObjectDisplayName(obj)
 end
 
 
+function _internal.isAdminHostDebug()
+    if (isAdmin() or isCoopHost() or getDebug()) then return true end
+    return false
+end
+
+
 function _internal.canManageStore(storeObj,player)
     if not storeObj then return false end
-    if (isAdmin() or isCoopHost() or getDebug()) then return true end
+    if _internal.isAdminHostDebug() then return true end
     if not player then return false end
     local shopOwnerID = storeObj.ownerID
     local playerUsername = player:getUsername()

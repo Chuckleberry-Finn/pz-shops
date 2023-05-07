@@ -904,7 +904,7 @@ function storeWindow:prerender()
     local font = UIFont.NewSmall
     local fontHeight = getTextManager():getFontHeight(font)
 
-    if not self:isBeingManaged() then
+    if self:isBeingManaged() and _internal.canManageStore(self.storeObj,self.player) then
         local storeName = "No Name Set"
         if self.storeObj then storeName = self.storeObj.name end
         local lengthStoreName = (getTextManager():MeasureStringX(UIFont.Medium, storeName)/2)
@@ -1099,7 +1099,7 @@ function storeWindow:render()
         blocked = true
     end
 
-    local shouldSeeStorePresetOptions = (not self.storeObj) and (isAdmin() or isCoopHost() or getDebug())
+    local shouldSeeStorePresetOptions = (not self.storeObj) and _internal.isAdminHostDebug()
     self.assignComboBox:setVisible(shouldSeeStorePresetOptions)
     self.aBtnConnect:setVisible(shouldSeeStorePresetOptions)
     self.aBtnDel:setVisible(shouldSeeStorePresetOptions)

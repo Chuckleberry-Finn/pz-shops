@@ -6,7 +6,7 @@ local CONTEXT_HANDLER = {}
 ---@param worldObject IsoObject
 function CONTEXT_HANDLER.browseStore(worldObjects, playerObj, worldObject, storeObj)
     if not storeObj then
-        if not (isAdmin() or isCoopHost() or getDebug()) then print(" ERROR: non-admin accessed context menu meant for assigning shops.") return end
+        if not (_internal.isAdminHostDebug()) then print(" ERROR: non-admin accessed context menu meant for assigning shops.") return end
     end
     storeWindow:onBrowse(storeObj, worldObject)
 end
@@ -39,7 +39,7 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects)
                 end
             end
 
-            if object:getModData().storeObjID or (isAdmin() or isCoopHost() or getDebug()) then
+            if object:getModData().storeObjID or (_internal.isAdminHostDebug()) then
                 validObjects[object] = CLIENT_STORES[object:getModData().storeObjID] or false
                 validObjectCount = validObjectCount+1
             end
