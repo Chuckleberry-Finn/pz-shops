@@ -373,16 +373,6 @@ function storeWindow:initialise()
     self.clearStore:instantiate()
     self:addChild(self.clearStore)
 
-
-    self.blocker = ISPanel:new(0,0, self.width, self.height)
-    self.blocker.moveWithMouse = true
-    self.blocker:initialise()
-    self.blocker:instantiate()
-    self.blocker:drawRect(0, 0, self.blocker.width, self.blocker.height, 0.8, 0, 0, 0)
-    local blockingMessage = getText("IGUI_STOREBEINGMANAGED")
-    self.blocker:drawText(blockingMessage, self.width/2 - (getTextManager():MeasureStringX(UIFont.Medium, blockingMessage) / 2), (self.height / 3) - 5, 1,1,1,1, UIFont.Medium)
-    self:addChild(self.blocker)
-
     self.no = ISButton:new(10, self:getHeight() - padBottom - btnHgt, btnWid, btnHgt, getText("UI_Cancel"), self, storeWindow.onClick)
     self.no.internal = "CANCEL"
     self.no.borderColor = {r=1, g=1, b=1, a=0.4}
@@ -1170,7 +1160,13 @@ function storeWindow:render()
         for _,e in pairs(elements) do self:validateElementColor(e) end
     end
 
-    self.blocker:setVisible(blocked)
+    if blocked then
+        local blockerY = self.storeStockData.y-23
+        self:drawRect(0, blockerY, self.width, self.height-(20+self.no.height)-blockerY, 0.8, 0, 0, 0)
+        local blockingMessage = getText("IGUI_STOREBEINGMANAGED")
+        self:drawText(blockingMessage, self.width/2 - (getTextManager():MeasureStringX(UIFont.Medium, blockingMessage) / 2), (self.height / 3) - 5, 1,1,1,1, UIFont.Medium)
+    end
+
     self:drawRectBorder(0, 0, self.width, self.height, self.borderColor.a, self.borderColor.r, self.borderColor.g, self.borderColor.b)
     self.no:bringToTop()
     self.assignComboBox:bringToTop()
