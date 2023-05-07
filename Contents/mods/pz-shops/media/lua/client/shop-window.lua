@@ -375,6 +375,7 @@ function storeWindow:initialise()
 
     self.blocker = ISPanel:new(0,0, self.width, self.height)
     self.blocker.moveWithMouse = true
+    self.blocker.backgroundColor = {r=0, g=0, b=0, a=0.8}
     self.blocker:initialise()
     self.blocker:instantiate()
     self:addChild(self.blocker)
@@ -809,6 +810,9 @@ end
 
 
 function storeWindow:displayOrderTotal()
+    if not self.storeObj then return end
+    if self:isBeingManaged() and (not _internal.canManageStore(self.storeObj,self.player)) then return end
+
     local x = self.yourCartData.x
     local y = self.yourCartData.y+self.yourCartData.height
     local w = self.yourCartData.width
@@ -1085,18 +1089,24 @@ function storeWindow:render()
     end
 
     local blocked = false
-    if not _internal.canManageStore(self.storeObj,self.player) then
-        self.manageBtn:setVisible(false)
-        if managed then blocked = true end
-    else
+
+    if _internal.canManageStore(self.storeObj,self.player) then
         self.manageBtn:setVisible(true)
+    else
+        blocked = true
     end
-    if not (self.storeObj) then
+
+    self.manageBtn:setVisible(_internal.canManageStore(self.storeObj,self.player))
+
+    if (not self.storeObj) then
+        self.manageBtn:setVisible(false)
         self:populateComboList()
         blocked = true
     end
 
+
     local shouldSeeStorePresetOptions = (not self.storeObj) and _internal.isAdminHostDebug()
+
     self.assignComboBox:setVisible(shouldSeeStorePresetOptions)
     self.aBtnConnect:setVisible(shouldSeeStorePresetOptions)
     self.aBtnDel:setVisible(shouldSeeStorePresetOptions)
@@ -1167,24 +1177,15 @@ function storeWindow:render()
         for _,e in pairs(elements) do self:validateElementColor(e) end
     end
 
-    if blocked then
-        self.blocker:setVisible(blocked)
-        local blockerY = self.storeStockData.y-23
-        self.blocker:drawRect(0, blockerY, self.width, self.height-(20+self.no.height)-blockerY, 0.8, 0, 0, 0)
+    self.blocker:setVisible(blocked)
+    if blocked and (not self.importText:isVisible()) then
         local blockingMessage = getText("IGUI_STOREBEINGMANAGED")
         self.blocker:drawText(blockingMessage, self.width/2 - (getTextManager():MeasureStringX(UIFont.Medium, blockingMessage) / 2), (self.height / 3) - 5, 1,1,1,1, UIFont.Medium)
+        local uiButtons = {self.no, self.assignComboBox, self.aBtnConnect, self.aBtnDel, self.aBtnCopy, self.importBtn, self.importCancel, self.importText}
+        for _,btn in pairs(uiButtons) do btn:bringToTop() end
     end
 
     self:drawRectBorder(0, 0, self.width, self.height, self.borderColor.a, self.borderColor.r, self.borderColor.g, self.borderColor.b)
-    self.no:bringToTop()
-    self.assignComboBox:bringToTop()
-    self.aBtnConnect:bringToTop()
-    self.aBtnDel:bringToTop()
-    self.aBtnCopy:bringToTop()
-
-    self.importBtn:bringToTop()
-    self.importCancel:bringToTop()
-    self.importText:bringToTop()
 end
 
 
