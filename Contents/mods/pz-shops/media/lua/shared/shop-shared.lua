@@ -68,8 +68,8 @@ end
 
 
 function _internal.canManageStore(storeObj,player)
-    if not storeObj then return false end
     if _internal.isAdminHostDebug() then return true end
+    if not storeObj then return false end
     if not player then return false end
     local shopOwnerID = storeObj.ownerID
     local playerUsername = player:getUsername()
