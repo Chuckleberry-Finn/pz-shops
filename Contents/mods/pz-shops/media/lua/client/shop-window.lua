@@ -895,6 +895,22 @@ function storeWindow:prerender()
     local fontHeight = getTextManager():getFontHeight(font)
 
     if self:isBeingManaged() and _internal.canManageStore(self.storeObj,self.player) then
+        self:validateElementColor(self.addStockPrice)
+        local color = self.addStockPrice.textColor
+        self:drawText(getText("IGUI_CURRENCY_PREFIX"), self.addStockPrice.x-12, self.addStockPrice.y, color.r,color.g,color.b,color.a, font)
+        self:drawText(" "..getText("IGUI_CURRENCY_SUFFIX"), self.addStockPrice.x+self.addStockPrice.width+12, self.addStockPrice.y, color.r,color.g,color.b,color.a, font)
+
+        if self.addStockQuantity:isVisible() then
+            self:validateElementColor(self.addStockQuantity)
+            color = self.addStockQuantity.textColor
+            self:drawText(getText("IGUI_STOCK"), self.addStockQuantity.x-12, self.addStockQuantity.y, color.r,color.g,color.b,color.a, font)
+        end
+
+        self:validateElementColor(self.addStockBuyBackRate)
+        color = self.addStockBuyBackRate.textColor
+        self:drawText(getText("IGUI_RATE"), self.addStockBuyBackRate.x-14, self.addStockBuyBackRate.y, color.r,color.g,color.b,color.a, font)
+    else
+
         local storeName = "No Name Set"
         if self.storeObj then storeName = self.storeObj.name end
         local lengthStoreName = (getTextManager():MeasureStringX(UIFont.Medium, storeName)/2)
@@ -910,26 +926,10 @@ function storeWindow:prerender()
                 local lengthOwnerID = (getTextManager():MeasureStringX(font, textOwnerID)/2)
                 self:drawText(textOwnerID, (self.width/2)-lengthOwnerID, topPadding+fontHeight+2, 0.9,0.9,0.9,0.8, font)
             end
-
         end
-
-    else
-
-        self:validateElementColor(self.addStockPrice)
-        local color = self.addStockPrice.textColor
-        self:drawText(getText("IGUI_CURRENCY_PREFIX"), self.addStockPrice.x-12, self.addStockPrice.y, color.r,color.g,color.b,color.a, font)
-        self:drawText(" "..getText("IGUI_CURRENCY_SUFFIX"), self.addStockPrice.x+self.addStockPrice.width+12, self.addStockPrice.y, color.r,color.g,color.b,color.a, font)
-
-        if self.addStockQuantity:isVisible() then
-            self:validateElementColor(self.addStockQuantity)
-            color = self.addStockQuantity.textColor
-            self:drawText(getText("IGUI_STOCK"), self.addStockQuantity.x-12, self.addStockQuantity.y, color.r,color.g,color.b,color.a, font)
-        end
-
-        self:validateElementColor(self.addStockBuyBackRate)
-        color = self.addStockBuyBackRate.textColor
-        self:drawText(getText("IGUI_RATE"), self.addStockBuyBackRate.x-14, self.addStockBuyBackRate.y, color.r,color.g,color.b,color.a, font)
     end
+
+
 
     local cartText = getText("IGUI_STORESTOCK")
     local cartTextX = (self.yourCartData.x+(self.yourCartData.width/2))-(getTextManager():MeasureStringX(font, cartText)/2)
@@ -1083,6 +1083,8 @@ function storeWindow:render()
     if not _internal.canManageStore(self.storeObj,self.player) then
         self.manageBtn:setVisible(false)
         if managed then blocked = true end
+    else
+        self.manageBtn:setVisible(true)
     end
     if not (self.storeObj) then
         self:populateComboList()
