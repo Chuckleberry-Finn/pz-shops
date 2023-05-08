@@ -214,18 +214,43 @@ function storeWindow:onStoreItemSelected()
 end
 
 
+
+function storeWindow:onAddStockListSelected(selected)
+    if not self:isBeingManaged() then return end
+    local label = self.addStockList.labels[selected]
+    print("selected: "..tostring(selected).."  label:"..tostring(label))
+    self.addStockEntry:setText(label)
+end
+
+function storeWindow:drawAddStockList(y, item, alt)
+    if not self.parent:isBeingManaged() then return end
+
+    local color = {r=1, g=1, b=1, a=0.9}
+
+    self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+    self:drawText(item.text, 4, y+2, color.r, color.g, color.b, color.a, self.font)
+
+    return y + self.itemheight
+end
+
+
 function storeWindow:addItemEntryChange()
     local s = storeWindow.instance
     if not s then return end
+
     local addStockEntry = s.addStockEntry
-    local matches, matchesToType = findMatchesFromItemDictionary(addStockEntry:getInternalText(), s.addStockSearchPartition:getOptionData(s.addStockSearchPartition.selected))
-    if matches then
-        local text
-        for _,type in pairs(matches) do text = (text or "")..type.."\n" end
-        if text then s.addStockEntry.tooltip = text return end
+    local addStockPart = s.addStockSearchPartition
+    local matches, matchesToType = findMatchesFromItemDictionary(addStockEntry:getInternalText(), addStockPart:getOptionData(addStockPart.selected))
+
+    s.addStockList:clear()
+    if not s:isBeingManaged() then return end
+    if not matchesToType then return end
+    for label,type in pairs(matchesToType) do
+        local listedItem = s.addStockList:addItem(label, type)
+        s.addStockList.labels[type] = label
     end
-    s.addStockEntry.tooltip = nil
 end
+
 
 
 function storeWindow:initialise()
@@ -322,6 +347,22 @@ function storeWindow:initialise()
     self.addStockSearchPartition:addOptionWithData(getText("IGUI_Name"), "name")
     self.addStockSearchPartition:addOptionWithData(getText("IGUI_invpanel_Type"), "type")
     self.addStockSearchPartition:addOptionWithData(getText("IGUI_invpanel_Category"), "category")
+
+    local addStockListY = self.addStockPrice.height+self.addStockPrice.y+5
+    local addStockListW = self.width-self.addStockBuyBackRate.width-self.addStockBuyBackRate.x+8
+    self.addStockList = ISScrollingListBox:new(self.addStockEntry.x, addStockListY, addStockListW, self.height-addStockListY-10)
+    self.addStockList:initialise()
+    self.addStockList:instantiate()
+    self.addStockList:setOnMouseDownFunction(self, self.onAddStockListSelected)
+    self.addStockList.itemheight = getTextManager():getFontHeight(UIFont.NewSmall)+4
+    self.addStockList.selected = 0
+    self.addStockList.labels = {}
+    self.addStockList.joypadParent = self
+    self.addStockList.font = UIFont.NewSmall
+    self.addStockList.doDrawItem = self.drawAddStockList
+    self.addStockList.onMouseUp = self.addStockListMouseUp
+    self.addStockList.drawBorder = true
+    self:addChild(self.addStockList)
 
     self.resell = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.addStockSearchPartition.y+self.addStockSearchPartition.height+2, 18, 18, "", self, nil)
     self.resell.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
@@ -1007,6 +1048,7 @@ function storeWindow:updateButtons()
     self.addStockSearchPartition.enable = false
     self.alwaysShow.enable = false
     self.resell.enable = false
+    self.addStockList.enable = false
 
     self.importText.enable = false
     self.importCancel.enable = false
@@ -1046,6 +1088,7 @@ function storeWindow:updateButtons()
             self.addStockSearchPartition.enable = true
             self.alwaysShow.enable = true
             self.resell.enable = true
+            self.addStockList.enable = true
         end
     end
 end
@@ -1129,13 +1172,13 @@ function storeWindow:render()
     self.addStockSearchPartition:setVisible(managed and not blocked)
     self.alwaysShow:setVisible(managed and not blocked)
     self.resell:setVisible(managed and not blocked)
+    self.addStockList:setVisible(managed and not blocked)
 
     self.manageStoreName:isEditable(not blocked)
     self.addStockEntry:isEditable(not blocked)
     self.addStockPrice:isEditable(not blocked)
     self.addStockQuantity:isEditable(not blocked and (self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)~="category"))
     self.addStockBuyBackRate:isEditable(not blocked)
-
     self.importText:isEditable(shouldSeeStorePresetOptions and self.importBtn.toggled)
 
     local totalForTransaction, invalidOrder = self:getOrderTotal()
