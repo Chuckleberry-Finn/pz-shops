@@ -940,7 +940,7 @@ function storeWindow:prerender()
 
 
 
-    local cartText = getText("IGUI_STORESTOCK")
+    local cartText = getText("IGUI_YOURCART")
     local cartTextX = (self.yourCartData.x+(self.yourCartData.width/2))-(getTextManager():MeasureStringX(font, cartText)/2)
     self:drawText(cartText, cartTextX, self.yourCartData.y-20, 1,1,1,1, font)
 
