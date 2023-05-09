@@ -252,6 +252,13 @@ function storeWindow:addItemEntryChange()
 end
 
 
+function storeWindow:setResellOrSell()
+    local resellOrSell = "IGUI_RESELL"
+    if self.storeObj and self.storeObj.ownerID then resellOrSell = "IGUI_SELL" end
+    self.resell.options[1] = getText(resellOrSell)
+    self.resell.tooltip = getText(resellOrSell.."_TOOLTIP")
+end
+
 
 function storeWindow:initialise()
     ISPanelJoypad.initialise(self)
@@ -366,11 +373,12 @@ function storeWindow:initialise()
 
     self.resell = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.addStockSearchPartition.y+self.addStockSearchPartition.height+2, 18, 18, "", self, nil)
     self.resell.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
-    self.resell.tooltip = getText("IGUI_IGUI_RESELL_TOOLTIP")
+    self.resell.tooltip = getText("IGUI_RESELL_TOOLTIP")
     self.resell:initialise()
     self.resell:instantiate()
     self.resell.selected[1] = SandboxVars.ShopsAndTraders.TradersResellItems
     self.resell:addOption(getText("IGUI_RESELL"))
+    self:setResellOrSell()
     self:addChild(self.resell)
 
     self.alwaysShow = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.resell.y+self.resell.height+2, 18, 18, "", self, nil)
@@ -1110,7 +1118,10 @@ function storeWindow:render()
     local worldObjModData
     if self.worldObject then
         worldObjModData = self.worldObject:getModData()
-        if worldObjModData and worldObjModData.storeObjID then self.storeObj = CLIENT_STORES[worldObjModData.storeObjID] end
+        if worldObjModData and worldObjModData.storeObjID and not self.storeObj then
+            self.storeObj = CLIENT_STORES[worldObjModData.storeObjID]
+            self:setResellOrSell()
+        end
         if self.storeObj and not worldObjModData.storeObjID then self.storeObj = nil end
     end
 
