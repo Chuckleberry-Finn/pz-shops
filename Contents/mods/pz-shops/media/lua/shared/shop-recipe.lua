@@ -52,10 +52,10 @@ function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
     if not worldObj then return false end
     if worldObj and worldObj:getModData().storeObjID then return false end
 
-    storeWindow:onBrowse(nil, worldObj)
-
     local x, y, z, worldObjName = worldObj:getX(), worldObj:getY(), worldObj:getZ(), _internal.getWorldObjectName(worldObj)
     sendClientCommand("shop", "assignStore", { x=x, y=y, z=z, worldObjName=worldObjName, owner=player:getUsername() })
+
+    storeWindow:onBrowse(nil, worldObj)
 
     if (not player) or player and not cont:isInCharacterInventory(player) then cont:removeItemOnServer(item) end
     cont:DoRemoveItem(item)
