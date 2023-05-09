@@ -322,7 +322,9 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
                     WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,0-costRemainder)
                 end
 
-                table.insert(itemsToTransmit,listing.item)
+                if not storeObj.ownerID then
+                    table.insert(itemsToTransmit,listing.item)
+                end
             end
         end
     end

@@ -1425,9 +1425,8 @@ function storeWindow:finalizeDeal()
                         end
                     end
                 end
-            else
-                table.insert(itemToPurchase, v.item)
             end
+            table.insert(itemToPurchase, v.item)
         else
             local itemType, _, _ = self:rtrnTypeIfValid(v.item)
             if itemType then
