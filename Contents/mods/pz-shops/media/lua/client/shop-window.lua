@@ -29,6 +29,9 @@ end
 function storeWindow:getAvailableStock(listing)
     if not self.storeObj or not listing then return end
     if self.storeObj.ownerID then
+
+        if listing.reselling==false then return 0 end
+
         local stock = self:getPlayerOwnedStock(listing.item)
         if stock then return stock:size() end
     end
@@ -533,6 +536,9 @@ end
 function storeWindow:rtrnTypeIfValid(item)
     local itemType
     local itemCat
+
+    local storeObj = self.storeObj
+
     if type(item) == "string" then
         local itemScript = getScriptManager():getItem(item)
         if itemScript then itemType = item end
@@ -549,13 +555,13 @@ function storeWindow:rtrnTypeIfValid(item)
 
         itemCat = item:getDisplayCategory()
 
-        local storeObj = self.storeObj
         if storeObj and itemType then
 
             local listing = storeObj.listings[itemType]
             if not listing and itemCat then listing = storeObj.listings["category:"..tostring(itemCat)] end
             if not listing then return false, "IGUI_NOTRADE_INVALIDTYPE" end
             if listing then
+
                 if listing.buybackRate > 0 then return itemType, false, itemCat
                 else return itemType, "IGUI_NOTRADE_ONLYSELL" end
             end
@@ -657,7 +663,10 @@ function storeWindow:drawStock(y, item, alt)
             local availableItem = (availableStock ~= 0)
             local itemReselling = (listing.stock ~= 0 or listing.reselling==true)
 
-            local showListing = itemReselling and availableItem and validItem
+            local ifNotSellingThenBuying = true
+            if storeObj.ownerID and listing.reselling==false and listing.buybackRate<=0 then ifNotSellingThenBuying = false end
+
+            local showListing = itemReselling and availableItem and validItem and ifNotSellingThenBuying
 
             if listing.alwaysShow==true then showListing = true end
             local managing = (self.parent:isBeingManaged() and _internal.canManageStore(storeObj,self.parent.player))
@@ -668,7 +677,10 @@ function storeWindow:drawStock(y, item, alt)
                     local inCart = 0
                     for _,v in pairs(self.parent.yourCartData.items) do if v.item == item.item then inCart = inCart+1 end end
                     local availableTemp = availableStock-inCart
-                    if availableTemp == 0 then color = {r=0.7, g=0.7, b=0.7, a=0.3} end
+
+                    if storeObj.ownerID and listing.reselling==false and listing.buybackRate>0 then availableTemp = 1 end
+
+                    if availableTemp <= 0 then color = {r=0.7, g=0.7, b=0.7, a=0.3} end
                 end
 
                 local extra = ""
@@ -710,9 +722,6 @@ function storeWindow:displayStoreStock()
 
         local isCategoryListingAndIsValid = (string.match(listing.item, "category:") and isValidItemDictionaryCategory(listing.item:gsub("category:","")))
 
-        local price = _internal.numToCurrency(listing.price)
-        if listing.price <= 0 then price = getText("IGUI_FREE") end
-
         local inCart = 0
         for _,v in pairs(self.yourCartData.items) do if v.item == listing.item then inCart = inCart+1 end end
 
@@ -722,6 +731,18 @@ function storeWindow:displayStoreStock()
 
         local stockText = " ("..availableTemp.."/"..math.max(availableStock, listing.stock)..")"
         if listing.stock == -1 or string.match(listing.item, "category:") then stockText = "" end
+
+        local price = listing.price
+        if storeObj.ownerID and listing.reselling==false and listing.buybackRate>0 then
+            price = price * (listing.buybackRate/100)
+            stockText = " \[BUYING\]"
+        end
+
+        if listing.price <= 0 then
+            price = getText("IGUI_FREE")
+        else
+            price = _internal.numToCurrency(price)
+        end
 
         if string.match(itemDisplayName, "category:") then
             itemDisplayName = itemDisplayName:gsub("category:","")
@@ -1390,16 +1411,17 @@ function storeWindow:finalizeDeal()
     local purchaseTotal = self:getPurchaseTotal()
     local moneyItemValueUsed = 0
 
+    local worldObjectCont = self.worldObject and self.worldObject:getContainer()
+
     for i,v in ipairs(self.yourCartData.items) do
         if type(v.item) == "string" then
             if self.storeObj.ownerID then
                 local storeStock = self:getPlayerOwnedStock(v.item)
                 if storeStock then
-                    local item = storeStock:get(0)
-                    if item then
-                        local itemCont = item:getContainer()
-                        if itemCont then
-                            ISTimedActionQueue.add(ISInventoryTransferAction:new(self.player, item, itemCont, self.player:getInventory(), 0))
+                    for stock=0, storeStock:size()-1 do
+                        local item = storeStock:get(stock)
+                        if item then
+                            ISTimedActionQueue.add(ISInventoryTransferAction:new(self.player, item, worldObjectCont, self.player:getInventory(), 0))
                         end
                     end
                 end
@@ -1435,7 +1457,6 @@ function storeWindow:finalizeDeal()
                 if removeItem then
 
                     if (not isMoney) and self.storeObj.ownerID then
-                        local worldObjectCont = self.worldObject and self.worldObject:getContainer()
                         if worldObjectCont then
                             ISTimedActionQueue.add(ISInventoryTransferAction:new(self.player, v.item, self.player:getInventory(), worldObjectCont, 0))
                         end
