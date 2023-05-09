@@ -40,6 +40,7 @@ IGUI_EN = {
     IGUI_PLACEINWALLET = "Place in Wallet",
 
     IGUI_NOTRADE_INVALIDTYPE = "I don't buy these.",
+    IGUI_NOTRADE_NOSELL = "I don't sell these.",
     IGUI_NOTRADE_ONLYSELL = "I only sell these.",
     IGUI_NOTRADE_DAMAGED = "This is too damaged.",
     IGUI_NOTRADE_OUTSIDEINV = "You have to be holding it.",
