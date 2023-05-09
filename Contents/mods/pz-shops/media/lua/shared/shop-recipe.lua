@@ -29,24 +29,13 @@ Events.OnGameBoot.Add(recipeOverride)
 ---@param item InventoryItem
 function shopsAndTradersRecipe.checkDeedValid(recipe, playerObj, item) --onCanPerform
     if not item then return false end
-    print("checkDeedValid: item:"..tostring(item))
 
     local cont = item:getContainer()
-    if not cont then
-        print("not cont")
-        return false
-    end
+    if not cont then return false end
 
     local worldObj = cont and (not cont:isInCharacterInventory(playerObj)) and cont:getParent()
-    if not worldObj then
-        print("not worldObj")
-        return false
-    end
-    if worldObj and worldObj:getModData().storeObjID then
-        print("storeObjID present")
-        return false
-    end
-
+    if not worldObj then return false end
+    if worldObj and worldObj:getModData().storeObjID then return false end
 
     return true
 end
