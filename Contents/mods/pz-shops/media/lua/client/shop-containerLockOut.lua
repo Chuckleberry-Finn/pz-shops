@@ -23,11 +23,13 @@ function containerLockOut.canInteract(worldObject,player)
 end
 
 
+
+
 ---Prevents transfer from or to a locked container
 local ISInventoryTransferAction_isValid = ISInventoryTransferAction.isValid
 function ISInventoryTransferAction:isValid()
     if self.destContainer and self.srcContainer then
-        if containerLockOut.canInteract(self.destContainer:getParent(),self.character) and containerLockOut.canInteract(self.srcContainer:getParent(),self.character) then
+        if self.shopTransaction or (containerLockOut.canInteract(self.destContainer:getParent(),self.character) and containerLockOut.canInteract(self.srcContainer:getParent(),self.character)) then
             return ISInventoryTransferAction_isValid(self)
         end
     end
