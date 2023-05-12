@@ -229,7 +229,7 @@ function storeWindow:onAddStockListSelected(selected)
 end
 
 function storeWindow:drawAddStockList(y, item, alt)
-    if not self.parent:isBeingManaged() then return end
+    if not self.parent:isBeingManaged() then return y end
 
     local color = {r=1, g=1, b=1, a=0.9}
 
