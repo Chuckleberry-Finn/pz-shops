@@ -1154,27 +1154,25 @@ function storeWindow:render()
 
     self:displayStoreStock()
 
-    local managed = false
-    if self:isBeingManaged() then
-        managed = true
-        self.manageBtn.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
-        self.manageBtn.borderColor = { r = 1, g = 0, b = 0, a = 0.7 }
-        self.storeStockData.borderColor = { r = 1, g = 0, b = 0, a = 0.7 }
-    else
-        self.manageBtn.textColor = { r = 1, g = 1, b = 1, a = 0.4 }
-        self.manageBtn.borderColor = { r = 1, g = 1, b = 1, a = 0.4 }
-        self.storeStockData.borderColor = { r = 0.4, g = 0.4, b = 0.4, a = 0.9}
-    end
-
+    local managed = self:isBeingManaged()
+    local canManage = _internal.canManageStore(self.storeObj,self.player)
     local blocked = false
 
-    if _internal.canManageStore(self.storeObj,self.player) then
-        self.manageBtn:setVisible(true)
-    else
-        blocked = true
-    end
+    self.manageBtn:setVisible(canManage)
 
-    self.manageBtn:setVisible(_internal.canManageStore(self.storeObj,self.player))
+    if canManage then
+        if managed then
+            self.manageBtn.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
+            self.manageBtn.borderColor = { r = 1, g = 0, b = 0, a = 0.7 }
+            self.storeStockData.borderColor = { r = 1, g = 0, b = 0, a = 0.7 }
+        else
+            self.manageBtn.textColor = { r = 1, g = 1, b = 1, a = 0.4 }
+            self.manageBtn.borderColor = { r = 1, g = 1, b = 1, a = 0.4 }
+            self.storeStockData.borderColor = { r = 0.4, g = 0.4, b = 0.4, a = 0.9}
+        end
+    else
+        if managed then blocked = true end
+    end
 
     if (not self.storeObj) then
         self.manageBtn:setVisible(false)
