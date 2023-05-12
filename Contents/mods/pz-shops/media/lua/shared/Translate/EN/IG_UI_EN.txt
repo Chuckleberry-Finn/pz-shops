@@ -39,6 +39,8 @@ IGUI_EN = {
     IGUI_WALLET = "Wallet",
     IGUI_PLACEINWALLET = "Place in Wallet",
 
+    IGUI_CantDisassembleStore = "You can't disassemble stores.",
+
     IGUI_NOTRADE_INVALIDTYPE = "I don't buy these.",
     IGUI_NOTRADE_NOSELL = "I don't sell these.",
     IGUI_NOTRADE_ONLYSELL = "I only sell these.",
