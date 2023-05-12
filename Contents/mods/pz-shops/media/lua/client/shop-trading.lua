@@ -1,5 +1,7 @@
 require "ISUI/ISTradingUI"
 require "shop-window"
+local _internal = require "shop-shared"
+
 
 local ISTradingUI_initialise = ISTradingUI.initialise
 function ISTradingUI:initialise()
