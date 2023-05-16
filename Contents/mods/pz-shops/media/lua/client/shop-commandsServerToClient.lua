@@ -25,7 +25,7 @@ local function onServerCommand(_module, _command, _data)
         local moneyTypes = _internal.getMoneyTypes()
         local type = moneyTypes[ZombRand(#moneyTypes)+1]
         local money = InventoryItemFactory.CreateItem(type)
-        generateMoneyValue(money, _data.value)
+        generateMoneyValue(money, _data.value, true)
         getPlayer():getInventory():AddItem(money)
     end
 

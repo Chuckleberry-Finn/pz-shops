@@ -50,7 +50,7 @@ function WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,amount)
                 local moneyTypes = _internal.getMoneyTypes()
                 local type = moneyTypes[ZombRand(#moneyTypes)+1]
                 local money = InventoryItemFactory.CreateItem(type)
-                _internal.generateMoneyValue_clientWorkAround(money, amount)
+                _internal.generateMoneyValue_clientWorkAround(money, amount, true)
                 playerObj:getInventory():AddItem(money)
             end
         end
