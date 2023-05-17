@@ -39,7 +39,9 @@ end
 
 function WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,amount)
     if SandboxVars.ShopsAndTraders.PlayerWallets then
-        playerWallet.amount = _internal.floorCurrency(playerWallet.amount+amount)
+        local newValue = math.max(0, playerWallet.amount+amount)
+        playerWallet.amount = _internal.floorCurrency(newValue)
+        
     else
         if amount>0 then
             amount = _internal.floorCurrency(amount)
