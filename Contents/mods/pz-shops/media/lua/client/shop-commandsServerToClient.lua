@@ -3,6 +3,7 @@ local _internal = require "shop-shared"
 LuaEventManager.AddEvent("SHOPPING_ClientModDataReady")
 
 local function onClientModDataReady()
+    if getDebug() then print("DATA RECEIVED") end
     if not isClient() then
         _internal.copyAgainst(GLOBAL_STORES, CLIENT_STORES)
         _internal.copyAgainst(GLOBAL_WALLETS, CLIENT_WALLETS)
@@ -18,7 +19,10 @@ local function onServerCommand(_module, _command, _data)
     if _module ~= "shop" then return end
     _data = _data or {}
 
-    if _command == "severModData_received" then onClientModDataReady() end
+    if _command == "severModData_received" then
+        if getDebug() then print("SERVER SHOULD BE SENDING DATA") end
+        onClientModDataReady()
+    end
     if _command == "transmitItems" then for _,itemType in pairs(_data.items) do getPlayer():getInventory():AddItem(itemType) end end
 
     if _command == "sendMoneyItem" then
