@@ -166,19 +166,36 @@ end
 function storeWindow:setStockInput(listing)
     if not self:isBeingManaged() then return end
 
-    local SM = getScriptManager()
-    local script = SM:getItem(listing.item)
-    if not script then return end
     local option = self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)
     local text
 
-    if option == "category" then
-        text = script:getDisplayCategory()
-    elseif option == "name" then
-        text = script:getDisplayName()
-    elseif option == "type" then
-        text = script:getFullName()
+    local SM = getScriptManager()
+    local script = SM:getItem(listing.item)
+    if script then
+
+        if self.tempStockSearchPartitionData then
+            self.addStockSearchPartition:selectData(self.tempStockSearchPartitionData)
+            option = self.tempStockSearchPartitionData
+            self.tempStockSearchPartitionData = nil
+        end
+
+        if option == "category" then
+            text = script:getDisplayCategory()
+        elseif option == "name" then
+            text = script:getDisplayName()
+        elseif option == "type" then
+            text = script:getFullName()
+        end
+    else
+        local categoryFound = listing.item:gsub("category:","")
+        if categoryFound and isValidItemDictionaryCategory(categoryFound) then
+            text = categoryFound
+            self.tempStockSearchPartitionData = option
+            self.addStockSearchPartition:selectData("category")
+        end
     end
+
+    if not text then return end
 
     self.addStockEntry:setText(text)
     self.addStockPrice:setText(tostring(listing.price))
@@ -242,6 +259,8 @@ end
 function storeWindow:addItemEntryChange()
     local s = storeWindow.instance
     if not s then return end
+
+    s.tempStockSearchPartitionData = nil
 
     local addStockEntry = s.addStockEntry
     local addStockPart = s.addStockSearchPartition
