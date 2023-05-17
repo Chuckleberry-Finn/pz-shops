@@ -224,7 +224,6 @@ end
 function storeWindow:onAddStockListSelected(selected)
     if not self:isBeingManaged() then return end
     local label = self.addStockList.labels[selected]
-    print("selected: "..tostring(selected).."  label:"..tostring(label))
     self.addStockEntry:setText(label)
 end
 
