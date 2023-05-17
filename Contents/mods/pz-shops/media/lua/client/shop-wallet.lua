@@ -67,8 +67,6 @@ local valuedMoney = {}
 function generateMoneyValue(item, value, force)
     if item ~= nil and _internal.isMoneyType(item:getFullType()) and (not valuedMoney[item] or force) then
 
-
-
         if (not item:getModData().value) or force then
 
             local min = (SandboxVars.ShopsAndTraders.MoneySpawnMin or 1.5)*100

@@ -58,8 +58,6 @@ local function onClientCommand(_module, _command, _player, _data)
         else
             print("ERR: walletB not found for exchange.")
         end
-        
-        triggerEvent("SHOPPING_ServerModDataReady")
     end
 
     if _command == "changeTransferOffer" then
