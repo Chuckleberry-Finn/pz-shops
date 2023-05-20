@@ -1,5 +1,6 @@
 require "ISUI/ISInventoryPane"
 require "ISUI/ISInventoryPage"
+require "shop-window"
 local _internal = require "shop-shared"
 
 local containerLockOut = {}
@@ -115,6 +116,23 @@ function ISInventoryPage:update()
 end
 
 
+local function shopStore(container)
+    local object = container:getParent()
+    if object:getModData().storeObjID then
+        local storeObj = CLIENT_STORES[object:getModData().storeObjID]
+        if not storeObj then
+            object:getModData().storeObjID = nil
+            object:transmitModData()
+            return
+        end
+        storeWindow:onBrowse(storeObj, object)
+    end
+end
+
+function ISInventoryPage:onShopClick(button) shopStore(button.inventory) end
+function ISInventoryPage:onShopRightMouseDown(x, y) shopStore(self.inventory) end
+
+
 ---Places the lock texture over the button and prevents it from working
 local function hideButtons(UI, STEP)
     if STEP == "end" and (not UI.onCharacter) then
@@ -123,12 +141,12 @@ local function hideButtons(UI, STEP)
             if worldObj then
                 local canView = containerLockOut.canInteract(worldObj,getSpecificPlayer(UI.player))
                 if containerButton then
-                    if worldObj:getModData().storeObjID then containerButton.textureOverride = getTexture("media/ui/lock.png") end
+                    if worldObj:getModData().storeObjID then containerButton.textureOverride = getTexture("media/textures/shopicon.png") end
+
+                    containerButton.onclick = ISInventoryPage.onShopClick
+                    containerButton.onRightMouseDown = ISInventoryPage.onShopRightMouseDown
+                    
                     if not canView then
-                        containerButton.onclick = nil
-                        containerButton.onmousedown = nil
-                        containerButton.onMouseUp = nil
-                        containerButton.onRightMouseDown = nil
                         containerButton:setOnMouseOverFunction(nil)
                         containerButton:setOnMouseOutFunction(nil)
                     end
