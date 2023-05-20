@@ -1160,7 +1160,7 @@ function storeWindow:render()
     local worldObjModData
     if self.worldObject then
         worldObjModData = self.worldObject:getModData()
-        if worldObjModData and worldObjModData.storeObjID and not self.storeObj then
+        if worldObjModData and worldObjModData.storeObjID then
             self.storeObj = CLIENT_STORES[worldObjModData.storeObjID]
             self:setResellOrSell()
         end
