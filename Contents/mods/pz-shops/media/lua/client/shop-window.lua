@@ -1527,8 +1527,6 @@ function storeWindow:onBrowse(storeObj, worldObj)
         storeWindow.instance:removeFromUIManager()
     end
 
-    triggerEvent("SHOPPING_ClientModDataReady")
-
     getOrSetWalletID(getPlayer())
 
     local ui = storeWindow:new(50,50,555,555, getPlayer(), storeObj, worldObj)
