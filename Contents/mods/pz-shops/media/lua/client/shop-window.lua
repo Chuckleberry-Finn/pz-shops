@@ -1457,12 +1457,14 @@ function storeWindow:finalizeDeal()
 
     local worldObjectCont = self.worldObject and self.worldObject:getContainer()
 
+    local counts = {}
     for i,v in ipairs(self.yourCartData.items) do
         if type(v.item) == "string" then
             if self.storeObj.ownerID then
                 local storeStock = self:getItemTypesInStoreContainer(v.item)
                 if storeStock then
-                    local item = storeStock:get(0)
+                    counts[v.item] = (counts[v.item] or -1) + 1
+                    local item = storeStock:get(counts[v.item])
                     if item then
                         local action = ISInventoryTransferAction:new(self.player, item, worldObjectCont, self.player:getInventory(), 0)
                         action.shopTransaction=true
