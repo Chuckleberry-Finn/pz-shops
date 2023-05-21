@@ -1462,13 +1462,11 @@ function storeWindow:finalizeDeal()
             if self.storeObj.ownerID then
                 local storeStock = self:getItemTypesInStoreContainer(v.item)
                 if storeStock then
-                    for stock=0, storeStock:size()-1 do
-                        local item = storeStock:get(stock)
-                        if item then
-                            local action = ISInventoryTransferAction:new(self.player, item, worldObjectCont, self.player:getInventory(), 0)
-                            action.shopTransaction=true
-                            ISTimedActionQueue.add(action)
-                        end
+                    local item = storeStock:get(1)
+                    if item then
+                        local action = ISInventoryTransferAction:new(self.player, item, worldObjectCont, self.player:getInventory(), 0)
+                        action.shopTransaction=true
+                        ISTimedActionQueue.add(action)
                     end
                 end
             end
