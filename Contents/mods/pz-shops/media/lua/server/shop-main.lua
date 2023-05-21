@@ -140,6 +140,7 @@ store.isBeingManaged = false
 store.restockHrs = 48
 store.nextRestock = 48
 store.ownerID = nil
+store.managerIDs = {}
 
 function STORE_HANDLER.new(copyThisID)
     local original = store

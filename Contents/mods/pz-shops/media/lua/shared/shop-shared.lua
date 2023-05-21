@@ -74,6 +74,7 @@ function _internal.canManageStore(storeObj,player)
     local shopOwnerID = storeObj.ownerID
     local playerUsername = player:getUsername()
     if playerUsername and shopOwnerID and playerUsername==shopOwnerID then return true end
+    if storeObj.managerIDs and storeObj.managerIDs[playerUsername] then return true end
     return false
 end
 

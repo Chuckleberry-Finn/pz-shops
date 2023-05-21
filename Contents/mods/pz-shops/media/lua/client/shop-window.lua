@@ -544,6 +544,7 @@ function storeWindow:isOwner(player)
     local shopOwnerID = self.storeObj.ownerID
     local playerUsername = player:getUsername()
     if playerUsername and shopOwnerID and playerUsername==shopOwnerID then return true end
+    if self.storeObj.managerIDs and self.storeObj.managerIDs[playerUsername] then return true end
     return false
 end
 
