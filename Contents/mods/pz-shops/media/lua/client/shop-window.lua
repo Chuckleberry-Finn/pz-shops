@@ -39,6 +39,30 @@ function storeWindow:getAvailableStock(listing)
 end
 
 
+function storeWindow:getAvailableStoreFunds(listing)
+    if not self.storeObj or not listing then return end
+    if self.storeObj.ownerID then
+
+        if SandboxVars.ShopsAndTraders.ShopsUseCash and SandboxVars.ShopsAndTraders.ShopsUseCash >=2 then return false end
+
+        local moneyTypes = _internal.getMoneyTypes()
+        local monies, value = {}, 0
+        for _,moneyType in pairs(moneyTypes) do
+            local moniesOfType = self:getItemTypesInStoreContainer(moneyType)
+            for i=0,moniesOfType:size()-1 do
+                local money = moniesOfType:get(i)
+                if money then
+                    table.insert(monies, money)
+                    value = value + money:getModData().value
+                end
+            end
+        end
+        return monies, value
+    end
+    return false
+end
+
+
 function storeWindow:onCartItemSelected()
     local row = self.yourCartData:rowAt(self.yourCartData:getMouseX(), self.yourCartData:getMouseY())
     if row ~= self.yourCartData.selected then return end
