@@ -13,7 +13,7 @@ storeWindow.CoolDownMessage = 300
 storeWindow.MaxItems = 20
 
 
-function storeWindow:getPlayerOwnedStock(itemType)
+function storeWindow:getItemTypesInStoreContainer(itemType)
     ---@type IsoObject
     local worldObject = self.worldObject
     if not worldObject then return end
@@ -32,7 +32,7 @@ function storeWindow:getAvailableStock(listing)
 
         if listing.reselling==false then return 0 end
 
-        local stock = self:getPlayerOwnedStock(listing.item)
+        local stock = self:getItemTypesInStoreContainer(listing.item)
         if stock then return stock:size() end
     end
     return listing.available
@@ -1436,7 +1436,7 @@ function storeWindow:finalizeDeal()
     for i,v in ipairs(self.yourCartData.items) do
         if type(v.item) == "string" then
             if self.storeObj.ownerID then
-                local storeStock = self:getPlayerOwnedStock(v.item)
+                local storeStock = self:getItemTypesInStoreContainer(v.item)
                 if storeStock then
                     for stock=0, storeStock:size()-1 do
                         local item = storeStock:get(stock)
