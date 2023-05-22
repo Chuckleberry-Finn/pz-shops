@@ -39,24 +39,26 @@ function storeWindow:getAvailableStock(listing)
 end
 
 
-function storeWindow:getAvailableStoreFunds(listing)
-    if not self.storeObj or not listing then return end
+function storeWindow:getAvailableStoreFunds()
+    if not self.storeObj then return end
     if self.storeObj.ownerID then
 
-        if SandboxVars.ShopsAndTraders.ShopsUseCash and SandboxVars.ShopsAndTraders.ShopsUseCash >=2 then return false end
-
         local moneyTypes = _internal.getMoneyTypes()
-        local monies, value = {}, 0
-        for _,moneyType in pairs(moneyTypes) do
-            local moniesOfType = self:getItemTypesInStoreContainer(moneyType)
-            for i=0,moniesOfType:size()-1 do
-                local money = moniesOfType:get(i)
-                if money then
-                    table.insert(monies, money)
-                    value = value + money:getModData().value
+        local monies, value = {}, self.storeObj.cash
+
+        if SandboxVars.ShopsAndTraders.ShopsUseCash<=2 then
+            for _,moneyType in pairs(moneyTypes) do
+                local moniesOfType = self:getItemTypesInStoreContainer(moneyType)
+                for i=0,moniesOfType:size()-1 do
+                    local money = moniesOfType:get(i)
+                    if money then
+                        table.insert(monies, money)
+                        value = value + money:getModData().value
+                    end
                 end
             end
         end
+
         return monies, value
     end
     return false
@@ -308,6 +310,30 @@ function storeWindow:setResellOrSell()
 end
 
 
+function storeWindow:onChangeStoreCash()
+    local value = tonumber(self:getText()) or 0
+    local playerObj = self.parent.player
+
+    if not self.parent.storeObj then return end
+    if not self.parent.storeObj.ownerID then return end
+
+    local playerModData = playerObj:getModData()
+    if not playerModData then print("WARN: Player without modData.") return end
+    if not playerModData.wallet_UUID then print("- No Player wallet_UUID.") return end
+
+    local wallet, walletBalance = getWallet(playerObj), 0
+    if wallet then walletBalance = wallet.amount end
+
+    local cashInStore = self.parent.storeObj.cash
+
+    value = math.min()
+
+    sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=(0-transferAmount)})
+
+    print("value:"..value)
+end
+
+
 function storeWindow:initialise()
     ISPanelJoypad.initialise(self)
     local btnWid = 100
@@ -453,12 +479,22 @@ function storeWindow:initialise()
 
     local restockHours = ""
     if self.storeObj then restockHours = tostring(self.storeObj.restockHrs) end
+
     self.restockHours = ISTextEntryBox:new(restockHours, self.width-50, 70-btnHgt, 40, self.addStockBtn.height)
     self.restockHours.font = UIFont.Medium
     self.restockHours.borderColor = { r = 1, g = 0, b = 0, a = 0.7 }
     self.restockHours:initialise()
     self.restockHours:instantiate()
     self:addChild(self.restockHours)
+
+    if self.storeObj.ownerID then
+        self.restockHours:setX(self.width-75)
+        self.restockHours:setWidth(65)
+        local cash = tostring(self.storeObj.cash)
+        self.restockHours:setText(cash)
+        self.restockHours.tooltip = getText("IGUI_STORECASHINPUTTOOLTIP")
+        self.restockHours.onCommandEntered = self.onChangeStoreCash
+    end
 
     self.clearStore = ISButton:new(self.manageBtn.x+self.manageBtn.width+4, self.manageBtn.y, 10, 20, "X", self, storeWindow.onClick)
     self.clearStore.internal = "CLEAR_STORE"
@@ -1034,6 +1070,15 @@ function storeWindow:prerender()
         self:validateElementColor(self.addStockBuyBackRate)
         color = self.addStockBuyBackRate.textColor
         self:drawText(getText("IGUI_RATE"), self.addStockBuyBackRate.x-14, self.addStockBuyBackRate.y, color.r,color.g,color.b,color.a, font)
+
+        if self.storeObj then
+            local ownerID = self.storeObj.ownerID
+            if ownerID then
+                local prefix, suffix = getText("IGUI_CURRENCY_PREFIX"), getText("IGUI_CURRENCY_SUFFIX")
+                self:drawTextRight(prefix, self.restockHours.x-6, self.restockHours.y, 0.9,0.2,0.2,0.9, UIFont.Medium)
+            end
+        end
+
     else
 
         local storeName = "No Name Set"
@@ -1042,18 +1087,18 @@ function storeWindow:prerender()
         self:drawText(storeName, (self.width/2)-lengthStoreName, topPadding-2, 1,1,1,1, UIFont.Medium)
 
         if self.storeObj then
-            local restockingIn = tostring(self.storeObj.nextRestock)
-            if restockingIn then self:drawTextRight(getText("IGUI_RESTOCK_HR", restockingIn), self.width-10, topPadding, 0.9,0.9,0.9,0.8, font) end
 
             local ownerID = self.storeObj.ownerID
             if ownerID then
                 local textOwnerID = getText("IGUI_ownedBy", ownerID)
                 local lengthOwnerID = (getTextManager():MeasureStringX(font, textOwnerID)/2)
                 self:drawText(textOwnerID, (self.width/2)-lengthOwnerID, topPadding+fontHeight+2, 0.9,0.9,0.9,0.8, font)
+            else
+                local restockingIn = tostring(self.storeObj.nextRestock)
+                if restockingIn then self:drawTextRight(getText("IGUI_RESTOCK_HR", restockingIn), self.width-10, topPadding, 0.9,0.9,0.9,0.8, font) end
             end
         end
     end
-
 
 
     local cartText = getText("IGUI_YOURCART")

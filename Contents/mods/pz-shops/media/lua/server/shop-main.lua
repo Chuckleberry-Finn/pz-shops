@@ -141,6 +141,7 @@ store.restockHrs = 48
 store.nextRestock = 48
 store.ownerID = nil
 store.managerIDs = {}
+store.cash = 0
 
 function STORE_HANDLER.new(copyThisID)
     local original = store
