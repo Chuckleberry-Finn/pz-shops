@@ -27,10 +27,28 @@ local function onClientCommand(_module, _command, _player, _data)
     end
 
     if _command == "transferFunds" then
-        local playerWalletID, amount, playerWallet = _data.playerWalletID, _data.amount
+        local playerWalletID, amount, toStoreID = _data.playerWalletID, _data.amount, _data.toStoreID
+
+        print("toStoreID:", toStoreID)
+        if toStoreID then
+            print("STORE OBJECT ID")
+            local storeObj = STORE_HANDLER.getStoreByID(toStoreID)
+            if storeObj then
+                print("STORE OBJECT")
+                local newValue = math.max(0, (storeObj.cash or 0)+amount)
+                storeObj.cash = _internal.floorCurrency(newValue)
+            end
+        end
+
+        local playerWallet
         if playerWalletID then playerWallet = WALLET_HANDLER.getOrSetPlayerWallet(playerWalletID) end
-        if playerWallet and amount then WALLET_HANDLER.validateMoneyOrWallet(playerWallet,_player,amount) end
+        if playerWallet and amount then
+            WALLET_HANDLER.validateMoneyOrWallet(playerWallet,_player,amount)
+        else
+            triggerEvent("SHOPPING_ServerModDataReady")
+        end
     end
+
 
     if _command == "exchangeFunds" then
 

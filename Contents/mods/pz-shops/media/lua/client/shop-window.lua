@@ -39,32 +39,6 @@ function storeWindow:getAvailableStock(listing)
 end
 
 
-function storeWindow:getAvailableStoreFunds()
-    if not self.storeObj then return end
-    if self.storeObj.ownerID then
-
-        local moneyTypes = _internal.getMoneyTypes()
-        local monies, value = {}, self.storeObj.cash
-
-        if SandboxVars.ShopsAndTraders.ShopsUseCash<=2 then
-            for _,moneyType in pairs(moneyTypes) do
-                local moniesOfType = self:getItemTypesInStoreContainer(moneyType)
-                for i=0,moniesOfType:size()-1 do
-                    local money = moniesOfType:get(i)
-                    if money then
-                        table.insert(monies, money)
-                        value = value + money:getModData().value
-                    end
-                end
-            end
-        end
-
-        return monies, value
-    end
-    return false
-end
-
-
 function storeWindow:onCartItemSelected()
     local row = self.yourCartData:rowAt(self.yourCartData:getMouseX(), self.yourCartData:getMouseY())
     if row ~= self.yourCartData.selected then return end
@@ -310,6 +284,32 @@ function storeWindow:setResellOrSell()
 end
 
 
+function storeWindow:getAvailableStoreFunds()
+    if not self.storeObj then return end
+    if self.storeObj.ownerID then
+
+        local moneyTypes = _internal.getMoneyTypes()
+        local monies, value = {}, self.storeObj.cash
+
+        if SandboxVars.ShopsAndTraders.ShopsUseCash<=2 then
+            for _,moneyType in pairs(moneyTypes) do
+                local moniesOfType = self:getItemTypesInStoreContainer(moneyType)
+                for i=0,moniesOfType:size()-1 do
+                    local money = moniesOfType:get(i)
+                    if money then
+                        table.insert(monies, money)
+                        value = value + money:getModData().value
+                    end
+                end
+            end
+        end
+
+        return monies, value
+    end
+    return false
+end
+
+
 function storeWindow:onChangeStoreCash()
     local value = tonumber(self:getText()) or 0
     local playerObj = self.parent.player
@@ -324,11 +324,13 @@ function storeWindow:onChangeStoreCash()
     local wallet, walletBalance = getWallet(playerObj), 0
     if wallet then walletBalance = wallet.amount end
 
-    local cashInStore = self.parent.storeObj.cash
+    local cashInStore = self.parent.storeObj.cash or 0
 
-    value = math.min()
+    value = math.max(0,math.min(cashInStore+walletBalance, value))
 
-    sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=(0-transferAmount)})
+    sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=(0-value), toStoreID=self.parent.storeObj.ID})
+
+    self:setText(tostring(value))
 
     print("value:"..value)
 end
