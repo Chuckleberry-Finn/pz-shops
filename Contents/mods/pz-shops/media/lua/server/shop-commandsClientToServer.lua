@@ -29,13 +29,10 @@ local function onClientCommand(_module, _command, _player, _data)
     if _command == "transferFunds" then
         local playerWalletID, amount, toStoreID = _data.playerWalletID, _data.amount, _data.toStoreID
 
-        print("toStoreID:", toStoreID)
         if toStoreID then
-            print("STORE OBJECT ID")
             local storeObj = STORE_HANDLER.getStoreByID(toStoreID)
             if storeObj then
-                print("STORE OBJECT")
-                local newValue = math.max(0, (storeObj.cash or 0)+amount)
+                local newValue = math.max(0, (storeObj.cash or 0)-amount)
                 storeObj.cash = _internal.floorCurrency(newValue)
             end
         end

@@ -327,12 +327,9 @@ function storeWindow:onChangeStoreCash()
     local cashInStore = self.parent.storeObj.cash or 0
 
     value = math.max(0,math.min(cashInStore+walletBalance, value))
-
-    sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=(0-value), toStoreID=self.parent.storeObj.ID})
-
     self:setText(tostring(value))
-
-    print("value:"..value)
+    value = (cashInStore-value)
+    sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=value, toStoreID=self.parent.storeObj.ID})
 end
 
 
