@@ -1501,6 +1501,8 @@ function storeWindow:finalizeDeal()
 
     local worldObjectCont = self.worldObject and self.worldObject:getContainer()
 
+    local funds = self:getAvailableStoreFunds()
+
     local counts = {}
     for i,v in ipairs(self.yourCartData.items) do
         if type(v.item) == "string" then
