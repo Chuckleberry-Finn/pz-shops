@@ -644,7 +644,15 @@ function storeWindow:rtrnTypeIfValid(item)
             if listing then
 
                 if listing.buybackRate > 0 then return itemType, false, itemCat
-                else return itemType, "IGUI_NOTRADE_ONLYSELL" end
+                else
+                    print("CHECK IF itemType IS APPROPRIATE HERE.")
+                    return itemType, "IGUI_NOTRADE_ONLYSELL"
+                end
+
+                if storeObj.OwnerID then
+                    local funds = self:getAvailableStoreFunds()
+                    if listing.price > funds then return false, "IGUI_NOTRADE_NOFUNDS" end
+                end
             end
         end
     end

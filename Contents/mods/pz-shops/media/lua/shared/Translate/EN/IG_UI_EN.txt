@@ -49,6 +49,7 @@ IGUI_EN = {
     IGUI_NOTRADE_DAMAGED = "This is too damaged.",
     IGUI_NOTRADE_OUTSIDEINV = "You have to be holding it.",
     IGUI_NOTRADE_NOCASH = "I don't deal with cash.",
+    IGUI_NOTRADE_NOFUNDS = "I don't have the funds to buy this.",
 
     IGUI_IMPORT = "Import",
     IGUI_EXPORT = "Export",
