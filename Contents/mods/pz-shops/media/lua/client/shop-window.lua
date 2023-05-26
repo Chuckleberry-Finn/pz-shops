@@ -290,7 +290,7 @@ function storeWindow:getAvailableStoreFunds()
 
         local moneyTypes = _internal.getMoneyTypes()
         local monies, value = nil, self.storeObj.cash
-
+--[[
         if SandboxVars.ShopsAndTraders.ShopsUseCash<=2 then
             for _,moneyType in pairs(moneyTypes) do
                 local moniesOfType = self:getItemTypesInStoreContainer(moneyType)
@@ -304,7 +304,7 @@ function storeWindow:getAvailableStoreFunds()
                 end
             end
         end
-
+--]]
         return monies, value
     end
     return false
@@ -1061,10 +1061,10 @@ function storeWindow:displayOrderTotal()
         if walletBalanceAfter < 0 then sign = "-" end
         local wbaText = sign.._internal.numToCurrency(math.abs(walletBalanceAfter))
         local wbaRGB = balanceColor.normal2
-        
-        if self.storeObj and self.storeObj.ownerID then
+
+        if totalForTransaction<0 and self.storeObj and self.storeObj.ownerID then
             local storeCash = (self.storeObj.cash or 0)
-            if storeCash < totalForTransaction then
+            if storeCash < math.abs(totalForTransaction) then
                 wbaText = getText("IGUI_NOTRADE_NOFUNDS")
                 wbaRGB = balanceColor.red
             end
@@ -1344,10 +1344,11 @@ function storeWindow:render()
 
     local credit = wallet and wallet.credit and wallet.credit[self.storeObj.ID]
     local validIfCredit = self.storeObj and credit and ((credit-totalForTransaction) >= 0)
-    if validIfCredit and totalForTransaction >= 0 then totalForTransaction = totalForTransaction-wallet.credit[self.storeObj.ID] end
+    if validIfCredit and totalForTransaction > 0 then totalForTransaction = totalForTransaction-wallet.credit[self.storeObj.ID] end
 
     if self.storeObj and self.storeObj.ownerID then
         local storeCash = (self.storeObj.cash or 0)+(credit or 0)
+        print("totalForTransaction:"..totalForTransaction)
         if storeCash < totalForTransaction then invalidOrder = true end
     end
 
