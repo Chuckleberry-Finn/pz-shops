@@ -1338,7 +1338,7 @@ function storeWindow:render()
     if wallet then walletBalance = wallet.amount end
 
     local validIfWallets = (SandboxVars.ShopsAndTraders.PlayerWallets and ((walletBalance-totalForTransaction) >= 0))
-    if validIfWallets and totalForTransaction >= 0 then totalForTransaction = totalForTransaction-walletBalance end
+    if validIfWallets and totalForTransaction > 0 then totalForTransaction = totalForTransaction-walletBalance end
 
     local validIfNotWallets = ((not SandboxVars.ShopsAndTraders.PlayerWallets) and (totalForTransaction>=0))
 
