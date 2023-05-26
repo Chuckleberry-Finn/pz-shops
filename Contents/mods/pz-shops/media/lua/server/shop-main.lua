@@ -282,24 +282,29 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
         if listing then
 
             local adjustedPrice = listing.price*(listing.buybackRate/100)
+
             if SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then --credit
                 WALLET_HANDLER.processCreditToStore(playerWallet,adjustedPrice,storeID)
 
             elseif SandboxVars.ShopsAndTraders.ShopsUseCash == 3 then --nothing
 
             else --- if 1 or nil (not set)
-
                 WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,adjustedPrice)
             end
+
+            storeObj.cash = (storeObj.cash or 0) - adjustedPrice
 
             if listing.reselling == true then
                 if listing.item ~= itemType then
                     local newListing = STORE_HANDLER.newListing(storeObj,itemType,listing.price,0,listing.buybackRate,listing.reselling)
-                    newListing.available = newListing.available+1
+
+                    if not storeObj.ownerID then newListing.available = newListing.available+1 end
                 else
-                    listing.available = listing.available+1
+                    if not storeObj.ownerID then listing.available = listing.available+1 end
                 end
             end
+
+
         end
     end
 
@@ -318,20 +323,20 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
             money = money-moneyNeeded
             local costRemainder = math.max(0, listing.price-moneyNeeded)
 
-            if listing.available > 0 then
-                if listing.available <  1 then return end
-                listing.available = listing.available-1
+            if listing.available > 0 then listing.available = listing.available-1 end
 
-                --credit[self.storeObj.ID]
-                if SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then --credit
-                    WALLET_HANDLER.processCreditToStore(playerWallet,0-costRemainder,storeID)
-                else
-                    WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,0-costRemainder)
-                end
+            if credit and credit>0 and SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then --credit
+                local creditUsed = math.min(credit, costRemainder)
+                costRemainder = costRemainder-creditUsed
+                WALLET_HANDLER.processCreditToStore(playerWallet,0-creditUsed,storeID)
+            end
 
-                if not storeObj.ownerID then
-                    table.insert(itemsToTransmit,listing.item)
-                end
+            WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,0-costRemainder)
+
+            storeObj.cash = (storeObj.cash or 0) + costRemainder
+
+            if not storeObj.ownerID then
+                table.insert(itemsToTransmit,listing.item)
             end
         end
     end
