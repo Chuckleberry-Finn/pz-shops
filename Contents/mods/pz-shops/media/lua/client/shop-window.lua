@@ -1021,27 +1021,29 @@ function storeWindow:displayOrderTotal()
     end
 
     local storeCredit
-    if SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then
-        if not SandboxVars.ShopsAndTraders.PlayerWallets then
-            local bColor = balanceColor.red
-            self:drawTextRight(getText("IGUI_NOTRADE_NOCASH"), w-10, y+(rows*fontPadded)+(rowPadding*(rows+1))+rowPadding, bColor.r, bColor.g, bColor.b, bColor.a, self.font)
-        end
 
-        local credit = wallet.credit or {}
-        if credit then
-            storeCredit = self.storeObj and credit[self.storeObj.ID]
-            if storeCredit then
-                rows = rows+1
-                creditRow = rows
+    --[[
+    if not SandboxVars.ShopsAndTraders.PlayerWallets then
+        local bColor = balanceColor.red
+        self:drawTextRight(getText("IGUI_NOTRADE_NOCASH"), w-10, y+(rows*fontPadded)+(rowPadding*(rows+1))+rowPadding, bColor.r, bColor.g, bColor.b, bColor.a, self.font)
+    end
+    --]]
 
-                self:drawRect(x, y+(rows*fontPadded)+(rowPadding*(rows+1)), w, fontPadded, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
-                self:drawRectBorder(x, y+(rows*fontPadded)+(rowPadding*(rows+1)), w, fontPadded, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+    local credit = wallet.credit or {}
+    if credit then
+        storeCredit = self.storeObj and credit[self.storeObj.ID]
+        if storeCredit and storeCredit > 0 then
+            rows = rows+1
+            creditRow = rows
 
-                local creditLine = getText("IGUI_credit")..": ".._internal.numToCurrency(storeCredit)
-                self:drawText(creditLine, x+10, y+(rows*fontPadded)+(rowPadding*(rows+1))+rowPadding, balanceColor.normal.r, balanceColor.normal.g, balanceColor.normal.b, balanceColor.normal.a, self.font)
-            end
+            self:drawRect(x, y+(rows*fontPadded)+(rowPadding*(rows+1)), w, fontPadded, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
+            self:drawRectBorder(x, y+(rows*fontPadded)+(rowPadding*(rows+1)), w, fontPadded, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+
+            local creditLine = getText("IGUI_credit")..": ".._internal.numToCurrency(storeCredit)
+            self:drawText(creditLine, x+10, y+(rows*fontPadded)+(rowPadding*(rows+1))+rowPadding, balanceColor.normal.r, balanceColor.normal.g, balanceColor.normal.b, balanceColor.normal.a, self.font)
         end
     end
+
 
     if totalForTransaction ~= 0 and SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then
         if storeCredit and storeCredit>0 and creditRow then
@@ -1060,18 +1062,15 @@ function storeWindow:displayOrderTotal()
         local sign = " "
         if walletBalanceAfter < 0 then sign = "-" end
         local wbaText = sign.._internal.numToCurrency(math.abs(walletBalanceAfter))
-        local wbaRGB = balanceColor.normal2
-
-        if totalForTransaction<0 and self.storeObj and self.storeObj.ownerID then
-            local storeCash = (self.storeObj.cash or 0)
-            if storeCash < math.abs(totalForTransaction) then
-                wbaText = getText("IGUI_NOTRADE_NOFUNDS")
-                wbaRGB = balanceColor.red
-            end
-        end
-
         local xOffset2 = getTextManager():MeasureStringX(self.font, wbaText)+15
-        self:drawText(wbaText, w-xOffset2+5, y+(walletRow*fontPadded)+(rowPadding*(walletRow+1))+rowPadding, wbaRGB.r, wbaRGB.g, wbaRGB.b, wbaRGB.a, self.font)
+        self:drawText(wbaText, w-xOffset2+5, y+(walletRow*fontPadded)+(rowPadding*(walletRow+1))+rowPadding, balanceColor.normal2.r, balanceColor.normal2.g, balanceColor.normal2.b, balanceColor.normal2.a, self.font)
+    end
+
+    if totalForTransaction<0 and self.storeObj and self.storeObj.ownerID and SandboxVars.ShopsAndTraders.ShopsUseCash < 2 then
+        local storeCash = (self.storeObj.cash or 0)
+        if storeCash < math.abs(totalForTransaction) then
+            self:drawTextRight(getText("IGUI_NOTRADE_NOFUNDS"), self.purchase.x-10, self.purchase.y+rowPadding, balanceColor.red.r, balanceColor.red.g, balanceColor.red.b, balanceColor.red.a, self.font)
+        end
     end
 
 end
@@ -1337,24 +1336,29 @@ function storeWindow:render()
     local wallet, walletBalance = getWallet(self.player), 0
     if wallet then walletBalance = wallet.amount end
 
- 
-    local validIfNotWallets = ((not SandboxVars.ShopsAndTraders.PlayerWallets) and (totalForTransaction>=0))
+    --print("tFT:"..totalForTransaction)
+
+    local validIfNotWallets = ((not SandboxVars.ShopsAndTraders.PlayerWallets) and (totalForTransaction<=0))
 
     local credit = wallet and wallet.credit and wallet.credit[self.storeObj.ID]
-    local validIfCredit = self.storeObj and credit and ((credit-totalForTransaction) >= 0)
-    if validIfCredit and totalForTransaction > 0 then totalForTransaction = totalForTransaction-wallet.credit[self.storeObj.ID] end
+    local validIfCredit = self.storeObj and credit and ((credit-totalForTransaction) >= 0) or false
+    --if validIfCredit then totalForTransaction = totalForTransaction+wallet.credit[self.storeObj.ID] end
 
     local validIfWallets = (SandboxVars.ShopsAndTraders.PlayerWallets and ((walletBalance-totalForTransaction) >= 0))
-    if validIfWallets and totalForTransaction > 0 then totalForTransaction = totalForTransaction-walletBalance end
-
+    --if validIfWallets then totalForTransaction = totalForTransaction+walletBalance end
 
     if self.storeObj and self.storeObj.ownerID then
-        local storeCash = (self.storeObj.cash or 0)+(credit or 0)
-        print("totalForTransaction:"..totalForTransaction)
-        if storeCash < totalForTransaction then invalidOrder = true end
+        if SandboxVars.ShopsAndTraders.ShopsUseCash < 2 then
+            local storeCash = (self.storeObj.cash or 0)+(credit or 0)
+            if totalForTransaction < 0 and storeCash < math.abs(totalForTransaction) then invalidOrder = true end
+        else
+            if totalForTransaction < 0 then invalidOrder = true end
+        end
     end
 
-    local purchaseValid = (validIfWallets or validIfNotWallets or validIfCredit) and (not invalidOrder) and totalForTransaction<=0
+    --print(" iO:"..tostring(invalidOrder).." vIW:"..tostring(validIfWallets).." vINW:"..tostring(validIfNotWallets).." vIC:"..tostring(validIfCredit))
+
+    local purchaseValid = (validIfWallets or validIfNotWallets or validIfCredit) and (not invalidOrder)
 
     self.purchase.enable = (not managed and not blocked and #self.yourCartData.items>0 and purchaseValid)
 
@@ -1446,6 +1450,8 @@ function storeWindow:onClick(button)
                 store.isBeingManaged = true
             end
             sendClientCommand("shop", "setStoreIsBeingManaged", {isBeingManaged=store.isBeingManaged, storeID=store.ID, storeName=newName, restockHrs=restockHrs})
+
+            if self.storeObj and self.storeObj.cash then self.restockHours:setText(tostring(self.storeObj.cash)) end
         end
     end
 
