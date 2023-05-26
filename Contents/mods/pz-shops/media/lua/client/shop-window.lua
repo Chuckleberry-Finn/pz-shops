@@ -1337,14 +1337,16 @@ function storeWindow:render()
     local wallet, walletBalance = getWallet(self.player), 0
     if wallet then walletBalance = wallet.amount end
 
-    local validIfWallets = (SandboxVars.ShopsAndTraders.PlayerWallets and ((walletBalance-totalForTransaction) >= 0))
-    if validIfWallets and totalForTransaction > 0 then totalForTransaction = totalForTransaction-walletBalance end
-
+ 
     local validIfNotWallets = ((not SandboxVars.ShopsAndTraders.PlayerWallets) and (totalForTransaction>=0))
 
     local credit = wallet and wallet.credit and wallet.credit[self.storeObj.ID]
     local validIfCredit = self.storeObj and credit and ((credit-totalForTransaction) >= 0)
     if validIfCredit and totalForTransaction > 0 then totalForTransaction = totalForTransaction-wallet.credit[self.storeObj.ID] end
+
+    local validIfWallets = (SandboxVars.ShopsAndTraders.PlayerWallets and ((walletBalance-totalForTransaction) >= 0))
+    if validIfWallets and totalForTransaction > 0 then totalForTransaction = totalForTransaction-walletBalance end
+
 
     if self.storeObj and self.storeObj.ownerID then
         local storeCash = (self.storeObj.cash or 0)+(credit or 0)
