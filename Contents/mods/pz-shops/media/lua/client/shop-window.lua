@@ -487,7 +487,7 @@ function storeWindow:initialise()
     self.restockHours:instantiate()
     self:addChild(self.restockHours)
 
-    if self.storeObj.ownerID then
+    if self.storeObj and self.storeObj.ownerID then
         self.restockHours:setX(self.width-75)
         self.restockHours:setWidth(65)
         local cash = tostring(self.storeObj.cash)
