@@ -1340,7 +1340,7 @@ function storeWindow:render()
 
     local validIfNotWallets = ((not SandboxVars.ShopsAndTraders.PlayerWallets) and (totalForTransaction<=0))
 
-    local credit = wallet and wallet.credit and wallet.credit[self.storeObj.ID]
+    local credit = self.storeObj and wallet and wallet.credit and wallet.credit[self.storeObj.ID]
     local validIfCredit = self.storeObj and credit and ((credit-totalForTransaction) >= 0) or false
     --if validIfCredit then totalForTransaction = totalForTransaction+wallet.credit[self.storeObj.ID] end
 
