@@ -1,4 +1,4 @@
-require "client/XpSystem/ISUI/ISCharacterInfo"
+require "XpSystem/ISUI/ISCharacterInfo"
 require "shop-globalModDataClient"
 require "ISUI/ISInventoryPaneContextMenu"
 require "ISUI/ISTextBox"
@@ -259,6 +259,7 @@ function ISInventoryPane:onMouseUp(x, y)
 
     if (draggingOld ~= nil) and (draggingFocusOld == self) and (draggingFocusOld ~= nil) then
         if self.player ~= 0 then return end
+        ---@type IsoGameCharacter|IsoPlayer
         local playerObj = getSpecificPlayer(self.player)
         local moneyFound = {}
 
@@ -266,8 +267,7 @@ function ISInventoryPane:onMouseUp(x, y)
         local dragging = ISInventoryPane.getActualItems(draggingOld)
         for i,v in ipairs(dragging) do
             if _internal.isMoneyType(v:getFullType()) then
-                local transfer = v:getContainer() and not self.inventory:isInside(v)
-                if v:isFavorite() and not self.inventory:isInCharacterInventory(playerObj) then transfer = false end
+                local transfer = v:isInPlayerInventory() and not v:isFavorite()
                 if transfer then
                     if doWalk then if not luautils.walkToContainer(self.inventory, self.player) then break end doWalk = false end
                     table.insert(moneyFound, v)
