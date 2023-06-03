@@ -1,6 +1,7 @@
 require "Moveables/ISMoveableSpriteProps"
 
 local function testCanScrap(object, playerObj)
+    if not object then return false end
     local objectModData = object:getModData()
     if objectModData then
         local storeObjID = objectModData.storeObjID
