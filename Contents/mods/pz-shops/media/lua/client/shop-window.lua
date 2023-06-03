@@ -1039,8 +1039,11 @@ function storeWindow:displayOrderTotal()
             self:drawRect(x, y+(rows*fontPadded)+(rowPadding*(rows+1)), w, fontPadded, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
             self:drawRectBorder(x, y+(rows*fontPadded)+(rowPadding*(rows+1)), w, fontPadded, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
 
+            local bColor = balanceColor.normal
+            if storeCredit-totalForTransaction < 0 then bColor = balanceColor.red end
+
             local creditLine = getText("IGUI_credit")..": ".._internal.numToCurrency(storeCredit)
-            self:drawText(creditLine, x+10, y+(rows*fontPadded)+(rowPadding*(rows+1))+rowPadding, balanceColor.normal.r, balanceColor.normal.g, balanceColor.normal.b, balanceColor.normal.a, self.font)
+            self:drawText(creditLine, x+10, y+(rows*fontPadded)+(rowPadding*(rows+1))+rowPadding, bColor.r, bColor.g, bColor.b, bColor.a, self.font)
         end
     end
 
@@ -1336,23 +1339,24 @@ function storeWindow:render()
     local wallet, walletBalance = getWallet(self.player), 0
     if wallet then walletBalance = wallet.amount end
 
-    --print("tFT:"..totalForTransaction)
+    --print("tFT:"..totalForTransaction.."  sUC:"..SandboxVars.ShopsAndTraders.ShopsUseCash.."  iO:"..tostring(invalidOrder))
 
     local validIfNotWallets = ((not SandboxVars.ShopsAndTraders.PlayerWallets) and (totalForTransaction<=0))
 
     local credit = self.storeObj and wallet and wallet.credit and wallet.credit[self.storeObj.ID]
     local validIfCredit = self.storeObj and credit and ((credit-totalForTransaction) >= 0) or false
+
     --if validIfCredit then totalForTransaction = totalForTransaction+wallet.credit[self.storeObj.ID] end
 
     local validIfWallets = (SandboxVars.ShopsAndTraders.PlayerWallets and ((walletBalance-totalForTransaction) >= 0))
     --if validIfWallets then totalForTransaction = totalForTransaction+walletBalance end
 
     if self.storeObj and self.storeObj.ownerID then
-        if SandboxVars.ShopsAndTraders.ShopsUseCash < 2 then
+        if SandboxVars.ShopsAndTraders.ShopsUseCash == 1 then
             local storeCash = (self.storeObj.cash or 0)+(credit or 0)
             if totalForTransaction < 0 and storeCash < math.abs(totalForTransaction) then invalidOrder = true end
-        else
-            if totalForTransaction < 0 then invalidOrder = true end
+        --elseif SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then
+        --    if totalForTransaction >= 0 then invalidOrder = true end
         end
     end
 
