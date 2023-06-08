@@ -46,7 +46,7 @@ function itemDictionary.assemble()
             itemDictionary.addToPartition("type", itemModuleType, itemModuleType) -- module.type
             itemDictionary.addToPartition("name", itemModuleType, itemScript:getDisplayName()) -- name
 
-            print("type: "..itemScript:getName().."("..itemModuleType..")  "..itemScript:getDisplayName())
+            --print("type: "..itemScript:getName().."("..itemModuleType..")  "..itemScript:getDisplayName())
 
             local displayCategory = itemScript:getDisplayCategory() -- category
             itemDictionary.addToPartition("category", itemModuleType, displayCategory)
