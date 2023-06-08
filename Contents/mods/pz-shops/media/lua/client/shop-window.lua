@@ -1247,12 +1247,23 @@ end
 
 
 function storeWindow:validateAddStockEntry()
-    local entryText = self.addStockEntry:getInternalText()
+    local entryText = tostring(self.addStockEntry:getInternalText())
     if not entryText or entryText=="" then return false end
+
     local matches, matchesToType = findMatchesFromItemDictionary(entryText, self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected))
     if not matches then return false end
+
+    print("matches: #:"..#matches.."   "..tostring(matches))
+
+    for k,v in pairs(matches) do print("<"..k.."><"..v..">") end
+    print("---")
+    for k,v in pairs(matchesToType) do print("<"..k.."><"..v..">") end
+
     local script = matchesToType[entryText]
     if script and getScriptManager():getItem(script) then return true end
+
+    print("no script: "..tostring(entryText))
+
     return false
 end
 

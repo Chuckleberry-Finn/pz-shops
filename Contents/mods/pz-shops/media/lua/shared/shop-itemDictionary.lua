@@ -28,7 +28,7 @@ function itemDictionary.addToPartition(partitionID, result, searchKey)
     if input and input ~= "" then
         if not itemDictionary.partition[input] then itemDictionary.partition[input] = {} end
         if not itemDictionary.partition[input][partitionID] then itemDictionary.partition[input][partitionID] = {} end
-        itemDictionary.partition[input][partitionID][searchKey]=result
+        itemDictionary.partition[input][partitionID][tostring(searchKey)]=result
     end
 end
 
@@ -42,9 +42,11 @@ function itemDictionary.assemble()
         if not itemScript:getObsolete() and not itemScript:isHidden() and itemModule ~= "Moveables" then
 
             local itemModuleType = itemScript:getFullName()
-            itemDictionary.addToPartition("type", itemModuleType, itemScript:getName()) -- type
+            --itemDictionary.addToPartition("type", itemModuleType, itemScript:getName()) -- type
             itemDictionary.addToPartition("type", itemModuleType, itemModuleType) -- module.type
             itemDictionary.addToPartition("name", itemModuleType, itemScript:getDisplayName()) -- name
+
+            print("type: "..itemScript:getName().."("..itemModuleType..")  "..itemScript:getDisplayName())
 
             local displayCategory = itemScript:getDisplayCategory() -- category
             itemDictionary.addToPartition("category", itemModuleType, displayCategory)
@@ -59,10 +61,11 @@ end
 function findMatchesFromItemDictionary(input, partitionID)
     local inputLower = string.lower(input)
     local inputLowerCut = string.sub(inputLower,1,3)
+
     local partitionMatches = itemDictionary.partition[inputLowerCut]
     if not partitionMatches then return end
-    local foundMatches, matchesToTypes = {}, {}
 
+    local foundMatches, matchesToTypes = {}, {}
     for partition,data in pairs(partitionMatches) do
         if (not partitionID) or (partitionID and partition==partitionID) then
             for searchKey,type in pairs(data) do
@@ -73,7 +76,6 @@ function findMatchesFromItemDictionary(input, partitionID)
             end
         end
     end
-
     return foundMatches, matchesToTypes
 end
 
