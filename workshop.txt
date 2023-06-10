@@ -2,7 +2,9 @@ version=1
 id=2853615523
 title=Shops and Traders
 description=[h2]In-game configurable admin or player shops.[/h2]
-description=[h3]Commissioned by [b]MrAtomicDuck[/b][/h3]
+description=[h3]Originally Commissioned by [b]MrAtomicDuck[/b][/h3]
+description=[h3]Player-Shops Commissioned by [b]BowlOfOodaLoops[/b][/h3]
+description=
 description=
 description=[url=https://ko-fi.com/chuckleberryfinn][img]https://raw.githubusercontent.com/ChuckTheSheep/chuckImages/main/kofi.png[/img][/url] [url=https://www.patreon.com/bePatron?u=17239488][img]https://raw.githubusercontent.com/ChuckTheSheep/chuckImages/main/patreon.png[/img][/url]
 description=
