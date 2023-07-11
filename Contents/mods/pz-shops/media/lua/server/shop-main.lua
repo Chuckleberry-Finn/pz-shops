@@ -204,7 +204,7 @@ function STORE_HANDLER.connectStoreByID(isoObj,ID)
     isoObj:transmitModData()
 end
 
----@param isoObj IsoObject
+---@param isoObj IsoObject|IsoThumpable
 function STORE_HANDLER.copyStoreOntoObject(isoObj,ID,managed,owner)
     local modData = isoObj:getModData()
     if not modData then print("ERROR: Can't apply store to obj:"..tostring(isoObj)) return end
@@ -214,15 +214,22 @@ function STORE_HANDLER.copyStoreOntoObject(isoObj,ID,managed,owner)
     newStore.ownerID = owner
     newStore.isBeingManaged = managed or false
     modData.storeObjID = newStore.ID
+    if instanceof(isoObj, "IsoThumpable") then
+        modData.originalIsThumpable = isoObj:isThumpable()
+        isoObj:setIsThumpable(false)
+    end
     isoObj:transmitModData()
 end
 
 ---@param isoObj IsoObject
 function STORE_HANDLER.clearStoreFromObject(isoObj)
     local modData = isoObj:getModData()
-    if not modData then print("ERROR: Can't apply store to obj:"..tostring(isoObj)) return end
+    if not modData then print("ERROR: Can't clear store to obj:"..tostring(isoObj)) return end
     if not modData.storeObjID then print("ERROR: Object has no store assigned. obj:"..tostring(isoObj)) return end
     modData.storeObjID = nil
+    if instanceof(isoObj, "IsoThumpable") and modData.originalIsThumpable then
+        isoObj:setIsThumpable(modData.originalIsThumpable)
+    end
     isoObj:transmitModData()
 end
 
