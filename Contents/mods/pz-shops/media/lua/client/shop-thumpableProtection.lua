@@ -2,7 +2,9 @@
 ---@param weapon HandWeapon
 ---@param thump IsoThumpable
 local function onWeaponHitThumpable(player, weapon, thump)
-    local dmg = weapon:getDoorDamage()
-    thump:setHealth(thump:getHealth()+dmg)
+    if weapon then
+        local dmg = weapon:getDoorDamage()
+        thump:setHealth(thump:getHealth()+dmg)
+    end
 end
 Events.OnWeaponHitThumpable.Add(onWeaponHitThumpable)
