@@ -6,7 +6,8 @@ description=[h3]Originally Commissioned by [b]MrAtomicDuck[/b][/h3]
 description=[h3]Player-Shops Commissioned by [b]BowlOfOodaLoops[/b][/h3]
 description=
 description=
-description=[url=https://ko-fi.com/chuckleberryfinn][img]https://raw.githubusercontent.com/ChuckTheSheep/chuckImages/main/kofi.png[/img][/url] [url=https://www.patreon.com/bePatron?u=17239488][img]https://raw.githubusercontent.com/ChuckTheSheep/chuckImages/main/patreon.png[/img][/url]
+description=[url=https://ko-fi.com/chuckleberryfinn][img]https://raw.githubusercontent.com/ChuckTheSheep/chuckImages/main/kofi.png[/img][/url]
+description=
 description=
 description=As an [b]admin, a host, or in debug[/b] right click any object on the map - you should see context menus for "assign store".
 description=
