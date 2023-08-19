@@ -1,6 +1,6 @@
 LuaEventManager.AddEvent("SHOPPING_ServerModDataReady")
 
-local itemDictionaryUpdated = false
+local itemDictionaryUpdated = false---NEEDED FOR BETTER SORTING TO WORK IN MP
 local _internal = require "shop-shared"
 
 local function onClientCommand(_module, _command, _player, _data)
@@ -8,6 +8,18 @@ local function onClientCommand(_module, _command, _player, _data)
 
     if _module ~= "shop" then return end
     _data = _data or {}
+
+    ---NEEDED FOR BETTER SORTING TO WORK IN MP
+    if _command == "updateItemDictionary" then
+        if itemDictionaryUpdated then return end
+        itemDictionaryUpdated = true
+        local itemsToCategories = _data.itemsToCategories
+        local scriptManager = getScriptManager()
+        for moduleType,displayCategory in pairs(itemsToCategories) do
+            local scriptFound = scriptManager:getItem(moduleType)
+            if scriptFound then scriptFound:DoParam("DisplayCategory = "..displayCategory) end
+        end
+    end
 
     if _command == "ImportStores" then
         _internal.copyAgainst(GLOBAL_STORES, _data.stores)

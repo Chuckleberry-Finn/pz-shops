@@ -17,6 +17,10 @@ itemDictionary.categories = {}
 itemDictionary.partition = {} -- first 3 characters
 
 
+---NEEDED FOR BETTER SORTING TO WORK IN MP
+itemDictionary.itemsToCategories = {}
+
+
 function getItemDictionary() return itemDictionary end
 
 
@@ -33,7 +37,12 @@ function itemDictionary.addToPartition(partitionID, result, searchKey)
 end
 
 
-function itemDictionary.assemble()
+function itemDictionary.assemble(pushToServer)
+
+    ---NEEDED FOR BETTER SORTING TO WORK IN MP
+    if isServer() and ((not pushToServer) or itemDictionary.pushedToServer) then return end
+    itemDictionary.pushedToServer = true
+
     local allItems = getScriptManager():getAllItems()
     for i=0, allItems:size()-1 do
         ---@type Item
@@ -49,9 +58,9 @@ function itemDictionary.assemble()
             --print("type: "..itemScript:getName().."("..itemModuleType..")  "..itemScript:getDisplayName())
 
             local displayCategory = itemScript:getDisplayCategory() -- category
+            itemDictionary.itemsToCategories[itemModuleType] = displayCategory ---NEEDED FOR BETTER SORTING TO WORK IN MP
             itemDictionary.addToPartition("category", itemModuleType, displayCategory)
             itemDictionary.categories[displayCategory] = true
-
 
         end
     end
@@ -87,4 +96,4 @@ end
 
 
 Events.OnLoad.Add(itemDictionary.assemble)
-if isServer() then Events.OnGameBoot.Add(itemDictionary.assemble) end
+--if isServer() then Events.OnGameBoot.Add(itemDictionary.assemble) end

@@ -1661,11 +1661,12 @@ function storeWindow:onBrowse(storeObj, worldObj)
         storeWindow.instance:removeFromUIManager()
     end
 
+    local itemDictionary = getItemDictionary()
+    sendClientCommand("shop", "updateItemDictionary", { itemsToCategories=itemDictionary.itemsToCategories })
+
     getOrSetWalletID(getPlayer())
 
     local ui = storeWindow:new(50,50,555,555, getPlayer(), storeObj, worldObj)
     ui:initialise()
     ui:addToUIManager()
 end
-
-
