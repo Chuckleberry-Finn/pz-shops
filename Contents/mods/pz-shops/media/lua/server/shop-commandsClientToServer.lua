@@ -143,7 +143,7 @@ local function onClientCommand(_module, _command, _player, _data)
         if storeName then storeObj.name = storeName end
         if restockHrs then
             storeObj.restockHrs = math.max(1,restockHrs)
-            storeObj.nextRestock = math.min(storeObj.nextRestock, storeObj.restockHrs)
+            storeObj.nextRestock = storeObj.restockHrs
         end
         triggerEvent("SHOPPING_ServerModDataReady")
 
