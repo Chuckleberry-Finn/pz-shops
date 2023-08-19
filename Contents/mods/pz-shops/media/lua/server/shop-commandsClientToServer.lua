@@ -141,7 +141,10 @@ local function onClientCommand(_module, _command, _player, _data)
         local storeObj = STORE_HANDLER.getStoreByID(storeID)
         storeObj.isBeingManaged = status
         if storeName then storeObj.name = storeName end
-        if restockHrs then storeObj.restockHrs = math.max(0,restockHrs) end
+        if restockHrs then
+            storeObj.restockHrs = math.max(1,restockHrs)
+            storeObj.nextRestock = math.min(storeObj.nextRestock, storeObj.restockHrs)
+        end
         triggerEvent("SHOPPING_ServerModDataReady")
 
     elseif _command == "removeListing" then

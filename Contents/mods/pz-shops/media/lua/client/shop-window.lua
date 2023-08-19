@@ -1456,7 +1456,10 @@ function storeWindow:onClick(button)
             if self:isBeingManaged() then
                 store.isBeingManaged = false
                 newName = self.manageStoreName:getInternalText()
-                restockHrs = tonumber(self.restockHours:getInternalText())
+                if not self.storeObj.ownerID then
+                    restockHrs = tonumber(self.restockHours:getInternalText()) or 1
+                    restockHrs = math.max(1,restockHrs)
+                end
                 self.storeObj.name = newName
             else
                 self.manageStoreName:setText(store.name)
@@ -1464,7 +1467,7 @@ function storeWindow:onClick(button)
             end
             sendClientCommand("shop", "setStoreIsBeingManaged", {isBeingManaged=store.isBeingManaged, storeID=store.ID, storeName=newName, restockHrs=restockHrs})
 
-            if self.storeObj and self.storeObj.cash then self.restockHours:setText(tostring(self.storeObj.cash)) end
+            if self.storeObj and self.storeObj.ownerID and self.storeObj.cash then self.restockHours:setText(tostring(self.storeObj.cash)) end
         end
     end
 
