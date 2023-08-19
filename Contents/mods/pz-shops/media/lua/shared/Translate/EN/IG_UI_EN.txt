@@ -53,5 +53,6 @@ IGUI_EN = {
     IGUI_NOTRADE_NOFUNDS = "I don't have the funds to buy this.",
 
     IGUI_IMPORT = "Import",
-    IGUI_EXPORT = "Export",
+    IGUI_EDIT = "Edit",
+    IGUI_APPLY = "Apply",
 }
