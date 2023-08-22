@@ -40,7 +40,7 @@ end
 local function getCanScrapInfoPanelDesc(_object, _player, infoTable)
     local bR,bG,bB = ISMoveableSpriteProps.bhc:getR()*255, ISMoveableSpriteProps.bhc:getG()*255, ISMoveableSpriteProps.bhc:getB()*255
     if testCanScrap(_object, _player)==false then
-        infoTable = ISMoveableSpriteProps.addLineToInfoTable( infoTable, "- "..getText("IGUI_CantDisassembleStore"), bR,bG,bB )
+        infoTable = ISMoveableSpriteProps.addLineToInfoTable( infoTable, "- "..getText("IGUI_CantDisassembleThis", "Stores"), bR,bG,bB )
     end
 end
 

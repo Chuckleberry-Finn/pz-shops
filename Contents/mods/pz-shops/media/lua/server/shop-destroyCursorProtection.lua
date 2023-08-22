@@ -1,5 +1,5 @@
 require "BuildingObjects/ISDestroyCursor"
-local _internal = require "shop-shared"
+--local _internal = require "shop-shared"
 
 local _canDestroy = ISDestroyCursor.canDestroy
 function ISDestroyCursor:canDestroy(object)
