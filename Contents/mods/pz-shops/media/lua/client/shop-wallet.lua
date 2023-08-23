@@ -91,7 +91,7 @@ local function onPlayerDeath(playerObj)
 
     local wallet, walletBalance = getWallet(playerObj), 0
     if wallet then walletBalance = wallet.amount end
-    local transferAmount = math.floor((walletBalance*(SandboxVars.ShopsAndTraders.PercentageDropOnDeath/100) * 100) / 100)
+    local transferAmount = _internal.floorCurrency(walletBalance*(SandboxVars.ShopsAndTraders.PercentageDropOnDeath/100))
 
     if transferAmount > 0 then
         local moneyTypes = _internal.getMoneyTypes()
@@ -99,7 +99,7 @@ local function onPlayerDeath(playerObj)
         local money = InventoryItemFactory.CreateItem(type)
         if money then
             sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=(0-transferAmount)})
-            generateMoneyValue(money, transferAmount)
+            generateMoneyValue(money, transferAmount, true)
             playerObj:getInventory():AddItem(money)
         else print("ERROR: Split/Withdraw Wallet: No money object created. \<"..type.."\>") end
     end
