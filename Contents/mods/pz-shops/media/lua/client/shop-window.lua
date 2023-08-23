@@ -1035,7 +1035,8 @@ function storeWindow:displayOrderTotal()
     end
     --]]
 
-    local credit = wallet.credit or {}
+
+    local credit = wallet and (wallet.credit or {}) or false
     if credit then
         storeCredit = self.storeObj and credit[self.storeObj.ID]
         if storeCredit and storeCredit > 0 then
