@@ -54,7 +54,7 @@ function safelyRemoveMoney(moneyItem, player)
     ---@type ItemContainer
     local container = moneyItem:getContainer()
     if container then
-        if isClient() or (not instanceof(moneyItem:getOutermostContainer():getParent(), "IsoPlayer")) and (item:getContainer():getType()~="floor") then
+        if isClient() or (not instanceof(moneyItem:getOutermostContainer():getParent(), "IsoPlayer")) and (moneyItem:getContainer():getType()~="floor") then
             container:removeItemOnServer(moneyItem)
         end
         container:DoRemoveItem(moneyItem)
