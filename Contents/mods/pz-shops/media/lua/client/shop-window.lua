@@ -1,7 +1,6 @@
 require "ISUI/ISPanelJoypad"
 require "shop-globalModDataClient"
 require "shop-wallet"
-require "luautils"
 require "shop-itemDictionary"
 require "TimedActions/ISInventoryTransferAction"
 local _internal = require "shop-shared"
@@ -114,10 +113,10 @@ function storeWindow:addItemToYourStock(itemType, store, x, y, z, worldObjName, 
               storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
 
     if worldObject and item then
+        local itemCont = item:getContainer()
         local worldObjectContainer = worldObject:getContainer()
         if worldObjectContainer then
-
-            local action = ISInventoryTransferAction:new(self.player, item, self.player:getInventory(), worldObjectContainer)
+            local action = ISInventoryTransferAction:new(self.player, item, itemCont, worldObjectContainer)
             action.shopTransaction=true
             ISTimedActionQueue.add(action)
         end
@@ -637,7 +636,12 @@ function storeWindow:rtrnTypeIfValid(item)
 
         return itemType, false, itemCat
     else
-        if self.player and luautils.haveToBeTransfered(self.player, item) then return false, "IGUI_NOTRADE_OUTSIDEINV" end
+
+        local container = item:getContainer()
+        if self.player and container and (not container:isInCharacterInventory(self.player)) then
+            return false, "IGUI_NOTRADE_OUTSIDEINV"
+        end
+
         if (item:getCondition()/item:getConditionMax())<0.75 or item:isBroken() then return false, "IGUI_NOTRADE_DAMAGED" end
         itemType = item:getFullType()
         if (_internal.isMoneyType(itemType) and item:getModData().value) then
@@ -871,10 +875,13 @@ end
 function storeWindow:yourOfferMouseUp(x, y)
     if self.vscroll then self.vscroll.scrolling = false end
     local counta = 1
+
     if ISMouseDrag.dragging then
         for i,v in ipairs(ISMouseDrag.dragging) do
             counta = 1
-            if instanceof(v, "InventoryItem") then self.parent:addItemToYourCart(v)
+
+            if instanceof(v, "InventoryItem") then
+                self.parent:addItemToYourCart(v)
             else
                 if v.invPanel.collapsed[v.name] then
                     counta = 1
@@ -1596,7 +1603,7 @@ function storeWindow:finalizeDeal()
                     counts[v.item] = (counts[v.item] or -1) + 1
                     local item = storeStock:get(counts[v.item])
                     if item then
-                        local action = ISInventoryTransferAction:new(self.player, item, worldObjectCont, self.player:getInventory(), 0)
+                        local action = ISInventoryTransferAction:new(self.player, item, worldObjectCont, item:getContainer(), 0)
                         action.shopTransaction=true
                         ISTimedActionQueue.add(action)
                     end
@@ -1633,12 +1640,12 @@ function storeWindow:finalizeDeal()
                 if removeItem then
                     if (not isMoney) and self.storeObj.ownerID then
                         if worldObjectCont then
-                            local action = ISInventoryTransferAction:new(self.player, v.item, self.player:getInventory(), worldObjectCont, 0)
+                            local action = ISInventoryTransferAction:new(self.player, v.item, v.item:getContainer(), worldObjectCont, 0)
                             action.shopTransaction=true
                             ISTimedActionQueue.add(action)
                         end
                     else
-                        self.player:getInventory():Remove(v.item)
+                        v.item:getContainer():Remove(v.item)
                     end
                 end
 
