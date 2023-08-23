@@ -801,11 +801,8 @@ function storeWindow:displayStoreStock()
     if not storeObj then return end
     local scriptManager = getScriptManager()
 
-    if not storeObj.listings then print("storeObj.listings: not found") return end
-    if storeObj.listings and type(storeObj.listings)~="table" then
-        print("storeObj.listings: not table: "..tostring(storeObj.listings))
-        return
-    end
+    if not storeObj.listings then print("ERROR: storeObj.listings: not found") return end
+    if storeObj.listings and type(storeObj.listings)~="table" then print("ERROR: storeObj.listings: not table: "..tostring(storeObj.listings)) return end
 
     local managed = self:isBeingManaged() and _internal.canManageStore(storeObj,self.player)
 
