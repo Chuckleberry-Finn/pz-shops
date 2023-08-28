@@ -1715,12 +1715,15 @@ function storeWindow:closeStoreWindow()
         local worldObjModData = self.worldObject:getModData()
         worldObjModData.shopsAndTradersShoppers = worldObjModData.shopsAndTradersShoppers or {}
 
-        local size = #worldObjModData.shopsAndTradersShoppers
+        local needUpdate = false
         local pU = self.player:getUsername()
         for n,username in pairs(worldObjModData.shopsAndTradersShoppers) do
-            if username == pU then worldObjModData.shopsAndTradersShoppers[n] = nil end
+            if username == pU then
+                needUpdate = true
+                worldObjModData.shopsAndTradersShoppers[n] = nil
+            end
         end
-        if size ~= #worldObjModData.shopsAndTradersShoppers then self.worldObject:transmitModData() end
+        if needUpdate then self.worldObject:transmitModData() end
     end
 
     self:setVisible(false)
@@ -1734,14 +1737,16 @@ function storeWindow.checkMaxShopperCapacity(storeObj, worldObj, player)
     if SandboxVars.ShopsAndTraders.MaxUsers and SandboxVars.ShopsAndTraders.MaxUsers > 0 then
         local worldObjModData = worldObj:getModData()
         worldObjModData.shopsAndTradersShoppers = worldObjModData.shopsAndTradersShoppers or {}
-        local capacity = #worldObjModData.shopsAndTradersShoppers
-
+        local needUpdate = false
         for n,username in pairs(worldObjModData.shopsAndTradersShoppers) do
             local uP = getPlayerFromUsername(username)
             local closeEnough = uP and ((math.abs(uP:getX()-worldObj:getX())<=2) or (math.abs(uP:getY()-worldObj:getY())<=2))
-            if (not uP) or (not closeEnough) then worldObjModData.shopsAndTradersShoppers[n] = nil end
+            if (not uP) or (not closeEnough) then
+                needUpdate = true
+                worldObjModData.shopsAndTradersShoppers[n] = nil
+            end
         end
-        if capacity ~= #worldObjModData.shopsAndTradersShoppers then worldObj:transmitModData() end
+        if needUpdate then worldObj:transmitModData() end
 
         if #worldObjModData.shopsAndTradersShoppers >= SandboxVars.ShopsAndTraders.MaxUsers then return false end
     end
