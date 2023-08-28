@@ -1684,11 +1684,11 @@ function storeWindow:new(x, y, width, height, player, storeObj, worldObj)
     o.height = height
     o.player = player
 
-    ---isClient() and
-    if worldObj then
+    if isClient() and worldObj then
         local worldObjModData = worldObj:getModData()
         worldObjModData.shopsAndTradersShoppers = worldObjModData.shopsAndTradersShoppers or {}
         table.insert(worldObjModData.shopsAndTradersShoppers, player:getUsername())
+        worldObj:transmitModData()
     end
 
     o.worldObject = worldObj
@@ -1711,8 +1711,7 @@ end
 
 
 function storeWindow:closeStoreWindow()
-    ---isClient() and
-    if self.worldObject and self.player then
+    if isClient() and self.worldObject and self.player then
         local worldObjModData = self.worldObject:getModData()
         worldObjModData.shopsAndTradersShoppers = worldObjModData.shopsAndTradersShoppers or {}
 
@@ -1735,11 +1734,11 @@ function storeWindow.checkMaxShopperCapacity(storeObj, worldObj, player)
     if SandboxVars.ShopsAndTraders.MaxUsers and SandboxVars.ShopsAndTraders.MaxUsers > 0 then
         local worldObjModData = worldObj:getModData()
         worldObjModData.shopsAndTradersShoppers = worldObjModData.shopsAndTradersShoppers or {}
-
         local capacity = #worldObjModData.shopsAndTradersShoppers
+
         for n,username in pairs(worldObjModData.shopsAndTradersShoppers) do
             local uP = getPlayerFromUsername(username)
-            local closeEnough = uP and (math.abs(uP:getX()-worldObj:getX())>2) or (math.abs(uP:getY()-worldObj:getY())>2)
+            local closeEnough = uP and ((math.abs(uP:getX()-worldObj:getX())<=2) or (math.abs(uP:getY()-worldObj:getY())<=2))
             if (not uP) or (not closeEnough) then worldObjModData.shopsAndTradersShoppers[n] = nil end
         end
         if capacity ~= #worldObjModData.shopsAndTradersShoppers then worldObj:transmitModData() end
@@ -1759,8 +1758,7 @@ function storeWindow:onBrowse(storeObj, worldObj, shopper, ignoreCapacityCheck)
 
     getOrSetWalletID(shopper)
 
-    ---isClient() and
-    if (not ignoreCapacityCheck) and (not storeWindow.checkMaxShopperCapacity(storeObj, worldObj, shopper)) then return end
+    if isClient() and (not ignoreCapacityCheck) and (not storeWindow.checkMaxShopperCapacity(storeObj, worldObj, shopper)) then return end
 
     local ui = storeWindow:new(50,50,555,555, shopper, storeObj, worldObj)
     ui:initialise()
