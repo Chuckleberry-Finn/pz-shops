@@ -4,11 +4,11 @@ local _internal = require "shop-shared"
 local CONTEXT_HANDLER = {}
 
 ---@param worldObject IsoObject
-function CONTEXT_HANDLER.browseStore(worldObjects, playerObj, worldObject, storeObj)
+function CONTEXT_HANDLER.browseStore(worldObjects, playerObj, worldObject, storeObj, ignoreCapacityCheck)
     if not storeObj then
         if not (_internal.isAdminHostDebug()) then print(" ERROR: non-admin accessed context menu meant for assigning shops.") return end
     end
-    storeWindow:onBrowse(storeObj, worldObject)
+    storeWindow:onBrowse(storeObj, worldObject, playerObj, ignoreCapacityCheck)
 end
 
 
@@ -62,7 +62,15 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects)
                 if storeObject then
                     contextText = getText("ContextMenu_SHOP_AT").." "..(storeObject.name or objectName)
                 end
-                currentMenu:addOptionOnTop(contextText, worldObjects, CONTEXT_HANDLER.browseStore, playerObj, worldObject, storeObject)
+
+                local option = currentMenu:addOptionOnTop(contextText, worldObjects, CONTEXT_HANDLER.browseStore, playerObj, worldObject, storeObject, true)
+                ---isClient() and
+                if option and storeObject and (not storeWindow.checkMaxShopperCapacity(storeObject, worldObject, playerObj)) then
+                    option.notAvailable = true
+                    local tooltip = ISWorldObjectContextMenu.addToolTip()
+                    tooltip.description = getText("IGUI_CURRENTLY_IN_USE")
+                    option.tooltip = tooltip
+                end
             end
         end
     end

@@ -897,9 +897,9 @@ end
 
 
 function storeWindow:update()
-    if not self.player or not self.worldObject or (math.abs(self.player:getX()-self.worldObject:getX())>2) or (math.abs(self.player:getY()-self.worldObject:getY())>2) then
-        self:setVisible(false)
-        self:removeFromUIManager()
+    if self.activityTimeOut then self.activityTimeOut = (self.activityTimeOut or 0)-1 end
+    if (self.activityTimeOut and self.activityTimeOut <=0 ) or not self.player or not self.worldObject or (math.abs(self.player:getX()-self.worldObject:getX())>2) or (math.abs(self.player:getY()-self.worldObject:getY())>2) then
+        self:closeStoreWindow()
         return
     end
 end
@@ -1429,6 +1429,8 @@ end
 
 function storeWindow:onClick(button)
 
+
+
     local x, y, z, worldObjName = self.worldObject:getX(), self.worldObject:getY(), self.worldObject:getZ(), _internal.getWorldObjectName(self.worldObject)
 
     if button.internal == "CONNECT_TO_STORE" or button.internal == "COPY_STORE" or button.internal == "DELETE_STORE_PRESET" then
@@ -1526,8 +1528,7 @@ function storeWindow:onClick(button)
     end
 
     if button.internal == "CANCEL" then
-        self:setVisible(false)
-        self:removeFromUIManager()
+        self:closeStoreWindow()
     end
 
     if button.internal == "PURCHASE" then self:finalizeDeal() end
@@ -1677,6 +1678,14 @@ function storeWindow:new(x, y, width, height, player, storeObj, worldObj)
     o.width = width
     o.height = height
     o.player = player
+
+    ---isClient() and
+    if worldObj then
+        local worldObjModData = worldObj:getModData()
+        worldObjModData.shopsAndTradersShoppers = worldObjModData.shopsAndTradersShoppers or {}
+        table.insert(worldObjModData.shopsAndTradersShoppers, player:getUsername())
+    end
+
     o.worldObject = worldObj
     o.storeObj = storeObj
     o.moveWithMouse = true
@@ -1687,18 +1696,72 @@ function storeWindow:new(x, y, width, height, player, storeObj, worldObj)
 end
 
 
-function storeWindow:onBrowse(storeObj, worldObj)
+storeWindow.activityTimeOut = false
+function storeWindow:onMouseUp(x, y)
+    if SandboxVars.ShopsAndTraders.ActivityTimeOut and SandboxVars.ShopsAndTraders.ActivityTimeOut > 0 then
+        storeWindow.activityTimeOut = SandboxVars.ShopsAndTraders.ActivityTimeOut*1000
+    end
+    ISPanelJoypad.onMouseUp(self)
+end
+
+
+function storeWindow:closeStoreWindow()
+    ---isClient() and
+    if self.worldObject and self.player then
+        local worldObjModData = self.worldObject:getModData()
+        worldObjModData.shopsAndTradersShoppers = worldObjModData.shopsAndTradersShoppers or {}
+
+        local size = #worldObjModData.shopsAndTradersShoppers
+        local pU = self.player:getUsername()
+        for n,username in pairs(worldObjModData.shopsAndTradersShoppers) do
+            if username == pU then worldObjModData.shopsAndTradersShoppers[n] = nil end
+        end
+        if size ~= #worldObjModData.shopsAndTradersShoppers then self.worldObject:transmitModData() end
+    end
+
+    self:setVisible(false)
+    self:removeFromUIManager()
+end
+
+function storeWindow.checkMaxShopperCapacity(storeObj, worldObj, player)
+    if not worldObj then return true end
+    if _internal.canManageStore(storeObj,player) then return true end
+
+    if SandboxVars.ShopsAndTraders.MaxUsers and SandboxVars.ShopsAndTraders.MaxUsers > 0 then
+        local worldObjModData = worldObj:getModData()
+        worldObjModData.shopsAndTradersShoppers = worldObjModData.shopsAndTradersShoppers or {}
+
+        local capacity = #worldObjModData.shopsAndTradersShoppers
+        for n,username in pairs(worldObjModData.shopsAndTradersShoppers) do
+            local uP = getPlayerFromUsername(username)
+            local closeEnough = uP and (math.abs(uP:getX()-worldObj:getX())>2) or (math.abs(uP:getY()-worldObj:getY())>2)
+            if (not uP) or (not closeEnough) then worldObjModData.shopsAndTradersShoppers[n] = nil end
+        end
+        if capacity ~= #worldObjModData.shopsAndTradersShoppers then worldObj:transmitModData() end
+
+        if #worldObjModData.shopsAndTradersShoppers >= SandboxVars.ShopsAndTraders.MaxUsers then return false end
+    end
+    return true
+end
+
+function storeWindow:onBrowse(storeObj, worldObj, shopper, ignoreCapacityCheck)
     if storeWindow.instance and storeWindow.instance:isVisible() then
-        storeWindow.instance:setVisible(false)
-        storeWindow.instance:removeFromUIManager()
+        storeWindow.instance:closeStoreWindow()
     end
 
     local itemDictionary = getItemDictionary()
     sendClientCommand("shop", "updateItemDictionary", { itemsToCategories=itemDictionary.itemsToCategories })
 
-    getOrSetWalletID(getPlayer())
+    getOrSetWalletID(shopper)
 
-    local ui = storeWindow:new(50,50,555,555, getPlayer(), storeObj, worldObj)
+    ---isClient() and
+    if (not ignoreCapacityCheck) and (not storeWindow.checkMaxShopperCapacity(storeObj, worldObj, shopper)) then return end
+
+    local ui = storeWindow:new(50,50,555,555, shopper, storeObj, worldObj)
     ui:initialise()
     ui:addToUIManager()
+
+    if SandboxVars.ShopsAndTraders.ActivityTimeOut and SandboxVars.ShopsAndTraders.ActivityTimeOut > 0 then
+        ui.activityTimeOut = SandboxVars.ShopsAndTraders.ActivityTimeOut*1000
+    end
 end

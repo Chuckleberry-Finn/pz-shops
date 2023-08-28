@@ -116,7 +116,7 @@ function ISInventoryPage:update()
 end
 
 
-local function shopStore(container)
+local function shopStore(container, player)
     local object = container:getParent()
     if object:getModData().storeObjID then
         local storeObj = CLIENT_STORES[object:getModData().storeObjID]
@@ -125,12 +125,12 @@ local function shopStore(container)
             object:transmitModData()
             return
         end
-        storeWindow:onBrowse(storeObj, object)
+        storeWindow:onBrowse(storeObj, object, player)
     end
 end
 
-function ISInventoryPage:onShopClick(button) shopStore(button.inventory) end
-function ISInventoryPage:onShopRightMouseDown(x, y) shopStore(self.inventory) end
+function ISInventoryPage:onShopClick(button) shopStore(button.inventory, self.player) end
+function ISInventoryPage:onShopRightMouseDown(x, y) shopStore(self.inventory, self.player) end
 
 
 ---Places the lock texture over the button and prevents it from working
