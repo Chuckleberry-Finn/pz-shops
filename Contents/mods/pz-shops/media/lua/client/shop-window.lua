@@ -1551,14 +1551,17 @@ function storeWindow:onClick(button)
 
     if button.internal == "IMPORT_APPLY_STORES" then
         local reader = getFileReader("exportedShops.txt", false)
-        if not reader then return end
 
-        local totalStr = ""
-        while reader:ready() do
-            if totalStr ~= "" then totalStr = totalStr.."\n" end
-            totalStr = totalStr .. reader:readLine()
+        local lines = {}
+        local line = reader:readLine()
+        while line do
+            table.insert(lines, line)
+            line = reader:readLine()
         end
+        reader:close()
 
+        local totalStr = table.concat(lines, "\n")
+        
         local tbl = _internal.stringToTable(totalStr)
         if (not tbl) or (type(tbl)~="table") then
             print("ERROR: STORES MASS IMPORT FAILED.")
