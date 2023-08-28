@@ -1,3 +1,5 @@
+if isServer() then return end
+
 local _internal = require "shop-shared"
 
 local function applyOnCreate()
