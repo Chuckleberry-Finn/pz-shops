@@ -897,8 +897,13 @@ end
 
 
 function storeWindow:update()
-    if self.activityTimeOut then self.activityTimeOut = (self.activityTimeOut or 0)-1 end
-    if (self.activityTimeOut and self.activityTimeOut <=0 ) or not self.player or not self.worldObject or (math.abs(self.player:getX()-self.worldObject:getX())>2) or (math.abs(self.player:getY()-self.worldObject:getY())>2) then
+
+    local activityExpired = false
+    if SandboxVars.ShopsAndTraders.ActivityTimeOut and (SandboxVars.ShopsAndTraders.ActivityTimeOut > 0) then
+        activityExpired = getTimeInMillis() > self.activityTimeOut
+    end
+
+    if activityExpired or not self.player or not self.worldObject or (math.abs(self.player:getX()-self.worldObject:getX())>2) or (math.abs(self.player:getY()-self.worldObject:getY())>2) then
         self:closeStoreWindow()
         return
     end
@@ -1699,7 +1704,7 @@ end
 storeWindow.activityTimeOut = false
 function storeWindow:onMouseUp(x, y)
     if SandboxVars.ShopsAndTraders.ActivityTimeOut and SandboxVars.ShopsAndTraders.ActivityTimeOut > 0 then
-        storeWindow.activityTimeOut = SandboxVars.ShopsAndTraders.ActivityTimeOut*1000
+        self.activityTimeOut = getTimeInMillis()+(SandboxVars.ShopsAndTraders.ActivityTimeOut*1000)
     end
     ISPanelJoypad.onMouseUp(self)
 end
@@ -1762,6 +1767,6 @@ function storeWindow:onBrowse(storeObj, worldObj, shopper, ignoreCapacityCheck)
     ui:addToUIManager()
 
     if SandboxVars.ShopsAndTraders.ActivityTimeOut and SandboxVars.ShopsAndTraders.ActivityTimeOut > 0 then
-        ui.activityTimeOut = SandboxVars.ShopsAndTraders.ActivityTimeOut*1000
+        ui.activityTimeOut = getTimeInMillis()+(SandboxVars.ShopsAndTraders.ActivityTimeOut*1000)
     end
 end
