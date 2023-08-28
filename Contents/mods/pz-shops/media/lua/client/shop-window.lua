@@ -1758,6 +1758,7 @@ function storeWindow:onBrowse(storeObj, worldObj, shopper, ignoreCapacityCheck)
         storeWindow.instance:closeStoreWindow()
     end
 
+    shopper = shopper or getPlayer()
     local itemDictionary = getItemDictionary()
     sendClientCommand("shop", "updateItemDictionary", { itemsToCategories=itemDictionary.itemsToCategories })
 
