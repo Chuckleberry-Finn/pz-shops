@@ -41,6 +41,6 @@ Sandbox_EN = {
 	Sandbox_ShopsAndTraders_MaxUsers_tooltip = "Set to 0 to disable."
 
 	Sandbox_ShopsAndTraders_ActivityTimeOut = "Shopping Activity Time Out"
-    Sandbox_ShopsAndTraders_ActivityTimeOut_tooltip = "Set to 0 to disable."
+    Sandbox_ShopsAndTraders_ActivityTimeOut_tooltip = "Set to 0 to disable. Timer is counted in seconds."
 
 	}
