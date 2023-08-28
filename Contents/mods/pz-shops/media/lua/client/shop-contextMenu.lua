@@ -64,14 +64,15 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects)
                 end
 
                 local option = currentMenu:addOptionOnTop(contextText, worldObjects, CONTEXT_HANDLER.browseStore, playerObj, worldObject, storeObject, true)
-                local hitCapacity = not storeWindow.checkMaxShopperCapacity(storeObject, worldObject, playerObj)
-                if isClient() and option and storeObject and hitCapacity then
-                    option.notAvailable = true
-                    local tooltip = ISWorldObjectContextMenu.addToolTip()
-                    local text = getText("IGUI_CURRENTLY_IN_USE")
-                    tooltip:setName(text)
-                    tooltip.description = text
-                    option.tooltip = tooltip
+                if isClient() and option and storeObject then
+                    if not storeWindow.checkMaxShopperCapacity(storeObject, worldObject, playerObj) then
+                        option.notAvailable = true
+                        local tooltip = ISWorldObjectContextMenu.addToolTip()
+                        local text = getText("IGUI_CURRENTLY_IN_USE")
+                        tooltip:setName(text)
+                        tooltip.description = text
+                        option.tooltip = tooltip
+                    end
                 end
             end
         end
