@@ -125,7 +125,7 @@ local function shopStore(container, player)
             object:transmitModData()
             return
         end
-        storeWindow:onBrowse(storeObj, object, player)
+        storeWindow:onBrowse(storeObj, object, getSpecificPlayer(player))
     end
 end
 
