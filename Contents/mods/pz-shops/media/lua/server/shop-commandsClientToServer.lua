@@ -64,13 +64,13 @@ local function onClientCommand(_module, _command, _player, _data)
         local playerA, playerObjA = {offer=_data.offerA}, _data.playerA
         local playerB, playerObjB = {offer=_data.offerB}, _data.playerB
 
-        playerA.walletID = playerObjA:getModData().wallet_UUID
-        playerB.walletID = playerObjB:getModData().wallet_UUID
+        if playerA then playerA.walletID = playerObjA:getModData().wallet_UUID end
+        if playerB then playerB.walletID = playerObjB:getModData().wallet_UUID end
 
         local walletA, walletB
 
-        if playerA.walletID then walletA = WALLET_HANDLER.getOrSetPlayerWallet(playerA.walletID) end
-        if playerB.walletID then walletB = WALLET_HANDLER.getOrSetPlayerWallet(playerB.walletID) end
+        if playerA and playerA.walletID then walletA = WALLET_HANDLER.getOrSetPlayerWallet(playerA.walletID) end
+        if playerB and playerB.walletID then walletB = WALLET_HANDLER.getOrSetPlayerWallet(playerB.walletID) end
 
         if walletA then
             if playerA.offer then WALLET_HANDLER.validateMoneyOrWallet(walletA,playerObjA,0-playerA.offer) end
