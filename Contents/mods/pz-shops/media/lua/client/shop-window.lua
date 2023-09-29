@@ -1649,7 +1649,7 @@ function storeWindow:finalizeDeal()
                 if removeItem then
                     if (not isMoney) and self.storeObj.ownerID then
                         if worldObjectCont then
-                            local action = ISInventoryTransferAction:new(self.player, v.item, self.player:getInventory(), worldObjectCont, 0)
+                            local action = ISInventoryTransferAction:new(self.player, v.item, v.item:getContainer(), worldObjectCont, 0)
                             action.shopTransaction=true
                             ISTimedActionQueue.add(action)
                         end
