@@ -117,6 +117,7 @@ end
 
 
 local function shopStore(container, player)
+    if not container or not player then return end
     local object = container:getParent()
     if object:getModData().storeObjID then
         local storeObj = CLIENT_STORES[object:getModData().storeObjID]
