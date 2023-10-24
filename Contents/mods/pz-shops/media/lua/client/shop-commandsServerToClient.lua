@@ -1,8 +1,13 @@
 local _internal = require "shop-shared"
+require "shop-window"
 
 LuaEventManager.AddEvent("SHOPPING_ClientModDataReady")
 
 local function onClientModDataReady()
+
+    local storeWindow = storeWindow.instance
+    if not storeWindow then return end
+
     if not isClient() then
         _internal.copyAgainst(GLOBAL_STORES, CLIENT_STORES)
         _internal.copyAgainst(GLOBAL_WALLETS, CLIENT_WALLETS)
