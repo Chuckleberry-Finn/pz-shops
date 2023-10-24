@@ -63,7 +63,6 @@ function WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,amount)
             end
         end
     end
-    triggerEvent("SHOPPING_ServerModDataReady")
 end
 
 

@@ -24,12 +24,20 @@ local function onServerCommand(_module, _command, _data)
     _data = _data or {}
 
     if _command == "grabShop" then
-        if _data.store and _data.store.storeID then
-            CLIENT_STORES[_data.store.storeID] = _data.store
-        end
+        if _data.store and _data.store.storeID then CLIENT_STORES[_data.store.storeID] = _data.store end
     end
 
-    if _command == "severModData_received" then
+    if _command == "removeStore" then
+        if _data.storeID then CLIENT_STORES[_data.storeID] = nil end
+    end
+
+    if _command == "incomingImport" then
+        if storeWindow.instance and storeWindow.instance:isVisible() and (not _internal.isAdminHostDebug()) then
+            storeWindow.instance:closeStoreWindow()
+        end
+    end
+    
+    if _command == "tryShopUpdateToAll" then
         --onClientModDataReady()
         --sendServerCommand("shop", "severModData_received", args) --storeID
         if _data.store and _data.store.storeID then

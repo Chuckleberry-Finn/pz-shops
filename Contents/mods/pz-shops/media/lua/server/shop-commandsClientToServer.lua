@@ -24,32 +24,27 @@ local function onClientCommand(_module, _command, _player, _data)
     if _command == "grabShop" then
         local storeObj = STORE_HANDLER.getStoreByID(_data.storeID)
         if storeObj then
-
             if isServer() then
                 sendServerCommand(_player, "shop", "grabShop", {store=storeObj})
             else
                 CLIENT_STORES[storeID] = storeObj
             end
-
-            triggerEvent("SHOPPING_ServerModDataReady")
         end
     end
 
     if _command == "ImportStores" then
         _internal.copyAgainst(GLOBAL_STORES, _data.stores)
-        triggerEvent("SHOPPING_ServerModDataReady")
+        sendServerCommand("shop", "incomingImport", {})
     end
 
     if _command == "getOrSetWallet" then
         local playerID, steamID, playerUsername = _data.playerID, _data.steamID, _data.playerUsername
         WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID,playerUsername,_player)
-        triggerEvent("SHOPPING_ServerModDataReady")
     end
 
     if _command == "scrubWallet" then
         local playerID = _data.playerID
         WALLET_HANDLER.scrubWallet(playerID)
-        triggerEvent("SHOPPING_ServerModDataReady")
     end
 
     if _command == "transferFunds" then
@@ -67,8 +62,6 @@ local function onClientCommand(_module, _command, _player, _data)
         if playerWalletID then playerWallet = WALLET_HANDLER.getOrSetPlayerWallet(playerWalletID) end
         if playerWallet and amount then
             WALLET_HANDLER.validateMoneyOrWallet(playerWallet,_player,amount)
-        else
-            triggerEvent("SHOPPING_ServerModDataReady")
         end
     end
 
@@ -155,12 +148,11 @@ local function onClientCommand(_module, _command, _player, _data)
         else --assign or copy
             STORE_HANDLER.copyStoreOntoObject(foundObjToApplyTo,storeID,true, owner)
         end
-        triggerEvent("SHOPPING_ServerModDataReady")
 
     elseif _command == "deleteStorePreset" then
         local storeID = _data.storeID
         STORE_HANDLER.deleteStore(storeID)
-        triggerEvent("SHOPPING_ServerModDataReady")
+        sendServerCommand("shop", "removeStore", {storeID=storeID})
 
     elseif _command == "setStoreIsBeingManaged" then
         local status, storeID, storeName, restockHrs = _data.isBeingManaged, _data.storeID, _data.storeName, _data.restockHrs
@@ -171,7 +163,7 @@ local function onClientCommand(_module, _command, _player, _data)
             storeObj.restockHrs = math.max(1,restockHrs)
             storeObj.nextRestock = storeObj.restockHrs
         end
-        triggerEvent("SHOPPING_ServerModDataReady")
+        sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
 
     elseif _command == "removeListing" then
         local item, storeID = _data.item, _data.storeID
@@ -179,7 +171,7 @@ local function onClientCommand(_module, _command, _player, _data)
         if not storeObj then print("ERROR: No storeObj to remove listing from!") return end
 
         STORE_HANDLER.removeListing(storeObj,item)
-        triggerEvent("SHOPPING_ServerModDataReady")
+        sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
 
     elseif _command == "listNewItem" then
         local status, buybackRate, reselling = (_data.isBeingManaged or true), (_data.buybackRate or false), _data.reselling
@@ -192,7 +184,7 @@ local function onClientCommand(_module, _command, _player, _data)
         if not storeObj then print("ERROR: No storeObj to give new listing!") return end
         storeObj.isBeingManaged = status
         STORE_HANDLER.newListing(storeObj,item,price,quantity,buybackRate,reselling,alwaysShow)
-        triggerEvent("SHOPPING_ServerModDataReady")
+        sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
 
     elseif _command == "processOrder" then
 
@@ -203,20 +195,12 @@ local function onClientCommand(_module, _command, _player, _data)
 
         if storeObj then
             if isServer() then
-                sendServerCommand(_player, "shop", "grabShop", {store=storeObj})
+                sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
             else
                 CLIENT_STORES[storeID] = storeObj
             end
         end
-
-        triggerEvent("SHOPPING_ServerModDataReady")
     end
 
 end
 Events.OnClientCommand.Add(onClientCommand)--/client/ to server
-
----Used to send updates to players
-local function onServerModDataReady()
-    sendServerCommand("shop", "severModData_received")
-end
-Events.SHOPPING_ServerModDataReady.Add(onServerModDataReady)
