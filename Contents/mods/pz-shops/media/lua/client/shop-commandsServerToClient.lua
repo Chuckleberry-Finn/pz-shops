@@ -38,9 +38,9 @@ local function onServerCommand(_module, _command, _data)
     if _command == "transmitItems" then for _,itemType in pairs(_data.items) do getPlayer():getInventory():AddItem(itemType) end end
 
     if _command == "updateWallet" then
-        local wallet = _data
+        local wallet = _data.wallet
         if not wallet.playerUUID then return end
-        CLIENT_WALLETS[wallet.playerUUID] = _data
+        CLIENT_WALLETS[wallet.playerUUID] = _data.wallet
     end
 
     if _command == "sendMoneyItem" then
