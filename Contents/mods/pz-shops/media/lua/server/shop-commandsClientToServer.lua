@@ -109,7 +109,7 @@ local function onClientCommand(_module, _command, _player, _data)
         sendServerCommand(player, "shop", "updateTransferOffer", {amount=amount})
     end
 
-    if _command == "assignStore" or _command == "copyStorePreset" or _command == "connectStorePreset" or _command == "clearStoreFromWorldObj" then
+    if _command == "assignStore" or _command == "copyStorePreset" or _command == "connectStorePreset" or _command == "clearStoreFromWorldObj" or _command == "checkMapObject" then
 
         local storeID, x, y, z, worldObjName, owner = _data.storeID, _data.x, _data.y, _data.z, _data.worldObjName, _data.owner
         local sq = getSquare(x, y, z)
@@ -140,6 +140,8 @@ local function onClientCommand(_module, _command, _player, _data)
         end
 
         if not foundObjToApplyTo then print("ERROR: ".._command..": No foundObjToApplyTo.") return end
+
+        if _command == "checkMapObject" then return end
 
         if _command == "connectStorePreset" then
             STORE_HANDLER.connectStoreByID(foundObjToApplyTo,storeID)
