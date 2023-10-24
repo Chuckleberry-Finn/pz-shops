@@ -28,9 +28,21 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects)
         ---@type IsoObject
         local object = square:getObjects():get(i)
         if object and (not instanceof(object, "IsoWorldInventoryObject")) then
+            if object:getModData().storeObjID then
+                local storeObj = CLIENT_STORES[object:getModData().storeObjID]
+                if not storeObj then
+                    triggerEvent("SHOPPING_ClientModDataReady", object:getModData().storeObjID)
+                end
+            end
+        end
+    end
+    
+    for i=0,square:getObjects():size()-1 do
+        ---@type IsoObject
+        local object = square:getObjects():get(i)
+        if object and (not instanceof(object, "IsoWorldInventoryObject")) then
 
             if object:getModData().storeObjID then
-                triggerEvent("SHOPPING_ClientModDataReady", object:getModData().storeObjID)
                 local storeObj = CLIENT_STORES[object:getModData().storeObjID]
                 if not storeObj then
                     object:getModData().storeObjID = nil

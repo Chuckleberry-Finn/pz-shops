@@ -84,7 +84,7 @@ function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID,playerUsername,pla
     else
         CLIENT_WALLETS[matchingWallet.playerUUID] = matchingWallet
     end
-    
+
     return matchingWallet
 end
 
