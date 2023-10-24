@@ -21,6 +21,13 @@ local function onClientCommand(_module, _command, _player, _data)
         end
     end
 
+    if _command == "grabShop" then
+        local storeObj = STORE_HANDLER.getStoreByID(_data.storeID)
+        if storeObj then
+            triggerEvent("SHOPPING_ServerModDataReady", {store=storeObj})
+        end
+    end
+
     if _command == "ImportStores" then
         _internal.copyAgainst(GLOBAL_STORES, _data.stores)
         triggerEvent("SHOPPING_ServerModDataReady")
@@ -184,11 +191,14 @@ local function onClientCommand(_module, _command, _player, _data)
 
         local storeID, buying, selling, playerID, money = _data.storeID, _data.buying, _data.selling, _data.playerID, _data.money
         STORE_HANDLER.validateOrder(_player, playerID, storeID, buying, selling, money)
-        triggerEvent("SHOPPING_ServerModDataReady")
+        triggerEvent("SHOPPING_ServerModDataReady", {storeID=_data.storeID})
     end
 
 end
 Events.OnClientCommand.Add(onClientCommand)--/client/ to server
 
-local function onServerModDataReady() sendServerCommand("shop", "severModData_received", {}) end
+---Used to send updates to players
+local function onServerModDataReady(args)
+    sendServerCommand("shop", "severModData_received", args) --storeID
+end
 Events.SHOPPING_ServerModDataReady.Add(onServerModDataReady)

@@ -103,6 +103,7 @@ local function onPlayerDeath(playerObj)
             playerObj:getInventory():AddItem(money)
         else print("ERROR: Split/Withdraw Wallet: No money object created. \<"..type.."\>") end
     end
+    CLIENT_WALLETS[playerModData.wallet_UUID] = nil
     sendClientCommand("shop", "scrubWallet", {playerID=playerModData.wallet_UUID})
 end
 Events.OnPlayerDeath.Add(onPlayerDeath)

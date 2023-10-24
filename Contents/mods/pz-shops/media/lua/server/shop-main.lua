@@ -41,7 +41,7 @@ function WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,amount)
     if SandboxVars.ShopsAndTraders.PlayerWallets then
         local newValue = math.max(0, playerWallet.amount+amount)
         playerWallet.amount = _internal.floorCurrency(newValue)
-        
+        sendServerCommand(playerObj, "shop", "updateWallet", {walletAmount=playerWallet})
     else
         if amount>0 then
             amount = _internal.floorCurrency(amount)
@@ -72,6 +72,8 @@ function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID,playerUsername,pla
         WALLET_HANDLER.validateMoneyOrWallet(matchingWallet,playerObj,walletValue)
         matchingWallet.amount = 0
     end
+
+    sendServerCommand(getPlayerFromUsername(playerObj), "shop", "updateWallet", {walletAmount=matchingWallet})
 
     return matchingWallet
 end
