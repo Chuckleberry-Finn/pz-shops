@@ -23,6 +23,12 @@ local function onServerCommand(_module, _command, _data)
     if _module ~= "shop" then return end
     _data = _data or {}
 
+    if _command == "grabShop" then
+        if _data.store and _data.store.storeID then
+            CLIENT_STORES[_data.store.storeID] = _data.store
+        end
+    end
+
     if _command == "severModData_received" then
         --onClientModDataReady()
         --sendServerCommand("shop", "severModData_received", args) --storeID

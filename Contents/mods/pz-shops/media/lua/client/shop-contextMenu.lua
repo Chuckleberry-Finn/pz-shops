@@ -36,7 +36,7 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects)
             end
         end
     end
-    
+
     for i=0,square:getObjects():size()-1 do
         ---@type IsoObject
         local object = square:getObjects():get(i)
