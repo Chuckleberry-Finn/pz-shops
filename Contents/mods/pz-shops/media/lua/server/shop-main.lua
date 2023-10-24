@@ -73,7 +73,7 @@ function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID,playerUsername,pla
         matchingWallet.amount = 0
     end
 
-    sendServerCommand(getPlayerFromUsername(playerObj), "shop", "updateWallet", {walletAmount=matchingWallet})
+    sendServerCommand(playerObj, "shop", "updateWallet", {walletAmount=matchingWallet})
 
     return matchingWallet
 end
