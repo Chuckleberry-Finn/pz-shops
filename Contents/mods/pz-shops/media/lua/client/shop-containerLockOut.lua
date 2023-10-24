@@ -119,14 +119,16 @@ end
 local function shopStore(container, player)
     if not container or not player then return end
     local object = container:getParent()
-    if object:getModData().storeObjID then
-        local storeObj = CLIENT_STORES[object:getModData().storeObjID]
+    local objStoreID = object:getModData().storeObjID
+    if objStoreID then
+        local storeObj = CLIENT_STORES[objStoreID]
         if not storeObj then
-            object:getModData().storeObjID = nil
-            object:transmitModData()
-            return
+            local x, y, z, worldObjName = object:getX(), object:getY(), object:getZ(), _internal.getWorldObjectName(object)
+            sendClientCommand("shop", "checkMapObject", { storeID=objStoreID, x=x, y=y, z=z, worldObjName=worldObjName })
         end
-        storeWindow:onBrowse(storeObj, object, getSpecificPlayer(player))
+        if object:getModData().storeObjID then
+            storeWindow:onBrowse(storeObj, object, getSpecificPlayer(player))
+        end
     end
 end
 

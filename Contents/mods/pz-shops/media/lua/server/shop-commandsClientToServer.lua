@@ -128,6 +128,7 @@ local function onClientCommand(_module, _command, _player, _data)
                 local objMD = object:getModData()
                 if objMD and objMD.storeObjID and not GLOBAL_STORES[objMD.storeObjID] then
                     objMD.storeObjID = nil
+                    print("WARNING: Clearing object with invalid storeID: "..worldObjName)
                     object:transmitModData()
                 end
 

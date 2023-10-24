@@ -33,7 +33,7 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects)
             if objStoreID then
                 local storeObj = CLIENT_STORES[objStoreID]
                 if not storeObj then
-                    local x, y, z, worldObjName = self.worldObject:getX(), self.worldObject:getY(), self.worldObject:getZ(), _internal.getWorldObjectName(self.worldObject)
+                    local x, y, z, worldObjName = object:getX(), object:getY(), object:getZ(), _internal.getWorldObjectName(object)
                     sendClientCommand("shop", "checkMapObject", { storeID=objStoreID, x=x, y=y, z=z, worldObjName=worldObjName })
                 end
             end
