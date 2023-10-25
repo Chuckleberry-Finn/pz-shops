@@ -10,7 +10,7 @@ local function shopsModDataInit(isNewGame)
     GLOBAL_STORES = ModData.getOrCreate("STORES")
     GLOBAL_WALLETS = ModData.getOrCreate("WALLETS")
 
-    if not isNewGame then triggerEvent("SHOPPING_ServerModDataReady") end
+    --if not isNewGame then triggerEvent("SHOPPING_ServerModDataReady") end
 end
 
 Events.OnInitGlobalModData.Add(shopsModDataInit)

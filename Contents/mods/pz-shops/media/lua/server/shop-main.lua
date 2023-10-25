@@ -187,10 +187,10 @@ function STORE_HANDLER.restocking()
                         else listing.available = math.max(listing.available,listing.stock) end
                     end
                 end
+                sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
             end
         end
     end
-    triggerEvent("SHOPPING_ServerModDataReady")
 end
 Events.EveryHours.Add(STORE_HANDLER.restocking)
 
@@ -213,6 +213,9 @@ function STORE_HANDLER.connectStoreByID(isoObj,ID)
     if modData.storeObjID then print("ERROR: Object already has store assigned. obj:"..tostring(isoObj)) return end
     modData.storeObjID = ID
     isoObj:transmitModData()
+
+    local storeObj = STORE_HANDLER.getStoreByID(ID)
+    sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
 end
 
 ---@param isoObj IsoObject|IsoThumpable
@@ -230,6 +233,7 @@ function STORE_HANDLER.copyStoreOntoObject(isoObj,ID,managed,owner)
         isoObj:setIsThumpable(false)
     end
     isoObj:transmitModData()
+    sendServerCommand("shop", "tryShopUpdateToAll", {store=newStore})
 end
 
 ---@param isoObj IsoObject

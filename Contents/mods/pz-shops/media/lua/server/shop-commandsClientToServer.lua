@@ -1,4 +1,4 @@
-LuaEventManager.AddEvent("SHOPPING_ServerModDataReady")
+--LuaEventManager.AddEvent("SHOPPING_ServerModDataReady")
 
 local itemDictionaryUpdated = false---NEEDED FOR BETTER SORTING TO WORK IN MP
 local _internal = require "shop-shared"
