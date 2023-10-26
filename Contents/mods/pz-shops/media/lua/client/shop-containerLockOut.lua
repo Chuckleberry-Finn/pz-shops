@@ -127,6 +127,7 @@ local function shopStore(container, player)
             sendClientCommand("shop", "checkMapObject", { storeID=objStoreID, x=x, y=y, z=z, worldObjName=worldObjName })
         end
         if object:getModData().storeObjID then
+            storeObj = CLIENT_STORES[object:getModData().storeObjID]
             storeWindow:onBrowse(storeObj, object, getSpecificPlayer(player))
         end
     end

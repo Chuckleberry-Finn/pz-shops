@@ -138,6 +138,9 @@ function STORE_HANDLER.newListing(storeObj,item,price,stock,buybackRate,resellin
     if alwaysShow then newListing.alwaysShow = true else newListing.alwaysShow = false end
 
     storeObj.listings[item] = newListing
+
+    STORE_HANDLER.updateStore(storeObj,storeObj.ID)
+
     return newListing
 end
 
@@ -187,12 +190,19 @@ function STORE_HANDLER.restocking()
                         else listing.available = math.max(listing.available,listing.stock) end
                     end
                 end
-                sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
+                STORE_HANDLER.updateStore(storeObj,ID)
             end
         end
     end
 end
 Events.EveryHours.Add(STORE_HANDLER.restocking)
+
+
+function STORE_HANDLER.updateStore(storeObj,ID)
+    CLIENT_STORES[ID] = storeObj
+    sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
+end
+
 
 function STORE_HANDLER.deleteStore(thisID)
     local storeObj = GLOBAL_STORES[thisID]
@@ -203,6 +213,9 @@ function STORE_HANDLER.deleteStore(thisID)
     storeObj.isBeingManaged = false
     storeObj = nil
     GLOBAL_STORES[thisID] = nil
+    CLIENT_STORES[thisID] = nil
+
+    if isServer() then sendServerCommand("shop", "removeStore", {storeID=thisID}) end
 end
 
 ---@param isoObj IsoObject
@@ -215,7 +228,7 @@ function STORE_HANDLER.connectStoreByID(isoObj,ID)
     isoObj:transmitModData()
 
     local storeObj = STORE_HANDLER.getStoreByID(ID)
-    sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
+    STORE_HANDLER.updateStore(storeObj,ID)
 end
 
 ---@param isoObj IsoObject|IsoThumpable
@@ -233,7 +246,7 @@ function STORE_HANDLER.copyStoreOntoObject(isoObj,ID,managed,owner)
         isoObj:setIsThumpable(false)
     end
     isoObj:transmitModData()
-    sendServerCommand("shop", "tryShopUpdateToAll", {store=newStore})
+    STORE_HANDLER.updateStore(newStore,newStore.ID)
 end
 
 ---@param isoObj IsoObject
@@ -258,6 +271,7 @@ end
 
 function STORE_HANDLER.getStoreByID(storeID)
     local storeObj = GLOBAL_STORES[storeID]
+
     return storeObj
 end
 
@@ -268,6 +282,7 @@ function STORE_HANDLER.removeListing(storeObj,item)
     else
         print("ERROR: Warning: "..item.." not in listings to remove.")
     end
+    STORE_HANDLER.updateStore(storeObj,storeObj.ID)
 end
 
 
@@ -328,7 +343,6 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
                 end
             end
 
-
         end
     end
 
@@ -378,4 +392,5 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
         end
     end
 
+    STORE_HANDLER.updateStore(storeObj, storeID)
 end

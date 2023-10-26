@@ -2,24 +2,15 @@ local _internal = require "shop-shared"
 
 LuaEventManager.AddEvent("SHOPPING_ClientModDataReady")
 
-local function onClientModDataReady(storeID)
+local shopCommandsServerToClient = {}
 
+function shopCommandsServerToClient.onClientModDataReady(storeID)
     sendClientCommand(getPlayer(),"shop", "grabShop", {storeID=storeID})
-
-    --[[
-    if not isClient() then
-        _internal.copyAgainst(GLOBAL_STORES, CLIENT_STORES)
-        --_internal.copyAgainst(GLOBAL_WALLETS, CLIENT_WALLETS)
-    else
-        ModData.request("STORES")
-        --ModData.request("WALLETS")
-    end
-    --]]
 end
-Events.SHOPPING_ClientModDataReady.Add(onClientModDataReady)
+Events.SHOPPING_ClientModDataReady.Add(shopCommandsServerToClient.onClientModDataReady)
 
 
-local function onServerCommand(_module, _command, _data)
+function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
     if _module ~= "shop" then return end
     _data = _data or {}
 
@@ -38,8 +29,6 @@ local function onServerCommand(_module, _command, _data)
     end
     
     if _command == "tryShopUpdateToAll" then
-        --onClientModDataReady()
-        --sendServerCommand("shop", "severModData_received", args) --storeID
         if _data.store and _data.store.storeID then
             if storeWindow.instance and storeWindow.instance:isVisible() and storeWindow.storeObj and storeWindow.storeObj.ID then
                 if storeWindow.storeObj.ID == _data.store.storeID then
@@ -69,4 +58,6 @@ local function onServerCommand(_module, _command, _data)
         if ISTradingUI.instance and ISTradingUI.instance:isVisible() then ISTradingUI.instance.setOfferedAmount = _data.amount end
     end
 end
-Events.OnServerCommand.Add(onServerCommand)
+Events.OnServerCommand.Add(shopCommandsServerToClient.onServerCommand)
+
+return shopCommandsServerToClient

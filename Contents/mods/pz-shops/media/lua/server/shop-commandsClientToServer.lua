@@ -155,7 +155,6 @@ local function onClientCommand(_module, _command, _player, _data)
     elseif _command == "deleteStorePreset" then
         local storeID = _data.storeID
         STORE_HANDLER.deleteStore(storeID)
-        sendServerCommand("shop", "removeStore", {storeID=storeID})
 
     elseif _command == "setStoreIsBeingManaged" then
         local status, storeID, storeName, restockHrs = _data.isBeingManaged, _data.storeID, _data.storeName, _data.restockHrs
@@ -166,7 +165,7 @@ local function onClientCommand(_module, _command, _player, _data)
             storeObj.restockHrs = math.max(1,restockHrs)
             storeObj.nextRestock = storeObj.restockHrs
         end
-        sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
+        STORE_HANDLER.updateStore(storeObj)
 
     elseif _command == "removeListing" then
         local item, storeID = _data.item, _data.storeID
@@ -174,7 +173,6 @@ local function onClientCommand(_module, _command, _player, _data)
         if not storeObj then print("ERROR: No storeObj to remove listing from!") return end
 
         STORE_HANDLER.removeListing(storeObj,item)
-        sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
 
     elseif _command == "listNewItem" then
         local status, buybackRate, reselling = (_data.isBeingManaged or true), (_data.buybackRate or false), _data.reselling
@@ -187,22 +185,11 @@ local function onClientCommand(_module, _command, _player, _data)
         if not storeObj then print("ERROR: No storeObj to give new listing!") return end
         storeObj.isBeingManaged = status
         STORE_HANDLER.newListing(storeObj,item,price,quantity,buybackRate,reselling,alwaysShow)
-        sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
 
     elseif _command == "processOrder" then
 
         local storeID, buying, selling, playerID, money = _data.storeID, _data.buying, _data.selling, _data.playerID, _data.money
         STORE_HANDLER.validateOrder(_player, playerID, storeID, buying, selling, money)
-
-        local storeObj = STORE_HANDLER.getStoreByID(storeID)
-
-        if storeObj then
-            if isServer() then
-                sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
-            else
-                CLIENT_STORES[storeID] = storeObj
-            end
-        end
     end
 
 end
