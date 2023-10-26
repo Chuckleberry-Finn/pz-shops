@@ -132,7 +132,7 @@ local function onClientCommand(_module, _command, _player, _data)
                     object:transmitModData()
                 end
 
-                if _command ~= "clearStoreFromWorldObj" and _command ~= "checkMapObject" and objMD and objMD.storeObjID then
+                if _command ~= "clearStoreFromWorldObj" and _command ~= "checkMapObject" and objMD and objMD.storeObjID and objMD.storeObjID~=storeID then
                     print("WARNING: ".._command.." failed: Matching object ID: ("..GLOBAL_STORES[object:getModData().storeObjID].name.."); bypassed.")
                 else
                     foundObjToApplyTo = object
