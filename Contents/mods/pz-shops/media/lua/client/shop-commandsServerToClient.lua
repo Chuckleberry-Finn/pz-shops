@@ -32,7 +32,8 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
         if _data.store and _data.store.storeID then
             if storeWindow.instance and storeWindow.instance:isVisible() and storeWindow.storeObj and storeWindow.storeObj.ID then
                 if storeWindow.storeObj.ID == _data.store.storeID then
-                    storeWindow.storeObj = _data.store
+                    CLIENT_STORES[_data.store.storeID] = _data.store
+                    storeWindow.storeObj = CLIENT_STORES[_data.store.storeID]
                 end
             end
         end
