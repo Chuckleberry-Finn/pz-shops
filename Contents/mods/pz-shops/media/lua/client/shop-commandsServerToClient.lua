@@ -26,6 +26,7 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
         if storeWindow.instance and storeWindow.instance:isVisible() and (not _internal.isAdminHostDebug()) then
             storeWindow.instance:closeStoreWindow()
         end
+        if _data.stores then _internal.copyAgainst(CLIENT_STORES, _data.stores) end
     end
     
     if _command == "tryShopUpdateToAll" then
