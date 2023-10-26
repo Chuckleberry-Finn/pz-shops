@@ -142,7 +142,10 @@ local function onClientCommand(_module, _command, _player, _data)
 
         if not foundObjToApplyTo then print("ERROR: ".._command..": No foundObjToApplyTo.") return end
 
-        if _command == "checkMapObject" then return end
+        if _command == "checkMapObject" then
+            if isServer() then sendServerCommand(_player, "shop", "grabShop", {store=GLOBAL_STORES[storeID]}) end
+            return
+        end
 
         if _command == "connectStorePreset" then
             STORE_HANDLER.connectStoreByID(foundObjToApplyTo,storeID)
