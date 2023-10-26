@@ -199,8 +199,11 @@ Events.EveryHours.Add(STORE_HANDLER.restocking)
 
 
 function STORE_HANDLER.updateStore(storeObj,ID)
-    CLIENT_STORES[ID] = storeObj
-    sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
+    if isServer() then
+        sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
+    else
+        CLIENT_STORES[ID] = storeObj
+    end
 end
 
 
@@ -213,9 +216,12 @@ function STORE_HANDLER.deleteStore(thisID)
     storeObj.isBeingManaged = false
     storeObj = nil
     GLOBAL_STORES[thisID] = nil
-    CLIENT_STORES[thisID] = nil
 
-    if isServer() then sendServerCommand("shop", "removeStore", {storeID=thisID}) end
+    if isServer() then
+        sendServerCommand("shop", "removeStore", {storeID=thisID})
+    else
+        CLIENT_STORES[thisID] = nil
+    end
 end
 
 ---@param isoObj IsoObject
