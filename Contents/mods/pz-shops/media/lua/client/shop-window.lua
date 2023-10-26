@@ -599,6 +599,7 @@ end
 function storeWindow:populateComboList()
     self.assignComboBox:clear()
     self.assignComboBox:addOptionWithData("BLANK", false)
+    sendClientCommand(self.player,"shop", "ImportStores", {})
     for ID,DATA in pairs(CLIENT_STORES) do
         if not DATA.ownerID then
             self.assignComboBox:addOptionWithData(DATA.name, ID)
@@ -1580,6 +1581,7 @@ function storeWindow:onClick(button)
 
     if button.internal == "IMPORT_EXPORT_STORES" then
         if self.importEditToggleButton.toggled~=true then
+            sendClientCommand(self.player,"shop", "ImportStores", {})
             self.importText:setText(_internal.tableToString(CLIENT_STORES))
             self.importEditToggleButton:setTitle(getText("IGUI_EDIT"))
             self.importEditToggleButton.internal = "IMPORT_EDIT_STORES"
