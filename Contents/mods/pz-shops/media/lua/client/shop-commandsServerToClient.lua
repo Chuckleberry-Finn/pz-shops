@@ -31,10 +31,11 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
     
     if _command == "tryShopUpdateToAll" then
         if _data.store and _data.store.ID then
-            if storeWindow.instance and storeWindow.instance:isVisible() and storeWindow.storeObj and storeWindow.storeObj.ID then
-                if storeWindow.storeObj.ID == _data.store.ID then
+            local window = storeWindow.instance
+            if window and window:isVisible() and window.storeObj and window.storeObj.ID then
+                if window.storeObj.ID == _data.store.ID then
                     CLIENT_STORES[_data.store.ID] = _data.store
-                    storeWindow.instance.storeObj = CLIENT_STORES[_data.store.ID]
+                    window.storeObj = CLIENT_STORES[_data.store.ID]
                 end
             end
         end
