@@ -23,6 +23,9 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
     end
 
     if _command == "incomingImport" then
+        if _data.close and storeWindow.instance and storeWindow.instance:isVisible() and (not _internal.isAdminHostDebug()) then
+            storeWindow.instance:closeStoreWindow()
+        end
         if _data.stores then _internal.copyAgainst(CLIENT_STORES, _data.stores) end
     end
     

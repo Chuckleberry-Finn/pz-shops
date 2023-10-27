@@ -1575,13 +1575,13 @@ function storeWindow:onClick(button)
             self.importText:setText("ERROR: STORES MASS IMPORT FAILED.")
             return
         end
-        sendClientCommand("shop", "ImportStores", {stores=tbl})
+        sendClientCommand("shop", "ImportStores", {stores=tbl, close=true})
         self.importText:setText(totalStr)
     end
 
     if button.internal == "IMPORT_EXPORT_STORES" then
         if self.importEditToggleButton.toggled~=true then
-            sendClientCommand(self.player,"shop", "ImportStores", {})
+            sendClientCommand(self.player,"shop", "ImportStores", {close=true})
             self.importText:setText(_internal.tableToString(CLIENT_STORES))
             self.importEditToggleButton:setTitle(getText("IGUI_EDIT"))
             self.importEditToggleButton.internal = "IMPORT_EDIT_STORES"
