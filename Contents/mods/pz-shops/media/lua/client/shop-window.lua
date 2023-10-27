@@ -1760,9 +1760,7 @@ function storeWindow.checkMaxShopperCapacity(storeObj, worldObj, player)
 end
 
 function storeWindow:onBrowse(storeObj, worldObj, shopper, ignoreCapacityCheck)
-    if storeWindow.instance and storeWindow.instance:isVisible() then
-        storeWindow.instance:closeStoreWindow()
-    end
+    if storeWindow.instance and storeWindow.instance:isVisible() then storeWindow.instance:closeStoreWindow() end
 
     shopper = shopper or getPlayer()
     local itemDictionary = getItemDictionary()
