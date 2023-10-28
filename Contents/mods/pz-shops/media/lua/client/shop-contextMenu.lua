@@ -57,20 +57,24 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects)
         for worldObject,storeObject in pairs(validObjects) do
             local objectName = _internal.getWorldObjectDisplayName(worldObject)
             if objectName then
-                local contextText = objectName.." [ "..getText("ContextMenu_ASSIGN_STORE").." ]"
+                local contextText-- = nil
                 if storeObject then
                     contextText = getText("ContextMenu_SHOP_AT").." "..(storeObject.name or objectName)
+                elseif _internal.isAdminHostDebug() then
+                    contextText = objectName.." [ "..getText("ContextMenu_ASSIGN_STORE").." ]"
                 end
 
-                local option = currentMenu:addOptionOnTop(contextText, worldObjects, CONTEXT_HANDLER.browseStore, playerObj, worldObject, storeObject, true)
-                if isClient() and option and storeObject then
-                    if not storeWindow.checkMaxShopperCapacity(storeObject, worldObject, playerObj) then
-                        option.notAvailable = true
-                        local tooltip = ISWorldObjectContextMenu.addToolTip()
-                        local text = getText("IGUI_CURRENTLY_IN_USE")
-                        tooltip:setName(text)
-                        tooltip.description = text
-                        option.tooltip = tooltip
+                if contextText then
+                    local option = currentMenu:addOptionOnTop(contextText, worldObjects, CONTEXT_HANDLER.browseStore, playerObj, worldObject, storeObject, true)
+                    if isClient() and option and storeObject then
+                        if not storeWindow.checkMaxShopperCapacity(storeObject, worldObject, playerObj) then
+                            option.notAvailable = true
+                            local tooltip = ISWorldObjectContextMenu.addToolTip()
+                            local text = getText("IGUI_CURRENTLY_IN_USE")
+                            tooltip:setName(text)
+                            tooltip.description = text
+                            option.tooltip = tooltip
+                        end
                     end
                 end
             end
