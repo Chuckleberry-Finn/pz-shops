@@ -5,9 +5,6 @@ local CONTEXT_HANDLER = {}
 
 ---@param worldObject IsoObject
 function CONTEXT_HANDLER.browseStore(worldObjects, playerObj, worldObject, storeObj, ignoreCapacityCheck)
-    if not storeObj then
-        if not (_internal.isAdminHostDebug()) then print(" ERROR: non-admin accessed context menu meant for assigning shops.") return end
-    end
     storeWindow:onBrowse(storeObj, worldObject, playerObj, ignoreCapacityCheck)
 end
 
