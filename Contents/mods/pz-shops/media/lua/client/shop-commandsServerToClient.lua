@@ -1,21 +1,13 @@
 local _internal = require "shop-shared"
 
-LuaEventManager.AddEvent("SHOPPING_ClientModDataReady")
-
 local shopCommandsServerToClient = {}
-
-function shopCommandsServerToClient.onClientModDataReady(storeID)
-    sendClientCommand(getPlayer(),"shop", "grabShop", {storeID=storeID})
-end
-Events.SHOPPING_ClientModDataReady.Add(shopCommandsServerToClient.onClientModDataReady)
-
 
 function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
     if _module ~= "shop" then return end
     _data = _data or {}
 
     if _command == "grabShop" then
-        if _data.store and _data.store.storeID then CLIENT_STORES[_data.store.storeID] = _data.store end
+        if _data.store and _data.store.ID then CLIENT_STORES[_data.store.ID] = _data.store end
     end
 
     if _command == "removeStore" then
