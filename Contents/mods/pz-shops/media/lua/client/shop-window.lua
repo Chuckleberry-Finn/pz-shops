@@ -533,7 +533,7 @@ function storeWindow:initialise()
     self.assignComboBox:instantiate()
     self:addChild(self.assignComboBox)
     self:populateComboList()
-
+    
     local acb = self.assignComboBox
 
     self.aBtnDel = ISButton:new(acb.x-delBtnW-2, acb.y, delBtnW, acb.height, getText("IGUI_DELETEPRESET"), self, storeWindow.onClick)
@@ -599,10 +599,12 @@ end
 function storeWindow:populateComboList()
     self.assignComboBox:clear()
     self.assignComboBox:addOptionWithData("BLANK", false)
-    sendClientCommand(self.player,"shop", "ImportStores", {})
-    for ID,DATA in pairs(CLIENT_STORES) do
-        if not DATA.ownerID then
-            self.assignComboBox:addOptionWithData(DATA.name, ID)
+    if _internal.isAdminHostDebug() then
+        sendClientCommand(self.player,"shop", "ImportStores", {})
+        for ID,DATA in pairs(CLIENT_STORES) do
+            if not DATA.ownerID then
+                self.assignComboBox:addOptionWithData(DATA.name, ID)
+            end
         end
     end
     if (not self.assignComboBox.selected) or (self.assignComboBox.selected > #self.assignComboBox.options) then self.assignComboBox.selected = 1 end
