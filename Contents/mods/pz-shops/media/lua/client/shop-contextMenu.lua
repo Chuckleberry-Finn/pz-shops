@@ -39,7 +39,7 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects)
             end
 
             if object:getModData().storeObjID or (_internal.isAdminHostDebug()) then
-                validObjects[object] = CLIENT_STORES[object:getModData().storeObjID] or false
+                validObjects[object] = CLIENT_STORES[object:getModData().storeObjID] and object:getModData().storeObjID or false
                 validObjectCount = validObjectCount+1
             end
         end
@@ -54,10 +54,12 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects)
             currentMenu = subMenu
         end
 
-        for worldObject,storeObject in pairs(validObjects) do
+        for worldObject,storeObjectID in pairs(validObjects) do
             local objectName = _internal.getWorldObjectDisplayName(worldObject)
             if objectName then
                 local contextText-- = nil
+
+                local storeObject = CLIENT_STORES[storeObjectID]
                 if storeObject then
                     contextText = getText("ContextMenu_SHOP_AT").." "..(storeObject.name or objectName)
                 elseif _internal.isAdminHostDebug() then
