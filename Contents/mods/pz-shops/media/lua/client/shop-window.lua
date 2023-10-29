@@ -116,6 +116,9 @@ function storeWindow:addItemToYourStock(itemType, store, x, y, z, worldObjName, 
         local itemCont = item:getContainer()
         local worldObjectContainer = worldObject:getContainer()
         if worldObjectContainer then
+
+            if self.player:isEquipped(item) then ISTimedActionQueue.add(ISUnequipAction:new(self.player, item, 1)) end
+
             local action = ISInventoryTransferAction:new(self.player, item, itemCont, worldObjectContainer)
             action.shopTransaction=true
             ISTimedActionQueue.add(action)
@@ -1616,6 +1619,9 @@ function storeWindow:finalizeDeal()
                     counts[v.item] = (counts[v.item] or -1) + 1
                     local item = storeStock:get(counts[v.item])
                     if item then
+
+                        if self.player:isEquipped(item) then ISTimedActionQueue.add(ISUnequipAction:new(self.player, item, 1)) end
+
                         local action = ISInventoryTransferAction:new(self.player, item, worldObjectCont, self.player:getInventory(), 0)
                         action.shopTransaction=true
                         ISTimedActionQueue.add(action)
@@ -1653,6 +1659,9 @@ function storeWindow:finalizeDeal()
                 if removeItem then
                     if (not isMoney) and self.storeObj.ownerID then
                         if worldObjectCont then
+
+                            if self.player:isEquipped(item) then ISTimedActionQueue.add(ISUnequipAction:new(self.player, item, 1)) end
+
                             local action = ISInventoryTransferAction:new(self.player, v.item, v.item:getContainer(), worldObjectCont, 0)
                             action.shopTransaction=true
                             ISTimedActionQueue.add(action)
