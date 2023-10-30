@@ -321,7 +321,7 @@ local function addContext(playerID, context, items)
         if _internal.isMoneyType(item:getFullType()) then
             local itemValue = item:getModData().value
             if not itemValue then generateMoneyValue(item) end
-            if itemValue and itemValue>1 and canManipulateMoney(item, playerObj) then
+            if itemValue and itemValue>0 and canManipulateMoney(item, playerObj) then
                 context:addOption(getText("IGUI_SPLIT"), item, onSplitStack, playerObj)
                 if SandboxVars.ShopsAndTraders.PlayerWallets then
                     context:addOption(getText("IGUI_PLACEINWALLET"), item, onDepositContext, playerObj)
