@@ -329,6 +329,9 @@ function storeWindow:onChangeStoreCash()
 
     local cashInStore = self.parent.storeObj.cash or 0
 
+    if cashInStore < value then value = cashInStore end
+    if value < 0 then return end
+    
     value = math.max(0,math.min(cashInStore+walletBalance, value))
     self:setText(tostring(value))
     value = (cashInStore-value)
