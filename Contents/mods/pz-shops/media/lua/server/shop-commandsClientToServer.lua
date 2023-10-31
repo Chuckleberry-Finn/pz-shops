@@ -60,7 +60,7 @@ local function onClientCommand(_module, _command, _player, _data)
                 if isServer() then
                     sendServerCommand(_player, "shop", "grabShop", {store=storeObj})
                 else
-                    CLIENT_STORES[_data.storeID] = storeObj
+                    CLIENT_STORES[_data.toStoreID] = storeObj
                 end
             end
         end
