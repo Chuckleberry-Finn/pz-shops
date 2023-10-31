@@ -62,13 +62,13 @@ local function onClientCommand(_module, _command, _player, _data)
                 else
                     CLIENT_STORES[_data.storeID] = storeObj
                 end
-
-                local playerWallet
-                if playerWalletID then playerWallet = WALLET_HANDLER.getOrSetPlayerWallet(playerWalletID) end
-                if playerWallet and amount then
-                    WALLET_HANDLER.validateMoneyOrWallet(playerWallet,_player,amount)
-                end
             end
+        end
+
+        local playerWallet
+        if playerWalletID then playerWallet = WALLET_HANDLER.getOrSetPlayerWallet(playerWalletID) end
+        if playerWallet and amount then
+            WALLET_HANDLER.validateMoneyOrWallet(playerWallet,_player,amount)
         end
     end
 
