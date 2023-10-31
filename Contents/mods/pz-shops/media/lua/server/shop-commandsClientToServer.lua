@@ -53,7 +53,7 @@ local function onClientCommand(_module, _command, _player, _data)
         if toStoreID then
             local storeObj = STORE_HANDLER.getStoreByID(toStoreID)
             if storeObj then
-                
+
                 local newValue = math.max(0, (storeObj.cash or 0)-amount)
                 storeObj.cash = _internal.floorCurrency(newValue)
 
@@ -62,13 +62,13 @@ local function onClientCommand(_module, _command, _player, _data)
                 else
                     CLIENT_STORES[_data.storeID] = storeObj
                 end
-            end
-        end
 
-        local playerWallet
-        if playerWalletID then playerWallet = WALLET_HANDLER.getOrSetPlayerWallet(playerWalletID) end
-        if playerWallet and amount then
-            WALLET_HANDLER.validateMoneyOrWallet(playerWallet,_player,amount)
+                local playerWallet
+                if playerWalletID then playerWallet = WALLET_HANDLER.getOrSetPlayerWallet(playerWalletID) end
+                if playerWallet and amount then
+                    WALLET_HANDLER.validateMoneyOrWallet(playerWallet,_player,amount)
+                end
+            end
         end
     end
 
