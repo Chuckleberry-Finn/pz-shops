@@ -319,7 +319,6 @@ function storeWindow:onChangeStoreCash()
 
     if not self.parent.storeObj then return end
     if not self.parent.storeObj.ownerID then return end
-    if value < 0 then return end
 
     local playerModData = playerObj:getModData()
     if not playerModData then print("WARN: Player without modData.") return end
@@ -333,6 +332,7 @@ function storeWindow:onChangeStoreCash()
     value = math.max(0,math.min(cashInStore+walletBalance, value))
     self:setText(tostring(value))
     value = (cashInStore-value)
+
     sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=value, toStoreID=self.parent.storeObj.ID})
 end
 
