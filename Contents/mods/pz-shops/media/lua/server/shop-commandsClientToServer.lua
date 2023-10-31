@@ -53,9 +53,7 @@ local function onClientCommand(_module, _command, _player, _data)
         if toStoreID then
             local storeObj = STORE_HANDLER.getStoreByID(toStoreID)
             if storeObj then
-
-                amount = math.min((storeObj.cash or 0),amount)
-
+                
                 local newValue = math.max(0, (storeObj.cash or 0)-amount)
                 storeObj.cash = _internal.floorCurrency(newValue)
 
