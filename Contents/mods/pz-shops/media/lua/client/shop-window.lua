@@ -1661,7 +1661,7 @@ function storeWindow:finalizeDeal()
                     if (not isMoney) and self.storeObj.ownerID then
                         if worldObjectCont then
 
-                            if self.player:isEquipped(item) then ISTimedActionQueue.add(ISUnequipAction:new(self.player, item, 1)) end
+                            if self.player:isEquipped(v.item) then ISTimedActionQueue.add(ISUnequipAction:new(self.player, v.item, 1)) end
 
                             local action = ISInventoryTransferAction:new(self.player, v.item, v.item:getContainer(), worldObjectCont, 0)
                             action.shopTransaction=true
