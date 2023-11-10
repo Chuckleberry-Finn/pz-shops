@@ -15,6 +15,8 @@ description=
 description=[h1]Post issues [url=https://github.com/Chuckleberry-Finn/pz-shops/issues]here[/url][/h1]
 description=[h3]Issues reported on steam comments or even in steam discussion pages will most likely not be seen when I do sit down to work on things.[/h3]
 description=
+description=[url=https://discord.gg/SReMnbV4V7][img]https://raw.githubusercontent.com/Chuckleberry-Finn/chuckImages/main/PZmodCommBanner2.png[/img][/url]
+description=
 description=
 description=[h3]Copyright 2023 Chuckleberry Finn. This item is not authorized for posting on Steam, except under the Steam account named Chuckleberry Finn.[/h3]
 description=
