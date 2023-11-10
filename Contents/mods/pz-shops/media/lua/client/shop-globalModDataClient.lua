@@ -5,21 +5,26 @@ local _internal = require "shop-shared"
 CLIENT_STORES = {}
 CLIENT_WALLETS = {}
 
---[[
+
 local function initGlobalModData(isNewGame)
 
     --if isClient() then
-    --    if ModData.exists("STORES") then ModData.remove("STORES") end
+        --if ModData.exists("STORES") then ModData.remove("STORES") end
         --if ModData.exists("WALLETS") then ModData.remove("WALLETS") end
     --end
 
     --CLIENT_STORES = ModData.getOrCreate("STORES")
     --CLIENT_WALLETS = ModData.getOrCreate("WALLETS")
 
+    if not isClient() then
+        CLIENT_STORES = ModData.getOrCreate("STORES")
+        CLIENT_WALLETS = ModData.getOrCreate("WALLETS")
+    end
+
     --triggerEvent("SHOPPING_ClientModDataReady")
 end
 Events.OnInitGlobalModData.Add(initGlobalModData)
---]]
+
 
 --[[
 ---@param name string

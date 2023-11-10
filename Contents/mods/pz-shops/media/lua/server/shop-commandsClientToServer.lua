@@ -53,15 +53,9 @@ local function onClientCommand(_module, _command, _player, _data)
         if toStoreID then
             local storeObj = STORE_HANDLER.getStoreByID(toStoreID)
             if storeObj then
-
                 local newValue = math.max(0, (storeObj.cash or 0)-amount)
                 storeObj.cash = _internal.floorCurrency(newValue)
-
-                if isServer() then
-                    sendServerCommand(_player, "shop", "grabShop", {store=storeObj})
-                else
-                    CLIENT_STORES[_data.toStoreID] = storeObj
-                end
+                STORE_HANDLER.updateStore(storeObj,toStoreID)
             end
         end
 
