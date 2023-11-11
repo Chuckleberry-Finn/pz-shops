@@ -1778,8 +1778,6 @@ function storeWindow:onBrowse(storeObj, worldObj, shopper, ignoreCapacityCheck)
     if storeWindow.instance and storeWindow.instance:isVisible() then storeWindow.instance:closeStoreWindow() end
 
     shopper = shopper or getPlayer()
-    local itemDictionary = getItemDictionary()
-    sendClientCommand("shop", "updateItemDictionary", { itemsToCategories=itemDictionary.itemsToCategories })
 
     getOrSetWalletID(shopper)
 

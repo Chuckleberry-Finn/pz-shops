@@ -64,6 +64,8 @@ function itemDictionary.assemble(pushToServer)
 
         end
     end
+
+    if isClient() then sendClientCommand("shop", "updateItemDictionary", { itemsToCategories=itemDictionary.itemsToCategories }) end
 end
 
 
