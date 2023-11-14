@@ -1622,6 +1622,9 @@ function storeWindow:finalizeDeal()
                         if self.player:isEquipped(item) then ISTimedActionQueue.add(ISUnequipAction:new(self.player, item, 1)) end
 
                         local action = ISInventoryTransferAction:new(self.player, item, worldObjectCont, self.player:getInventory(), 0)
+                        action.stopOnWalk = false
+                        action.stopOnRun = false
+                        action.stopOnAim = false
                         action.shopTransaction=true
                         ISTimedActionQueue.add(action)
                     end
@@ -1662,6 +1665,9 @@ function storeWindow:finalizeDeal()
                             if self.player:isEquipped(v.item) then ISTimedActionQueue.add(ISUnequipAction:new(self.player, v.item, 1)) end
 
                             local action = ISInventoryTransferAction:new(self.player, v.item, v.item:getContainer(), worldObjectCont, 0)
+                            action.stopOnWalk = false
+                            action.stopOnRun = false
+                            action.stopOnAim = false
                             action.shopTransaction=true
                             ISTimedActionQueue.add(action)
                         end
