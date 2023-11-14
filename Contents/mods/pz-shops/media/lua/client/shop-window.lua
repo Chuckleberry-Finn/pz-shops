@@ -1472,7 +1472,7 @@ function storeWindow:onClick(button)
         
         if tempWorldObj and playerOwnedStore then
             ---@type ItemContainer
-            local tempWorldObjCont = tempWorldObj:getContainer()
+            local tempWorldObjCont = self.player:getInventory() or tempWorldObj:getContainer()
             if tempWorldObjCont then tempWorldObjCont:AddItem("ShopsAndTraders.ShopDeed") end
         end
     end
