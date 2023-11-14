@@ -1775,10 +1775,6 @@ function storeWindow.checkMaxShopperCapacity(storeObj, worldObj, player)
     return true
 end
 
-local modCountSystem = require "chuckleberryFinnModding_modCountSystem"
-if modCountSystem then modCountSystem.pullAndAddModID()
-else print("ERR: MISSING MOD: `ChuckleberryFinnAlertSystem` (Workshop ID: `3077900375`)") end
-
 
 function storeWindow:onBrowse(storeObj, worldObj, shopper, ignoreCapacityCheck)
     if storeWindow.instance and storeWindow.instance:isVisible() then storeWindow.instance:closeStoreWindow() end
@@ -1797,3 +1793,9 @@ function storeWindow:onBrowse(storeObj, worldObj, shopper, ignoreCapacityCheck)
         ui.activityTimeOut = getTimeInMillis()+(SandboxVars.ShopsAndTraders.ActivityTimeOut*1000)
     end
 end
+
+
+if getActivatedMods():contains("ChuckleberryFinnAlertSystem") then
+    local modCountSystem = require "chuckleberryFinnModding_modCountSystem"
+    if modCountSystem then modCountSystem.pullAndAddModID() end
+else print("WARNING: Highly recommended to install `ChuckleberryFinnAlertSystem` (Workshop ID: `3077900375`) for latest news and updates.") end
