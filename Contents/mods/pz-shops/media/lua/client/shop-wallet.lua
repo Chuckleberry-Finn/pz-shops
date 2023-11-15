@@ -438,14 +438,15 @@ local function applyWallet(player, list)
     end
 end
 local function applyWalletCreate(_,player) applyWallet(player, playersChecked.onCreate) end
-local function applyWalletMove(_,player) applyWallet(player, playersChecked.onMove) end
 
 local ISCharacterScreen_render = ISCharacterScreen.render
 function ISCharacterScreen:render()
     ISCharacterScreen_render(self)
     self:handleWithdrawButton()
-    applyWallet(self.char, playersChecked.onRender)
-    if SandboxVars.ShopsAndTraders.PlayerWallets then
+    if self:getIsVisible() and SandboxVars.ShopsAndTraders.PlayerWallets then
+
+        applyWallet(self.char, playersChecked.onRender)
+
         self.withdrawButton:setX(self.avatarX+self.avatarWidth+25)
         self.withdrawButton:setY(self.literatureButton.y+52)
         self.withdrawButton:setWidthToTitle(55)
@@ -459,4 +460,3 @@ function ISCharacterScreen:render()
     end
 end
 Events.OnCreatePlayer.Add(applyWalletCreate)
-Events.OnPlayerMove.Add(applyWalletMove)
