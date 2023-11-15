@@ -38,13 +38,3 @@ local function receiveGlobalModData(name, data)
 end
 Events.OnReceiveGlobalModData.Add(receiveGlobalModData)
 --]]
-
-function getWallet(player)
-    --if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
-    if player and player:getModData() then
-        local pID = player:getModData().wallet_UUID
-        if pID and CLIENT_WALLETS[pID] then
-            return CLIENT_WALLETS[pID]
-        end
-    end
-end

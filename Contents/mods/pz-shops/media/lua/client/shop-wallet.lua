@@ -19,6 +19,17 @@ end
 Events.OnGameBoot.Add(modifyScript)
 
 
+function getWallet(player)
+    --if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
+    if player and player:getModData() then
+        local pID = player:getModData().wallet_UUID
+        if pID and CLIENT_WALLETS[pID] then
+            return CLIENT_WALLETS[pID]
+        end
+    end
+end
+
+
 ---@param playerObj IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
 function getOrSetWalletID(playerObj)
     playerObj = playerObj or getPlayer()
@@ -429,34 +440,24 @@ function ISCharacterScreen:initialise()
 end
 
 
-local playersChecked = {onRender={},onMove={},onCreate={}}
-local function applyWallet(player, list)
-    list = list or playersChecked.onRender
-    if not list[player] then
-        getOrSetWalletID(player)
-        list[player] = true
-    end
-end
-local function applyWalletCreate(_,player) applyWallet(player, playersChecked.onCreate) end
-
 local ISCharacterScreen_render = ISCharacterScreen.render
 function ISCharacterScreen:render()
     ISCharacterScreen_render(self)
     self:handleWithdrawButton()
     if self:getIsVisible() and SandboxVars.ShopsAndTraders.PlayerWallets then
 
-        applyWallet(self.char, playersChecked.onRender)
+        local wallet = getWallet(self.char)
+        local walletBalance = wallet and wallet.amount
 
-        self.withdrawButton:setX(self.avatarX+self.avatarWidth+25)
-        self.withdrawButton:setY(self.literatureButton.y+52)
-        self.withdrawButton:setWidthToTitle(55)
-
-        local wallet, walletBalance = getWallet(self.char), 0
-        if wallet then walletBalance = wallet.amount end
-
-        self.withdrawButton.enable = (walletBalance > 0)
-        local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
-        self:drawText(walletBalanceLine, self.withdrawButton.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
+        if wallet then
+            self.withdrawButton:setX(self.avatarX+self.avatarWidth+25)
+            self.withdrawButton:setY(self.literatureButton.y+52)
+            self.withdrawButton:setWidthToTitle(55)
+            self.withdrawButton.enable = (walletBalance > 0)
+            local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
+            self:drawText(walletBalanceLine, self.withdrawButton.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
+        else
+            getOrSetWalletID(self.char)
+        end
     end
 end
-Events.OnCreatePlayer.Add(applyWalletCreate)
