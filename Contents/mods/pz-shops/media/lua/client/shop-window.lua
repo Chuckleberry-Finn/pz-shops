@@ -908,6 +908,11 @@ function storeWindow:update()
         activityExpired = getTimeInMillis() > self.activityTimeOut
     end
 
+    if not _internal.isAdminHostDebug(self.storeObj,self.player) and not self.storeObj then
+        self:closeStoreWindow()
+        return
+    end
+    
     if activityExpired or not self.player or not self.worldObject or (math.abs(self.player:getX()-self.worldObject:getX())>2) or (math.abs(self.player:getY()-self.worldObject:getY())>2) then
         self:closeStoreWindow()
         return
@@ -1469,12 +1474,6 @@ function storeWindow:onClick(button)
         local tempWorldObj = self.worldObject
         local playerOwnedStore = self.storeObj and self.storeObj.ownerID
         sendClientCommand("shop", "clearStoreFromWorldObj", { storeID=self.storeObj.ID, x=x, y=y, z=z, worldObjName=worldObjName })
-        
-        if tempWorldObj and playerOwnedStore then
-            ---@type ItemContainer
-            local tempWorldObjCont = self.player:getInventory() or tempWorldObj:getContainer()
-            if tempWorldObjCont then tempWorldObjCont:AddItem("ShopsAndTraders.ShopDeed") end
-        end
     end
 
     if button.internal == "MANAGE" then

@@ -151,7 +151,7 @@ local function onClientCommand(_module, _command, _player, _data)
         if _command == "connectStorePreset" then
             STORE_HANDLER.connectStoreByID(foundObjToApplyTo,storeID)
         elseif _command == "clearStoreFromWorldObj" then
-            STORE_HANDLER.clearStoreFromObject(foundObjToApplyTo)
+            STORE_HANDLER.clearStoreFromObject(foundObjToApplyTo, _player)
         else --assign or copy
             STORE_HANDLER.copyStoreOntoObject(foundObjToApplyTo,storeID,true, owner)
         end

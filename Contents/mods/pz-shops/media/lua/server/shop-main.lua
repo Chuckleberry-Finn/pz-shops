@@ -256,14 +256,34 @@ function STORE_HANDLER.copyStoreOntoObject(isoObj,ID,managed,owner)
 end
 
 ---@param isoObj IsoObject
-function STORE_HANDLER.clearStoreFromObject(isoObj)
+function STORE_HANDLER.clearStoreFromObject(isoObj, player)
     local modData = isoObj:getModData()
     if not modData then print("ERROR: Can't clear store to obj:"..tostring(isoObj)) return end
     if not modData.storeObjID then print("ERROR: Object has no store assigned. obj:"..tostring(isoObj)) return end
-    modData.storeObjID = nil
+
     if instanceof(isoObj, "IsoThumpable") and modData.originalIsThumpable then
         isoObj:setIsThumpable(modData.originalIsThumpable)
     end
+
+    local storeID = modData.storeObjID
+    local storeObj = storeID and STORE_HANDLER.getStoreByID(storeID)
+    modData.storeObjID = nil
+
+    if storeObj and storeObj.ownerID then
+        STORE_HANDLER.deleteStore(storeID)
+
+        local itemsToTransmit = {"ShopsAndTraders.ShopDeed"}
+
+        if isServer() then
+            sendServerCommand(player, "shop", "transmitItems", {items=itemsToTransmit})
+        else
+            for _,itemType in pairs(itemsToTransmit) do
+                player:getInventory():AddItem(itemType)
+            end
+        end
+
+    end
+
     isoObj:transmitModData()
 end
 
