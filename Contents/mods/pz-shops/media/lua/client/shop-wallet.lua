@@ -269,6 +269,7 @@ function ISInventoryPane:onMouseUp(x, y)
 
     self.selected = selectedOld
 
+
     if (draggingOld ~= nil) and (draggingFocusOld == self) and (draggingFocusOld ~= nil) then
         if self.player ~= 0 then return end
         ---@type IsoGameCharacter|IsoPlayer
@@ -288,15 +289,18 @@ function ISInventoryPane:onMouseUp(x, y)
         end
 
         if #moneyFound <= 0 then
-            ISMouseDrag.dragging = draggingOld
-            ISMouseDrag.draggingFocus = draggingFocusOld
-            self.selected = selectedOld
+            self.dragging = nil
+            self.draggedItems:reset()
+            ISMouseDrag.dragging = nil
+            ISMouseDrag.draggingFocus = nil
+            self.draggingMarquis = false
+            self:selectIndex(self.previousMouseUp)
             return true
+        else
+            self.selected = {}
+            getPlayerLoot(self.player).inventoryPane.selected = {}
+            getPlayerInventory(self.player).inventoryPane.selected = {}
         end
-
-        self.selected = {}
-        getPlayerLoot(self.player).inventoryPane.selected = {}
-        getPlayerInventory(self.player).inventoryPane.selected = {}
 
         local pushTo = self.items[self.mouseOverOption]
         if not pushTo then return end
