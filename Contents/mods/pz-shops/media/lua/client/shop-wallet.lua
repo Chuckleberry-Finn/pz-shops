@@ -50,6 +50,7 @@ end
 
 
 ---@param moneyItem InventoryItem
+---@param player IsoPlayer|IsoGameCharacter|IsoObject
 function safelyRemoveMoney(moneyItem, player)
     local worldItem = moneyItem:getWorldItem()
     if worldItem then
@@ -57,15 +58,40 @@ function safelyRemoveMoney(moneyItem, player)
         local sq = worldItem:getSquare()
         if sq then
             sq:transmitRemoveItemFromSquare(worldItem)
-            sq:removeWorldObject(worldItem)
-            moneyItem:setWorldItem(nil)
+            worldItem:removeFromWorld()
+            worldItem:removeFromSquare()
+            worldItem:setSquare(nil)
+            getPlayerLoot(player:getPlayerNum()):refreshBackpacks()
+        end
+        return
+    end
+
+    if moneyItem:isEquipped() then
+        moneyItem:getContainer():setDrawDirty(true)
+        moneyItem:setJobDelta(0.0)
+        player:removeWornItem(moneyItem)
+
+        local hotbar = getPlayerHotbar(player:getPlayerNum())
+        local fromHotbar = hotbar and hotbar:isItemAttached(moneyItem)
+        if fromHotbar then
+            hotbar.chr:setAttachedItem(moneyItem:getAttachedToModel(), moneyItem)
+            player:resetEquippedHandsModels()
+        end
+
+        if moneyItem == player:getPrimaryHandItem() then
+            if (moneyItem:isTwoHandWeapon() or moneyItem:isRequiresEquippedBothHands()) and moneyItem == player:getSecondaryHandItem() then player:setSecondaryHandItem(nil) end
+            player:setPrimaryHandItem(nil)
+        end
+        if moneyItem == player:getSecondaryHandItem() then
+            if (moneyItem:isTwoHandWeapon() or moneyItem:isRequiresEquippedBothHands()) and moneyItem == player:getPrimaryHandItem() then player:setPrimaryHandItem(nil) end
+            player:setSecondaryHandItem(nil)
         end
     end
 
     ---@type ItemContainer
     local container = moneyItem:getContainer()
     if container then
-        if isClient() and (not instanceof(moneyItem:getOutermostContainer():getParent(), "IsoPlayer")) and (moneyItem:getContainer():getType()~="floor") then
+        if isClient() and (moneyItem:getOutermostContainer() and not instanceof(moneyItem:getOutermostContainer():getParent(), "IsoPlayer")) and (moneyItem:getContainer():getType()~="floor") then
             container:removeItemOnServer(moneyItem)
         end
         container:DoRemoveItem(moneyItem)
