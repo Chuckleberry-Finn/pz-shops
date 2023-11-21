@@ -14,7 +14,6 @@ local function testCanScrap(object, playerObj)
 end
 
 
-
 local function checkCanScrapStore(module, func, playerObj, object)
     local result, chance, perkName = func(module, playerObj)
     result.canScrap = testCanScrap(object, playerObj)
@@ -58,4 +57,12 @@ function ISMoveableSpriteProps:getInfoPanelDescription(_square, _object, _player
     local infoTable = _getMoveableInfoPanelDescription(self, _square, _object, _player, _mode)
     getCanScrapInfoPanelDesc(_object, _player, infoTable)
     return infoTable
+end
+
+
+require "TimedActions/ISDestroyStuffAction"
+local ISDestroyStuffAction_isValid = ISDestroyStuffAction.isValid
+function ISDestroyStuffAction:isValid()
+    local originalResult = ISDestroyStuffAction_isValid(self)
+    return (originalResult and testCanScrap(self.item, self.character))
 end
