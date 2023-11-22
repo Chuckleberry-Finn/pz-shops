@@ -17,7 +17,7 @@ local function recipeOverride()
         ---@type Recipe
         local recipe = allRecipes:get(i)
         if recipe then
-            if recipe:getResult():getFullType()=="AuthenticZClothing.Authentic_MoneyStack" then
+            if recipe:getResult():getType()=="Authentic_MoneyStack" then
                 recipe:setLuaTest("shopsAndTradersRecipe.OnAuthZMoneyStack")
                 recipe:setIsHidden(true)
             end
