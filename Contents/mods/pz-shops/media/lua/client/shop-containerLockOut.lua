@@ -40,6 +40,9 @@ end
 ---Prevents dragging items out of a locked container
 local ISInventoryPage_dropItemsInContainer = ISInventoryPage.dropItemsInContainer
 function ISInventoryPage:dropItemsInContainer(button)
+    if self.player ~= 0 then return false end
+    if ISMouseDrag.dragging == nil then return false end
+
     local container = self.mouseOverButton and self.mouseOverButton.inventory or nil
     local allow = true
 
@@ -48,7 +51,8 @@ function ISInventoryPage:dropItemsInContainer(button)
         if worldObj then allow = containerLockOut.canInteract(worldObj,getSpecificPlayer(self.player)) end
     end
 
-    if allow then ISInventoryPage_dropItemsInContainer(self, button)
+    if allow then
+        return ISInventoryPage_dropItemsInContainer(self, button)
     else
         if ISMouseDrag.draggingFocus then
             ISMouseDrag.draggingFocus:onMouseUp(0,0)
