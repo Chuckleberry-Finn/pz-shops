@@ -219,7 +219,9 @@ function ISSliderBox:onClick(button, playerObj, item)
 
             if money then
                 generateMoneyValue(money, transferValue, true)
-                playerObj:getInventory():AddItem(money)
+
+                local container = item and item:getContainer() or playerObj:getInventory()
+                container:AddItem(money)
 
                 if item and _internal.isMoneyType(item:getFullType()) and item:getModData() and item:getModData().value > 0 then
                     local newValue = item:getModData().value-transferValue
@@ -295,11 +297,8 @@ function ISInventoryPane:onMouseUp(x, y)
 
     self.selected = selectedOld
 
-
     if (draggingOld ~= nil) and (draggingFocusOld == self) and (draggingFocusOld ~= nil) then
         if self.player ~= 0 then return end
-        ---@type IsoGameCharacter|IsoPlayer
-        local playerObj = getSpecificPlayer(self.player)
         local moneyFound = {}
 
         local doWalk = true
