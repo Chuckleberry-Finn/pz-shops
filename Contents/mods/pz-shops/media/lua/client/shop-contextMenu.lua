@@ -95,7 +95,7 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects, te
                             local text = getText("IGUI_CURRENTLY_IN_USE")
                             tooltip:setName(text)
                             tooltip.description = text
-                            option.tooltip = tooltip
+                            option.toolTip = tooltip
                         end
                     end
                 end
