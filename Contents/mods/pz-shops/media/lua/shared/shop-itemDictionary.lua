@@ -69,6 +69,12 @@ function itemDictionary.assemble(pushToServer)
 end
 
 
+function itemDictionary.sanitizeString(str)
+    str = str:gsub("[%(%)%.%+%-%*%?%[%]%^%$%%]", "%%%1") -- escape pattern
+    return str
+end
+
+
 function findMatchesFromItemDictionary(input, partitionID)
     local inputLower = string.lower(input)
     local inputLowerCut = string.sub(inputLower,1,3)
@@ -77,10 +83,11 @@ function findMatchesFromItemDictionary(input, partitionID)
     if not partitionMatches then return end
 
     local foundMatches, matchesToTypes = {}, {}
+    local sanitizedInputLower = itemDictionary.sanitizeString(inputLower)
     for partition,data in pairs(partitionMatches) do
         if (not partitionID) or (partitionID and partition==partitionID) then
             for searchKey,type in pairs(data) do
-                if string.find(string.lower(searchKey),inputLower) then
+                if string.find(string.lower(searchKey),sanitizedInputLower) then
                     table.insert(foundMatches, searchKey)
                     matchesToTypes[searchKey] = type
                 end
