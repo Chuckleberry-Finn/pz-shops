@@ -323,8 +323,8 @@ function STORE_HANDLER.validateItemType(storeID,itemType)
     local listing = storeObj.listings[itemType]
     local displayCat = validItem:getDisplayCategory()
 
-    if not listing then listing = storeObj.listings["category:"..displayCat] end
-    if not listing then print("ERROR: \'"..itemType.."\' or \'"..displayCat.."\' not a listed for \'"..storeObj.name.."\'") return end
+    if not listing and displayCat then listing = storeObj.listings["category:"..displayCat] end
+    if not listing then print("ERROR: \'"..itemType.."\' or \'"..displayCat.."\' not listed for \'"..storeObj.name.."\'") return end
     return listing
 end
 
