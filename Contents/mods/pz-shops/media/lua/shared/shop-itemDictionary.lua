@@ -72,7 +72,7 @@ end
 
 
 function itemDictionary.sanitizeString(str)
-    str = str:gsub("[%(%)%.%+%-%*%?%[%]%^%$%%]", "%%%1") -- escape pattern
+    str = str:gsub("([^%w])", "%%%1")
     return str
 end
 
