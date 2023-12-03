@@ -1784,6 +1784,11 @@ function storeWindow:onBrowse(storeObj, worldObj, shopper, ignoreCapacityCheck)
 
     if isClient() and (not ignoreCapacityCheck) and (not storeWindow.checkMaxShopperCapacity(storeObj, worldObj, shopper)) then return end
 
+    if isClient() then
+        local itemDictionary = getItemDictionary()
+        itemDictionary.assemble()
+    end
+
     local ui = storeWindow:new(50,50,555,555, shopper, storeObj, worldObj)
     ui:initialise()
     ui:addToUIManager()

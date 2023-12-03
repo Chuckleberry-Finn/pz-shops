@@ -36,12 +36,11 @@ function itemDictionary.addToPartition(partitionID, result, searchKey)
     end
 end
 
-
+itemDictionary.pushedToServer = false
 function itemDictionary.assemble(pushToServer)
 
     ---NEEDED FOR BETTER SORTING TO WORK IN MP
-    if isServer() and ((not pushToServer) or itemDictionary.pushedToServer) then return end
-    itemDictionary.pushedToServer = true
+    if isServer() or itemDictionary.pushedToServer then return end
 
     local allItems = getScriptManager():getAllItems()
     for i=0, allItems:size()-1 do
@@ -65,7 +64,10 @@ function itemDictionary.assemble(pushToServer)
         end
     end
 
-    if isClient() then sendClientCommand("shop", "updateItemDictionary", { itemsToCategories=itemDictionary.itemsToCategories }) end
+    if isClient() then
+        sendClientCommand("shop", "updateItemDictionary", { itemsToCategories=itemDictionary.itemsToCategories })
+        itemDictionary.pushedToServer = true
+    end
 end
 
 
@@ -103,6 +105,5 @@ function isValidItemDictionaryCategory(input)
     return false
 end
 
-
-Events.OnLoad.Add(itemDictionary.assemble)
+--Events.OnLoad.Add(itemDictionary.assemble)
 --if isServer() then Events.OnGameBoot.Add(itemDictionary.assemble) end
