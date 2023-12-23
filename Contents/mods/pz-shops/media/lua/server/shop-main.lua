@@ -30,10 +30,20 @@ function WALLET_HANDLER.scrubWallet(playerID)
 end
 
 
-function WALLET_HANDLER.processCreditToStore(playerWallet,amount,storeID)
+function WALLET_HANDLER.updateWallet(playerObj, playerWallet)
+    if isServer() then
+        sendServerCommand(playerObj, "shop", "updateWallet", {wallet=playerWallet})
+    else
+        CLIENT_WALLETS[playerWallet.playerUUID] = playerWallet
+    end
+end
+
+
+function WALLET_HANDLER.processCreditToStore(playerWallet,playerObj,amount,storeID)
     --if SandboxVars.ShopsAndTraders.ShopsUseCash ~= 2 then return end
     playerWallet.credit = playerWallet.credit or {}
     playerWallet.credit[storeID] = (playerWallet.credit[storeID] or 0) + amount
+    WALLET_HANDLER.updateWallet(playerObj, playerWallet)
 end
 
 
@@ -41,13 +51,7 @@ function WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,amount)
     if SandboxVars.ShopsAndTraders.PlayerWallets then
         local newValue = math.max(0, playerWallet.amount+amount)
         playerWallet.amount = _internal.floorCurrency(newValue)
-
-        if isServer() then
-            sendServerCommand(playerObj, "shop", "updateWallet", {wallet=playerWallet})
-        else
-            CLIENT_WALLETS[playerWallet.playerUUID] = playerWallet
-        end
-
+        WALLET_HANDLER.updateWallet(playerObj, playerWallet)
     else
         if amount>0 then
             amount = _internal.floorCurrency(amount)
@@ -348,7 +352,7 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
             local adjustedPrice = listing.price*(listing.buybackRate/100)
 
             if SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then --credit
-                WALLET_HANDLER.processCreditToStore(playerWallet,adjustedPrice,storeID)
+                WALLET_HANDLER.processCreditToStore(playerWallet,playerObj,adjustedPrice,storeID)
 
             elseif SandboxVars.ShopsAndTraders.ShopsUseCash == 3 then --nothing
 
@@ -394,7 +398,7 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
                 local creditUsed = math.min(credit, costRemainder)
                 costRemainder = costRemainder-creditUsed
                 moneyNeeded = moneyNeeded-creditUsed
-                WALLET_HANDLER.processCreditToStore(playerWallet,0-creditUsed,storeID)
+                WALLET_HANDLER.processCreditToStore(playerWallet,playerObj,0-creditUsed,storeID)
             end
 
             WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,0-costRemainder)
