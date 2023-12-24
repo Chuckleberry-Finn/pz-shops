@@ -348,30 +348,6 @@ function ISInventoryPane:onMouseUp(x, y)
     end
 end
 
----@param item InventoryItem|Literature
-local function onDepositContext(item, player, x, y)
-    getPlayerInfoPanel(player:getPlayerNum()).charScreen:depositMoney(item)
-end
-
-local function addContext(playerID, context, items)
-    local playerObj = getSpecificPlayer(playerID)
-    for _, v in ipairs(items) do
-        local item = v
-        if not instanceof(v, "InventoryItem") then item = v.items[1] end
-        if _internal.isMoneyType(item:getFullType()) then
-            local itemValue = item:getModData().value
-            if not itemValue then generateMoneyValue(item) end
-            if itemValue and itemValue>0 and canManipulateMoney(item, playerObj) then
-                context:addOption(getText("IGUI_SPLIT"), item, onSplitStack, playerObj)
-                if SandboxVars.ShopsAndTraders.PlayerWallets then
-                    context:addOption(getText("IGUI_PLACEINWALLET"), item, onDepositContext, playerObj)
-                end
-            end
-        end
-    end
-end
-Events.OnPreFillInventoryObjectContextMenu.Add(addContext)
-
 
 function ISCharacterScreen:withdrawMoney(button)
     if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
@@ -407,12 +383,40 @@ end
 
 
 ---@param moneyItem InventoryItem|IsoObject
-function ISCharacterScreen:depositMoney(moneyItem)
+local function _depositMoney(moneyItem, player)
     if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
-    local playerModData = self.char:getModData()
+    if not player then print("WARN: depositMoney attempt without player.") end
+    local playerModData = player:getModData()
     local value = moneyItem:getModData().value
     sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=value})
-    safelyRemoveMoney(moneyItem, self.char)
+    safelyRemoveMoney(moneyItem, player)
+end
+
+
+local function addContext(playerID, context, items)
+    local playerObj = getSpecificPlayer(playerID)
+    for _, v in ipairs(items) do
+        local item = v
+        if not instanceof(v, "InventoryItem") then item = v.items[1] end
+        if _internal.isMoneyType(item:getFullType()) then
+            local itemValue = item:getModData().value
+            if not itemValue then generateMoneyValue(item) end
+            if itemValue and itemValue>0 and canManipulateMoney(item, playerObj) then
+                context:addOption(getText("IGUI_SPLIT"), item, onSplitStack, playerObj)
+                if SandboxVars.ShopsAndTraders.PlayerWallets then
+                    context:addOption(getText("IGUI_PLACEINWALLET"), item, _depositMoney, playerObj)
+                end
+            end
+        end
+    end
+end
+Events.OnPreFillInventoryObjectContextMenu.Add(addContext)
+
+
+---@param moneyItem InventoryItem|IsoObject
+function ISCharacterScreen:depositMoney(moneyItem, player)
+    if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
+    _depositMoney(moneyItem, player)
     self.withdrawButton:setTitle(string.lower(getText("IGUI_WITHDRAW")))
 end
 
@@ -424,12 +428,12 @@ function ISCharacterScreen:depositOnMouseUp(x, y)
     if ISMouseDrag.dragging then
         for i,v in ipairs(ISMouseDrag.dragging) do
             counta = 1
-            if instanceof(v, "InventoryItem") and _internal.isMoneyType(v:getFullType()) then self.parent:depositMoney(v)
+            if instanceof(v, "InventoryItem") and _internal.isMoneyType(v:getFullType()) then self.parent:depositMoney(v, self.parent.char)
             else
                 if v.invPanel.collapsed[v.name] then
                     counta = 1
                     for i2,v2 in ipairs(v.items) do
-                        if counta > 1 and _internal.isMoneyType(v2:getFullType()) then self.parent:depositMoney(v2) end
+                        if counta > 1 and _internal.isMoneyType(v2:getFullType()) then self.parent:depositMoney(v2, self.parent.char) end
                         counta = counta + 1
                     end
                 end
