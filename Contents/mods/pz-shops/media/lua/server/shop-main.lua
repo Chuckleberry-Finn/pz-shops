@@ -72,7 +72,7 @@ end
 
 function WALLET_HANDLER.getOrSetPlayerWallet(playerID,steamID,playerUsername,playerObj)
     local matchingWallet = GLOBAL_WALLETS[playerID] or WALLET_HANDLER.new(playerID,steamID,playerUsername)
-
+    if not matchingWallet then return end
     matchingWallet.steamID = matchingWallet.steamID or steamID
     matchingWallet.playerUsername = matchingWallet.playerUsername or playerUsername
 
