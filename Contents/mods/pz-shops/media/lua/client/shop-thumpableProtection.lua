@@ -15,7 +15,7 @@ end
 ---@param weapon HandWeapon
 ---@param thump IsoThumpable
 local function onWeaponHitThumpable(player, weapon, thump)
-    if weapon and testCanThump(thump, player) then
+    if player and weapon and thump and instanceof(thump, "IsoThumpable") and testCanThump(thump, player) then
         local dmg = weapon:getDoorDamage()
         thump:setHealth(thump:getHealth()+dmg)
     end
