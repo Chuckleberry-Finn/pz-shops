@@ -1,1 +1,1 @@
-Events.OnGameBoot.Add(function() print("Shops and Traders: ver:0.9.6__MAR-9-DUPE-FIX-3") end)
+Events.OnGameBoot.Add(function() print("Shops and Traders: JAN-5-24") end)
