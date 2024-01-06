@@ -81,13 +81,14 @@ end
 
 function _internal.tableToString(object,nesting)
     nesting = nesting or 0
-    local text = ""..string.rep("  ", nesting)
+    local indent = "    "
+    local text = ""..string.rep(indent, nesting)
     if type(object) == 'table' then
         local s = "{\n"
         for k,v in pairs(object) do
-            s = s..string.rep("  ", nesting+1).."\[\""..k.."\"\] = ".._internal.tableToString(v,nesting+1)..",\n"
+            s = s..string.rep(indent, nesting+1).."\[\""..k.."\"\] = ".._internal.tableToString(v,nesting+1)..",\n"
         end
-        text = s..string.rep("  ", nesting).."}"
+        text = s..string.rep(indent, nesting).."}"
     else
         if type(object) == "string" then text = "\""..tostring(object).."\""
         else text = tostring(object)
