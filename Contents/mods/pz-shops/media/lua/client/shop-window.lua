@@ -1444,7 +1444,7 @@ end
 
 function storeWindow:onClick(button)
 
-    self.resetActivity()
+    self:resetActivity()
 
     local x, y, z, worldObjName = self.worldObject:getX(), self.worldObject:getY(), self.worldObject:getZ(), _internal.getWorldObjectName(self.worldObject)
 
@@ -1719,14 +1719,14 @@ end
 
 
 storeWindow.activityTimeOut = false
-function storeWindow.resetActivity()
+function storeWindow:resetActivity()
     if SandboxVars.ShopsAndTraders.ActivityTimeOut and SandboxVars.ShopsAndTraders.ActivityTimeOut > 0 then
         self.activityTimeOut = getTimeInMillis()+(SandboxVars.ShopsAndTraders.ActivityTimeOut*1000)
     end
 end
 
 function storeWindow:onMouseUp(x, y)
-    self.resetActivity()
+    self:resetActivity()
     ISPanelJoypad.onMouseUp(self)
 end
 

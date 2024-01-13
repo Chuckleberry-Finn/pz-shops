@@ -5,3 +5,7 @@
 - Fix: Windows throwing errors for thumpable protections.
 - Fix: Wallet checks throwing errors.
 [ ---- ]
+
+[ 1/12/24 ]
+- Fix issue with inactivity timer.
+[ ---- ]
