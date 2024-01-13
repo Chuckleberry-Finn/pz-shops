@@ -241,6 +241,10 @@ end
 
 ---@param item InventoryItem
 local function onSplitStack(item, player, x, y)
+    if ISSliderBox.instance and ISSliderBox.instance:isVisible() then
+        ISSliderBox.instance:bringToTop()
+        return
+    end
     x = x or getMouseX()
     y = y or getMouseY()
     local slider = ISSliderBox:new(x, y, 280, 100, "", ISSliderBox.onClick, player, item)
@@ -352,10 +356,14 @@ end
 function ISCharacterScreen:withdrawMoney(button)
     if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
     if SandboxVars.ShopsAndTraders.CanWithdraw then
+
         local wallet, walletBalance = getWallet(self.char), 0
         if wallet then walletBalance = wallet.amount end
 
         if walletBalance <= 0 then return end
+
+        if self.withdrawButton.busy then return end
+        self.withdrawButton.busy = 15
         onSplitStack(nil, self.char, ISCharacterInfoWindow.instance.x+button.x+button.width+10, ISCharacterInfoWindow.instance.y+button.y+button.height+15)
     end
 end
@@ -366,7 +374,6 @@ function ISCharacterScreen:moneyMouseOut(x, y)
 end
 function ISCharacterScreen:moneyMouseOver(x, y)
     if not self.withdrawButton.mouseOver or not self.withdrawButton.onmouseover then return end
-
     if self.vscroll then self.vscroll.scrolling = false end
     local money = false
     if ISMouseDrag.dragging then
@@ -424,8 +431,13 @@ end
 function ISCharacterScreen:depositOnMouseUp(x, y)
     if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
     if self.vscroll then self.vscroll.scrolling = false end
+
     local counta = 1
+
+    if self.busy then return end
     if ISMouseDrag.dragging then
+        self.busy = 15
+
         for i,v in ipairs(ISMouseDrag.dragging) do
             counta = 1
             if instanceof(v, "InventoryItem") and _internal.isMoneyType(v:getFullType()) then self.parent:depositMoney(v, self.parent.char)
@@ -482,11 +494,18 @@ function ISCharacterScreen:render()
         local wallet = getWallet(self.char)
         local walletBalance = wallet and wallet.amount
 
+        if self.withdrawButton and self.withdrawButton.busy then
+            self.withdrawButton.busy = self.withdrawButton.busy-1
+            if self.withdrawButton.busy <= 0 then
+                self.withdrawButton.busy = nil
+            end
+        end
+
         if wallet then
             self.withdrawButton:setX(self.avatarX+self.avatarWidth+25)
             self.withdrawButton:setY(self.literatureButton.y+52)
             self.withdrawButton:setWidthToTitle(55)
-            self.withdrawButton.enable = (walletBalance > 0)
+            self.withdrawButton.enable = (not self.withdrawButton.busy) and (walletBalance > 0)
             local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
             self:drawText(walletBalanceLine, self.withdrawButton.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
         else

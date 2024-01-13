@@ -8,4 +8,5 @@
 
 [ 1/12/24 ]
 - Fix issue with inactivity timer.
+- Fix edge-case exploit with depositing cash.
 [ ---- ]
