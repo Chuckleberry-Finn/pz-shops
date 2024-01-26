@@ -139,7 +139,9 @@ end
 
 function ISInventoryPage:onShopClick(button) shopStore(button.inventory, self.player) end
 function ISInventoryPage:onShopRightMouseDown(x, y)
-    if not ISLootZed.cheat and not isAdmin() then
+    if ISLootZed.cheat or isAdmin() then
+        ISInventoryPage.onBackpackRightMouseDown(self, x, y)
+    else
         shopStore(self.inventory, self.player)
     end
 end

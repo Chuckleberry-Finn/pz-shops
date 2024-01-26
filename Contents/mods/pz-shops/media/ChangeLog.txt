@@ -10,3 +10,7 @@
 - Fix issue with inactivity timer.
 - Fix edge-case exploit with depositing cash.
 [ ---- ]
+
+[ 1/26/24 ]
+- Fixed lootzed/admin refill loot right click option.
+[ ------ ]
