@@ -14,3 +14,7 @@
 [ 1/26/24 ]
 - Fixed lootzed/admin refill loot right click option.
 [ ------ ]
+
+[ 1/28/24 ]
+- Fixes issues with disassemble/thump protection.
+[ ------ ]
