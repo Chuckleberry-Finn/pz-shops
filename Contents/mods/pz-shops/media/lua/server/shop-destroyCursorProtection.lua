@@ -10,10 +10,11 @@ function ISDestroyCursor:canDestroy(object)
     if objectModData then
         local storeObjID = objectModData.storeObjID
         if storeObjID then
-            local storeObj = GLOBAL_STORES[storeObjID]
-            if storeObj then--and not _internal.canManageStore(storeObj,self.character) then
-                return false
-            end
+            --local storeObj = GLOBAL_STORES[storeObjID]
+            --if storeObj then--and not _internal.canManageStore(storeObj,self.character) then
+            --    return false
+            --end
+            return false
         end
     end
 
