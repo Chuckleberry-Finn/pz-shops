@@ -10,7 +10,7 @@ local function testCanScrap(object, playerObj)
         if storeObjID then
             --local storeObj = CLIENT_STORES[storeObjID]
             --if storeObj then
-                return false
+            return false
             --end
         end
     end
