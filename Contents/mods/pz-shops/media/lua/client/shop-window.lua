@@ -604,7 +604,6 @@ function storeWindow:populateComboList()
     self.assignComboBox:clear()
     self.assignComboBox:addOptionWithData("BLANK", false)
     if _internal.isAdminHostDebug() then
-        sendClientCommand(self.player,"shop", "ImportStores", {})
         for ID,DATA in pairs(CLIENT_STORES) do
             if not DATA.ownerID then self.assignComboBox:addOptionWithData(DATA.name, ID) end
         end

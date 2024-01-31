@@ -13,6 +13,8 @@ function CONTEXT_HANDLER.preGenerateContextMenu(playerID, context, worldObjects,
     local playerObj = getSpecificPlayer(playerID)
     local square
 
+    if _internal.isAdminHostDebug() then sendClientCommand(playerObj,"shop", "ImportStores", {}) end
+
     for _,v in ipairs(worldObjects) do square = v:getSquare() end
     if not square then return end
 
