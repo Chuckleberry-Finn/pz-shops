@@ -33,8 +33,10 @@ local function onClientCommand(_module, _command, _player, _data)
     end
 
     if _command == "ImportStores" then
-        if _data.stores then _internal.copyAgainst(GLOBAL_STORES, _data.stores) end
-        if isServer() then sendServerCommand(_player,"shop", "incomingImport", {stores=GLOBAL_STORES}) end
+        if isServer() then
+            if _data.stores then _internal.copyAgainst(GLOBAL_STORES, _data.stores) end
+            sendServerCommand(_player,"shop", "incomingImport", {stores=GLOBAL_STORES})
+        end
     end
 
     if _command == "getOrSetWallet" then
