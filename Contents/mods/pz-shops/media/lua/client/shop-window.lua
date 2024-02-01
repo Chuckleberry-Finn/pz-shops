@@ -1336,10 +1336,13 @@ function storeWindow:render()
 
     if (not self.storeObj) then
         self.manageBtn:setVisible(false)
-        self:populateComboList()
         blocked = true
     end
 
+    if self.repop and self.repop > 0 then
+        self.repop = self.repop-1
+        if self.repop <= 0 then self:populateComboList() end
+    end
 
     local shouldSeeStorePresetOptions = (not self.storeObj) and _internal.isAdminHostDebug()
 
@@ -1467,6 +1470,8 @@ function storeWindow:onClick(button)
                 end
             end
         end
+
+        self.repop = 2
     end
 
     if button.internal == "CLEAR_STORE" and self.storeObj and self:isBeingManaged() then
