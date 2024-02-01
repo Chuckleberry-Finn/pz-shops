@@ -7,12 +7,7 @@ local function testCanScrap(object, playerObj)
     local objectModData = object:getModData()
     if objectModData then
         local storeObjID = objectModData.storeObjID
-        if storeObjID then
-            --local storeObj = CLIENT_STORES[storeObjID]
-            --if storeObj then
-            return false
-            --end
-        end
+        if storeObjID then return false end
     end
     return true
 end
