@@ -36,6 +36,8 @@ local function onClientCommand(_module, _command, _player, _data)
         if isServer() then
             if _data.stores then _internal.copyAgainst(GLOBAL_STORES, _data.stores) end
             sendServerCommand(_player,"shop", "incomingImport", {stores=GLOBAL_STORES})
+        else
+            _internal.copyAgainst(CLIENT_STORES, GLOBAL_STORES)
         end
     end
 
