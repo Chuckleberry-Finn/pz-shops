@@ -206,6 +206,7 @@ function STORE_HANDLER.updateStore(storeObj,ID)
     if isServer() then
         sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
     else
+        GLOBAL_STORES[ID] = storeObj
         CLIENT_STORES[ID] = storeObj
     end
 end
