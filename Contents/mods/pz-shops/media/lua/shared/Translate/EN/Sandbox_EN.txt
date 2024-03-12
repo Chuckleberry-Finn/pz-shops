@@ -43,4 +43,7 @@ Sandbox_EN = {
 	Sandbox_ShopsAndTraders_ActivityTimeOut = "Shopping Activity Time Out"
     Sandbox_ShopsAndTraders_ActivityTimeOut_tooltip = "Set to 0 to disable. Timer is counted in seconds."
 
+    Sandbox_ShopsAndTraders_ShopItemPriceLimit = "Price Limit On Shop Items",
+    Sandbox_ShopsAndTraders_ShopItemPriceLimit_tooltip = "The maximum price a shop item can assume.\nDefault to 0.00 shop items will not have a limit on their price",
+
 	}

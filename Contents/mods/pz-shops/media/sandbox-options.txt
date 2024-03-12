@@ -38,3 +38,6 @@ option ShopsAndTraders.MaxUsers
 
 option ShopsAndTraders.ActivityTimeOut
 {type = integer, min = 0, max = 3600, default = 0, page = ShopsAndTraders, translation = ShopsAndTraders_ActivityTimeOut,}
+
+option ShopsAndTraders.ShopItemPriceLimit
+{type = double, min = 0.00, max = 999999999, default = 0.00, page = ShopsAndTraders, translation = ShopsAndTraders_ShopItemPriceLimit,}
