@@ -537,7 +537,7 @@ function storeWindow:initialise()
     self.assignComboBox:instantiate()
     self:addChild(self.assignComboBox)
     self:populateComboList()
-    
+
     local acb = self.assignComboBox
 
     self.aBtnDel = ISButton:new(acb.x-delBtnW-2, acb.y, delBtnW, acb.height, getText("IGUI_DELETEPRESET"), self, storeWindow.onClick)
@@ -911,7 +911,7 @@ function storeWindow:update()
         self:closeStoreWindow()
         return
     end
-    
+
     if activityExpired or not self.player or not self.worldObject or (math.abs(self.player:getX()-self.worldObject:getX())>2) or (math.abs(self.player:getY()-self.worldObject:getY())>2) then
         self:closeStoreWindow()
         return
@@ -1526,7 +1526,13 @@ function storeWindow:onClick(button)
         end
 
         local price = 0
-        if self.addStockPrice.enable and self.addStockPrice:getInternalText() then price = tonumber(self.addStockPrice:getInternalText()) end
+        if self.addStockPrice.enable and self.addStockPrice:getInternalText() then
+            price = tonumber(self.addStockPrice:getInternalText())
+
+            if SandboxVars.ShopsAndTraders.ShopItemPriceLimit > 0 and price > SandboxVars.ShopsAndTraders.ShopItemPriceLimit then
+                price = SandboxVars.ShopsAndTraders.ShopItemPriceLimit
+            end
+        end
 
         local quantity = 0
         if self.addStockQuantity.enable and self.addStockQuantity:getInternalText() then quantity = tonumber(self.addStockQuantity:getInternalText()) end
@@ -1575,7 +1581,7 @@ function storeWindow:onClick(button)
         reader:close()
 
         local totalStr = table.concat(lines, "\n")
-        
+
         local tbl = _internal.stringToTable(totalStr)
         if (not tbl) or (type(tbl)~="table") then
             print("ERROR: STORES MASS IMPORT FAILED.")
