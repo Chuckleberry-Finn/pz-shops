@@ -44,6 +44,9 @@ Sandbox_EN = {
     Sandbox_ShopsAndTraders_ActivityTimeOut_tooltip = "Set to 0 to disable. Timer is counted in seconds."
 
     Sandbox_ShopsAndTraders_ShopItemPriceLimit = "Price Limit On Shop Items",
-    Sandbox_ShopsAndTraders_ShopItemPriceLimit_tooltip = "The maximum price a shop item can assume.\nDefault to 0.00 shop items will not have a limit on their price",
+    Sandbox_ShopsAndTraders_ShopItemPriceLimit_tooltip = "The maximum price a shop item can assume.\nDefault to 0.00 shop items will not have a limit on their price,",
+
+    Sandbox_ShopsAndTraders_ShopContainers = "Containers that can be used as Shops",
+    Sandbox_ShopsAndTraders_ShopContainers_tooltip = "A comma separated list of the container names that can be used as shops (e.g. Crate,Military Crate).\nBy default if left blank, all containers can be used as shops.",
 
 	}

@@ -41,3 +41,6 @@ option ShopsAndTraders.ActivityTimeOut
 
 option ShopsAndTraders.ShopItemPriceLimit
 {type = double, min = 0.00, max = 999999999, default = 0.00, page = ShopsAndTraders, translation = ShopsAndTraders_ShopItemPriceLimit,}
+
+option ShopsAndTraders.ShopContainers
+{type = string, default = , page = ShopsAndTraders, translation = ShopsAndTraders_ShopContainers,}
