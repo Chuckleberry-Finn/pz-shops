@@ -103,4 +103,11 @@ function _internal.stringToTable(inputstr)
     return tblTbl
 end
 
+---@param container ItemContainer
+function _internal.isValidContainer(container)
+    if not container return false
+
+    return true
+end
+
 return _internal

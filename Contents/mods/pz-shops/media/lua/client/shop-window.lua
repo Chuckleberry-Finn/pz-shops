@@ -18,7 +18,7 @@ function storeWindow:getItemTypesInStoreContainer(itemType)
     if not worldObject then return end
 
     local container = worldObject:getContainer()
-    if not container then return end
+    if not _internal.isValidContainer(container) then return end
 
     local items = container:getAllType(itemType)
     if items then return items end
