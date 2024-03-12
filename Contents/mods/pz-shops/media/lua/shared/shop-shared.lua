@@ -105,9 +105,23 @@ end
 
 ---@param container ItemContainer
 function _internal.isValidContainer(container)
-    if not container return false
+    if not container then
+        return false
+    end
 
-    return true
+    local shopContainers = SandboxVars.ShopsAndTraders.ShopContainers
+    if shopContainers == "" then
+        return true
+    end
+
+    local containerName = _internal.getWorldObjectName(container:getParent())
+    for shopContainer in string.gmatch(shopContainers, "([^,]+)") do
+        if containerName == shopContainer then
+            return true
+        end
+    end
+
+    return false
 end
 
 return _internal

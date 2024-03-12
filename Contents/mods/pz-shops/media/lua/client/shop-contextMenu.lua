@@ -83,7 +83,7 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects, te
 
                 elseif worldObject:getModData().storeObjID then
                     contextText = getText("ContextMenu_SHOP_AT").." "..objectName
-                    
+
                 elseif _internal.isAdminHostDebug() then
                     contextText = objectName.." [ "..getText("ContextMenu_ASSIGN_STORE").." ]"
                 end
