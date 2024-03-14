@@ -18,3 +18,10 @@
 [ 1/28/24 ]
 - Fixes issues with disassemble/thump protection.
 [ ------ ]
+
+[ 3/14/24 ]
+Credit to EasyPeasyViking:
+- Possibility to set a limit for the shop items price
+- Possibility to allow only a certain list of containers that can be used as shops
+- Extra: Allow Starting Amount of Money to be set to 0 (zero)
+[ ------ ]
