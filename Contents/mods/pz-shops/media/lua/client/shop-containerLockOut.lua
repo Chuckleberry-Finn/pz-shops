@@ -121,7 +121,7 @@ end
 
 
 local function shopStore(container, player)
-    if not container or not player then return end
+    if not _internal.isValidContainer(container) or not player then return end
     local object = container:getParent()
     local objStoreID = object:getModData().storeObjID
     if objStoreID then
@@ -159,7 +159,7 @@ local function hideButtons(UI, STEP)
 
                     containerButton.onclick = ISInventoryPage.onShopClick
                     containerButton.onRightMouseDown = ISInventoryPage.onShopRightMouseDown
-                    
+
                     if not canView then
                         containerButton:setOnMouseOverFunction(nil)
                         containerButton:setOnMouseOutFunction(nil)

@@ -13,7 +13,7 @@ option ShopsAndTraders.ShopsUseCash
 {type = enum, numValues = 3, default = 1, page = ShopsAndTraders, translation = ShopsAndTraders_ShopsUseCash, valueTranslation = ShopsAndTraders_CashPolicy,}
 
 option ShopsAndTraders.StartingWallet
-{type = double, min = 0.01, max = 1000000, default = 25, page = ShopsAndTraders, translation = ShopsAndTraders_StartingWallet,}
+{type = double, min = 0.00, max = 1000000, default = 25, page = ShopsAndTraders, translation = ShopsAndTraders_StartingWallet,}
 
 option ShopsAndTraders.MoneyWeight
 {type = double, min = 0.001, max = 1000, default = 0.001, page = ShopsAndTraders, translation = ShopsAndTraders_MoneyWeight,}
@@ -38,3 +38,9 @@ option ShopsAndTraders.MaxUsers
 
 option ShopsAndTraders.ActivityTimeOut
 {type = integer, min = 0, max = 3600, default = 0, page = ShopsAndTraders, translation = ShopsAndTraders_ActivityTimeOut,}
+
+option ShopsAndTraders.ShopItemPriceLimit
+{type = double, min = 0.00, max = 999999999, default = 0.00, page = ShopsAndTraders, translation = ShopsAndTraders_ShopItemPriceLimit,}
+
+option ShopsAndTraders.ShopContainers
+{type = string, default = , page = ShopsAndTraders, translation = ShopsAndTraders_ShopContainers,}

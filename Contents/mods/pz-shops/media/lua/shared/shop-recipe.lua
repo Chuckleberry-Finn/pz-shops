@@ -31,7 +31,7 @@ function shopsAndTradersRecipe.checkDeedValid(recipe, playerObj, item) --onCanPe
     if not item then return false end
 
     local cont = item:getContainer()
-    if not cont then return false end
+    if not _internal.isValidContainer(cont) then return false end
 
     local worldObj = cont and (not cont:isInCharacterInventory(playerObj)) and cont:getParent()
     if not worldObj then return false end
@@ -46,7 +46,7 @@ function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
 
     local item = items:get(0)
     local cont = item:getContainer()
-    if not cont then return false end
+    if not _internal.isValidContainer(cont) then return false end
 
     local worldObj = cont and (not cont:isInCharacterInventory(player)) and cont:getParent()
     if not worldObj then return false end
