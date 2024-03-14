@@ -1529,9 +1529,10 @@ function storeWindow:onClick(button)
         if self.addStockPrice.enable and self.addStockPrice:getInternalText() then
             price = tonumber(self.addStockPrice:getInternalText())
 
-            if SandboxVars.ShopsAndTraders.ShopItemPriceLimit > 0 and price > SandboxVars.ShopsAndTraders.ShopItemPriceLimit then
+            if SandboxVars.ShopsAndTraders.ShopItemPriceLimit and SandboxVars.ShopsAndTraders.ShopItemPriceLimit > 0 and price > SandboxVars.ShopsAndTraders.ShopItemPriceLimit then
                 price = SandboxVars.ShopsAndTraders.ShopItemPriceLimit
             end
+
         end
 
         local quantity = 0
