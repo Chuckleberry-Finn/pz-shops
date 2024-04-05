@@ -25,3 +25,7 @@ Credit to EasyPeasyViking:
 - New Sandbox Option: Whitelist of containers that can be used as shops
 - Extra: Allow Starting Amount of Money to be set to 0 (zero)
 [ ------ ]
+
+[ 4/5/24 ]
+- Fix recipe generation for Deeds.
+[ ------ ]
