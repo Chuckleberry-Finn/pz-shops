@@ -169,7 +169,7 @@ function shopsAndTradersRecipe.addDeedRecipe()
             item = "keep Base.Money"
         end
 
-        local extracted = string.match(item, " (.*)") or item
+        local extracted = string.match(item, " (*.)") or item
 
         if not string.match(extracted,"%.") then
             item = string.gsub(item, extracted, "Base."..extracted)
@@ -189,7 +189,7 @@ function shopsAndTradersRecipe.addDeedRecipe()
         tooltip = "Tooltip:"..getText("IGUI_requires").." ".._internal.numToCurrency(moneyValueForDeedRecipe)..", "
     end
 
-    --print("SCRIPT:", rebuiltScript)
+    --print("SCRIPT:", deedScript.header .. ingredients .. deedScript.body .. tooltip.. deedScript.footer)
     --print("$VALUE: ", moneyValueForDeedRecipe)
 
     local scriptManager = getScriptManager()
