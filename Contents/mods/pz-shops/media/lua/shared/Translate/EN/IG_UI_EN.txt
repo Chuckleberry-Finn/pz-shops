@@ -20,7 +20,7 @@ IGUI_EN = {
     IGUI_RATE_TOOLTIP = "Buyback Rate",
     IGUI_YOURCART = "Your Cart",
     IGUI_PURCHASE = "Trade",
-    IGUI_STOREBEINGMANAGED = "This store is not accessible at this time.",
+    IGUI_STOREBEINGMANAGED = "This store is in manage-mode, and thus not accessible at this time.",
     IGUI_CONNECTPRESET = "Connect Store",
     IGUI_COPYPRESET = "Make a Copy",
     IGUI_DELETEPRESET = "Delete",
@@ -56,5 +56,6 @@ IGUI_EN = {
 
     IGUI_IMPORT = "Import",
     IGUI_EDIT = "Edit",
-    IGUI_APPLY = "Apply",
+    IGUI_LOAD = "Load",
+    IGUI_EXIT = "EXIT",
 }

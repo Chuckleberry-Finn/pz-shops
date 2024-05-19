@@ -570,15 +570,15 @@ function storeWindow:initialise()
     self.importEditToggleButton:instantiate()
     self:addChild(self.importEditToggleButton)
 
-    self.importApplyButton = ISButton:new(self.aBtnDel.x, self.importEditToggleButton.y-29, self.aBtnDel.width, 25, getText("IGUI_APPLY"), self, storeWindow.onClick)
-    self.importApplyButton.internal = "IMPORT_APPLY_STORES"
-    self.importApplyButton.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
-    self.importApplyButton.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
-    self.importApplyButton:initialise()
-    self.importApplyButton:instantiate()
-    self:addChild(self.importApplyButton)
+    self.importLoadButton = ISButton:new(self.aBtnDel.x, self.importEditToggleButton.y-29, self.aBtnDel.width, 25, getText("IGUI_LOAD"), self, storeWindow.onClick)
+    self.importLoadButton.internal = "IMPORT_LOAD_STORES"
+    self.importLoadButton.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
+    self.importLoadButton.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
+    self.importLoadButton:initialise()
+    self.importLoadButton:instantiate()
+    self:addChild(self.importLoadButton)
 
-    self.importCancel = ISButton:new(self.aBtnDel.x, self.aBtnDel.y, self.aBtnDel.width, 25, getText("UI_Cancel"), self, storeWindow.onClick)
+    self.importCancel = ISButton:new(self.aBtnDel.x, self.aBtnDel.y, self.aBtnDel.width, 25, getText("UI_Exit"), self, storeWindow.onClick)
     self.importCancel.font = UIFont.NewSmall
     self.importCancel.internal = "IMPORT_EXPORT_CANCEL"
     self.importCancel.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
@@ -1232,7 +1232,7 @@ function storeWindow:updateButtons()
 
     self.importText.enable = false
     self.importCancel.enable = false
-    self.importApplyButton.enable = false
+    self.importLoadButton.enable = false
 
     self.assignComboBox.enable = false
     self.aBtnCopy.enable = false
@@ -1247,7 +1247,7 @@ function storeWindow:updateButtons()
         if self.importEditToggleButton.toggled==true then
             self.importText.enabled = true
             self.importCancel.enable = true
-            self.importApplyButton.enable = true
+            self.importLoadButton.enable = true
         end
         self.assignComboBox.enable = true
         self.aBtnCopy.enable = true
@@ -1354,7 +1354,7 @@ function storeWindow:render()
 
     self.importText:setVisible(shouldSeeStorePresetOptions and self.importEditToggleButton.toggled)
     self.importCancel:setVisible(shouldSeeStorePresetOptions and self.importEditToggleButton.toggled)
-    self.importApplyButton:setVisible(shouldSeeStorePresetOptions and self.importEditToggleButton.toggled)
+    self.importLoadButton:setVisible(shouldSeeStorePresetOptions and self.importEditToggleButton.toggled)
 
     if not (shouldSeeStorePresetOptions and self.importEditToggleButton.toggled) then self:displayOrderTotal() end
 
@@ -1436,7 +1436,7 @@ function storeWindow:render()
     if blocked and (not self.importText:isVisible()) then
         local blockingMessage = getText("IGUI_STOREBEINGMANAGED")
         self.blocker:drawText(blockingMessage, self.width/2 - (getTextManager():MeasureStringX(UIFont.Medium, blockingMessage) / 2), (self.height / 3) - 5, 1,1,1,1, UIFont.Medium)
-        local uiButtons = {self.no, self.assignComboBox, self.aBtnConnect, self.aBtnDel, self.aBtnCopy, self.importEditToggleButton, self.importCancel, self.importApplyButton, self.importText}
+        local uiButtons = {self.no, self.assignComboBox, self.aBtnConnect, self.aBtnDel, self.aBtnCopy, self.importEditToggleButton, self.importCancel, self.importLoadButton, self.importText}
         for _,btn in pairs(uiButtons) do btn:bringToTop() end
     end
 
@@ -1570,7 +1570,7 @@ function storeWindow:onClick(button)
         else openUrl(cacheDir) end
     end
 
-    if button.internal == "IMPORT_APPLY_STORES" then
+    if button.internal == "IMPORT_LOAD_STORES" then
         local reader = getFileReader("exportedShops.txt", false)
 
         local lines = {}
@@ -1589,8 +1589,9 @@ function storeWindow:onClick(button)
             self.importText:setText("ERROR: STORES MASS IMPORT FAILED.")
             return
         end
-        sendClientCommand("shop", "ImportStores", {stores=tbl, close=true})
+        sendClientCommand(self.player,"shop", "ImportStores", {stores=tbl, close=true})
         self.importText:setText(totalStr)
+        self:populateComboList()
     end
 
     if button.internal == "IMPORT_EXPORT_STORES" then
@@ -1600,6 +1601,7 @@ function storeWindow:onClick(button)
             self.importEditToggleButton:setTitle(getText("IGUI_EDIT"))
             self.importEditToggleButton.internal = "IMPORT_EDIT_STORES"
             self.importEditToggleButton.toggled = true
+            self:populateComboList()
         end
     end
 end

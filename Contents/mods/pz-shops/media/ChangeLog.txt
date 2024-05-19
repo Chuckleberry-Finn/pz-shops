@@ -29,3 +29,8 @@ Credit to EasyPeasyViking:
 [ 4/5/24 ]
 - Fix recipe generation for Deeds.
 [ ------ ]
+
+[ 5/18/24 ]
+- Fix loading/editing shops in SP issues.
+- Change language regarding manage mode.
+[ ------ ]
