@@ -61,9 +61,7 @@ function safelyRemoveMoney(moneyItem, player)
             worldItem:removeFromWorld()
             worldItem:removeFromSquare()
             worldItem:setSquare(nil)
-            getPlayerLoot(player:getPlayerNum()):refreshBackpacks()
         end
-        return
     end
 
     if moneyItem:isEquipped() then
@@ -95,6 +93,15 @@ function safelyRemoveMoney(moneyItem, player)
             container:removeItemOnServer(moneyItem)
         end
         container:DoRemoveItem(moneyItem)
+    end
+
+    if player then
+        ISInventoryPage.renderDirty = true
+        local playerNum = player:getPlayerNum()
+        local inventory = playerNum and getPlayerInventory(playerNum)
+        if inventory then inventory:refreshBackpacks() end
+        local loot = playerNum and getPlayerLoot(playerNum)
+        if loot then loot:refreshBackpacks() end
     end
 end
 
@@ -345,7 +352,7 @@ function ISInventoryPane:onMouseUp(x, y)
             for _,money in pairs(moneyFound) do
                 local valueFound = (money:getModData().value or 0)
                 consolidatedValue = consolidatedValue+valueFound
-                safelyRemoveMoney(money)
+                safelyRemoveMoney(money, getSpecificPlayer(self.player))
             end
             generateMoneyValue(pushToActual, ptValue+consolidatedValue, true)
         end
