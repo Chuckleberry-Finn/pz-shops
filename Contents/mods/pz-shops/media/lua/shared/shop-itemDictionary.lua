@@ -47,7 +47,7 @@ function itemDictionary.assemble(pushToServer)
         ---@type Item
         local itemScript = allItems:get(i)
         local itemModule = itemScript:getModuleName()
-        if not itemScript:getObsolete() and not itemScript:isHidden() and itemModule ~= "Moveables" then
+        if not itemScript:getObsolete() and not itemScript:isHidden() then --and itemModule ~= "Moveables" then
 
             local itemModuleType = itemScript:getFullName()
             --itemDictionary.addToPartition("type", itemModuleType, itemScript:getName()) -- type

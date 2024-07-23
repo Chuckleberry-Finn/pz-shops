@@ -1,4 +1,5 @@
 local _internal = require "shop-shared"
+local itemTransmit = require "shop-itemTransmit"
 
 local shopCommandsServerToClient = {}
 
@@ -33,7 +34,9 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
         end
     end
 
-    if _command == "transmitItems" then for _,itemType in pairs(_data.items) do getPlayer():getInventory():AddItem(itemType) end end
+    if _command == "transmitItems" then
+        itemTransmit.doIt(_data.items, getPlayer())
+    end
 
     if _command == "updateWallet" then
         local wallet = _data.wallet

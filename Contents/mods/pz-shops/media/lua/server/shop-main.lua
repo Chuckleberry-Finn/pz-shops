@@ -1,5 +1,6 @@
 require "shop-globalModDataServer"
 local _internal = require "shop-shared"
+local itemTransmit = require "shop-itemTransmit"
 
 WALLET_HANDLER = {}
 STORE_HANDLER = {}
@@ -115,9 +116,10 @@ store_listing.available = 0
 store_listing.storeID = false
 store_listing.reselling = true
 store_listing.alwaysShow = false
+store_listing.fields = false
 
-function STORE_HANDLER.newListing(storeObj,item,price,stock,buybackRate,reselling,alwaysShow)
-    local oldListing = storeObj.listings[item]
+function STORE_HANDLER.newListing(storeObj,item,fields,price,stock,buybackRate,reselling,alwaysShow)
+    local oldListing = storeObj.listings[item..(fields and fields.name or "")]
     local newListing = oldListing or copyTable(store_listing)
     newListing.item = item
     if price then
@@ -137,6 +139,8 @@ function STORE_HANDLER.newListing(storeObj,item,price,stock,buybackRate,resellin
         if buybackRate < 0 then buybackRate = 0 end
         newListing.buybackRate = buybackRate
     end
+
+    if fields then newListing.fields = fields end
 
     if reselling then newListing.reselling = true else newListing.reselling = false end
     if alwaysShow then newListing.alwaysShow = true else newListing.alwaysShow = false end
@@ -345,7 +349,7 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
     local playerWallet = WALLET_HANDLER.getOrSetPlayerWallet(playerID)
     if not playerWallet then print("ERROR: validatePurchases: No valid player wallet") return end
 
-    for _,itemType in pairs(selling) do
+    for _,data in pairs(selling) do
 
         local listing = STORE_HANDLER.validateItemType(storeID,itemType)
         if listing then
@@ -367,8 +371,7 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
 
             if listing.reselling == true then
                 if listing.item ~= itemType then
-                    local newListing = STORE_HANDLER.newListing(storeObj,itemType,listing.price,0,listing.buybackRate,listing.reselling)
-
+                    local newListing = STORE_HANDLER.newListing(storeObj,data.itemType,data.itemFields,listing.price,0,listing.buybackRate,listing.reselling)
                     if not storeObj.ownerID then newListing.available = newListing.available+1 end
                 else
                     if not storeObj.ownerID then listing.available = listing.available+1 end
@@ -409,20 +412,12 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
             end
 
             if not storeObj.ownerID then
-                table.insert(itemsToTransmit,listing.item)
+                table.insert(itemsToTransmit,{item=listing.item,fields=listing.fields})
             end
         end
     end
 
-    if #itemsToTransmit > 0 then
-        if isServer() then
-            sendServerCommand(playerObj, "shop", "transmitItems", {items=itemsToTransmit})
-        else
-            for _,itemType in pairs(itemsToTransmit) do
-                playerObj:getInventory():AddItem(itemType)
-            end
-        end
-    end
+    if #itemsToTransmit > 0 then itemTransmit.doIt(itemsToTransmit, playerObj) end
 
     STORE_HANDLER.updateStore(storeObj, storeID)
 end

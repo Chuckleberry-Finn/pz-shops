@@ -4,6 +4,7 @@ require "shop-wallet"
 require "shop-itemDictionary"
 require "TimedActions/ISInventoryTransferAction"
 local _internal = require "shop-shared"
+local itemFields = require "shop-itemFields"
 
 ---@class storeWindow : ISPanel
 storeWindow = ISPanelJoypad:derive("storeWindow")
@@ -107,9 +108,10 @@ end
 
 function storeWindow:addItemToYourStock(itemType, store, x, y, z, worldObjName, item, worldObject)
 
+    local fields = itemFields.gatherFields(item)
     sendClientCommand("shop", "listNewItem",
             { isBeingManaged=store.isBeingManaged, alwaysShow = false,
-              item=itemType, price=0, quantity=0, buybackRate=0, reselling=false,
+              item=itemType, fields=fields, price=0, quantity=0, buybackRate=0, reselling=false,
               storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
 
     if worldObject and item then
@@ -172,8 +174,9 @@ function storeWindow:setStockInput(listing)
     local text
 
     local SM = getScriptManager()
+    local movable = string.find(listing.item, "Moveables.") and "Moveables.Moveable"
     local script = SM:getItem(listing.item)
-    if script then
+    if script or movable then
 
         if self.tempStockSearchPartitionData then
             self.addStockSearchPartition:selectData(self.tempStockSearchPartitionData)
@@ -181,7 +184,9 @@ function storeWindow:setStockInput(listing)
             self.tempStockSearchPartitionData = nil
         end
 
-        if option == "category" then
+        if movable then
+            text = movable
+        elseif option == "category" then
             text = script:getDisplayCategory()
         elseif option == "name" then
             text = script:getDisplayName()
@@ -198,21 +203,10 @@ function storeWindow:setStockInput(listing)
     end
 
     if not text then return end
-
     self.addStockEntry:setText(text)
-    self.addStockPrice:setText(tostring(listing.price))
-    self.addStockBuyBackRate:setText(tostring(listing.buybackRate))
-
     self.alwaysShow.selected[1] = listing.alwaysShow
     self.resell.selected[1] = listing.reselling
-
-    local isCategory = not getScriptManager():getItem(listing.item)
-
-    if isCategory then
-        self.addStockQuantity:setText("")
-    else
-        self.addStockQuantity:setText(tostring(listing.stock))
-    end
+    self:populateListingList(listing)
 end
 
 
@@ -245,6 +239,7 @@ function storeWindow:onAddStockListSelected(selected)
     local label = self.addStockList.labels[selected]
     self.addStockEntry:setText(label)
 end
+
 
 function storeWindow:drawAddStockList(y, item, alt)
     if not self.parent:isBeingManaged() then return y end
@@ -338,6 +333,65 @@ end
 
 
 function storeWindow:dummyBringToTop() return end
+
+
+
+function storeWindow:onAddListingListSelected(selected)
+    if not self:isBeingManaged() then return end
+    --local label = self.addStockList.labels[selected]
+    --self.addStockEntry:setText(label)
+end
+
+
+function storeWindow:drawAddListingList(y, item, alt)
+    if not self.storeWindow:isBeingManaged() then return y end
+
+    self.itemAlpha = ((y/self.itemheight) % 2 == 0) and 0.3 or 0.6
+
+    self:drawRect(0, (y), self:getWidth(), self.itemheight-1, self.itemAlpha, 0.4, 0.4, 0.4)
+    self:drawText(item.text, 4, y+2, self.itemTextColor.r, self.itemTextColor.g, self.itemTextColor.b, self.itemTextColor.a, self.font)
+
+    return y + self.itemheight
+end
+
+
+function storeWindow:addListingListMouseUp(x, y)
+    print("x:, ",x)
+    print("y:, ",y)
+end
+
+
+function storeWindow:populateListingList(listing)
+    if not self:isBeingManaged() then return end
+
+    print("listing: ",listing)
+
+    self.addListingList:clear()
+
+    self.addStockPrice:setText(tostring(listing.price))
+    self.addListingList:addItem("Price: "..listing.price, listing.price)
+
+    self.addStockBuyBackRate:setText(tostring(listing.buybackRate))
+    self.addListingList:addItem("Buyback Rate: "..listing.buybackRate, listing.buybackRate)
+
+    local movable = string.find(listing.item, "Moveables.") and "Moveables.Moveable"
+    local script = getScriptManager():getItem(listing.item)
+    if not script and not movable then
+        self.addStockQuantity:setText("")
+    else
+        self.addStockQuantity:setText(tostring(listing.stock))
+        self.addListingList:addItem("Stock: "..listing.stock, listing.stock)
+    end
+
+    if listing.fields then
+        for field,value in pairs(listing.fields) do
+            self.addListingList:addItem(field..": "..tostring(value), value)
+        end
+    end
+
+    if (not self.addListingList.selected) or (self.addListingList.options and self.addListingList.selected > #self.addListingList.options) then self.addListingList.selected = 1 end
+end
+
 
 function storeWindow:initialise()
     ISPanelJoypad.initialise(self)
@@ -446,9 +500,47 @@ function storeWindow:initialise()
     self.addStockList.joypadParent = self
     self.addStockList.font = UIFont.NewSmall
     self.addStockList.doDrawItem = self.drawAddStockList
-    self.addStockList.onMouseUp = self.addStockListMouseUp
+    --self.addStockList.onMouseUp = self.addStockListMouseUp
     self.addStockList.drawBorder = true
     self:addChild(self.addStockList)
+
+
+    self.addListingList = ISScrollingListBox:new(0, 0, listWidh, self.height-32)
+    self.addListingList:initialise()
+    self.addListingList:instantiate()
+    self.addListingList:setOnMouseDownFunction(self, self.onAddListingListSelected)
+    self.addListingList.itemheight = getTextManager():getFontHeight(UIFont.NewMedium)+5
+    self.addListingList.selected = 0
+    self.addListingList.borderColor = {r=1, g=0, b=0, a=0.5}
+
+    self.addListingList.itemTextColor = {r=1, g=1, b=1, a=0.9}
+
+    self.addListingList.labels = {}
+    self.addListingList.storeWindow = self
+    self.addListingList.joypadParent = self
+    self.addListingList.font = UIFont.NewMedium
+    self.addListingList.doDrawItem = self.drawAddListingList
+    self.addListingList.onMouseUp = self.addListingListMouseUp
+    self.addListingList.drawBorder = true
+    self.addListingList.prerender = function()
+        if self.addListingList:isVisible() then
+            self.addListingList:setX(self.x+self.width+3)
+            self.addListingList:setY(self.y+32)
+            ISScrollingListBox.prerender(self.addListingList)
+        end
+    end
+
+    local _font = UIFont.Large
+    local FONT_HGT = getTextManager():getFontHeight(_font)
+    self.addListingList.label = ISLabel:new(0+(self.addListingList.width/2), 0-FONT_HGT, FONT_HGT, "MANAGE MODE", 1, 0, 0, 0.7, _font, true)
+    self.addListingList.label.center = true
+    self.addListingList.label:initialise()
+    self.addListingList.label:instantiate()
+    self.addListingList:addChild(self.addListingList.label)
+    self.addListingList:setVisible(false)
+    self.addListingList:addToUIManager()
+    --addChild(self.addListingList)
+
 
     self.resell = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.addStockSearchPartition.y+self.addStockSearchPartition.height+2, 18, 18, "", self, nil)
     self.resell.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
@@ -635,9 +727,10 @@ function storeWindow:rtrnTypeIfValid(item)
     local storeObj = self.storeObj
 
     if type(item) == "string" then
-        local itemScript = getScriptManager():getItem(item)
-        if itemScript then itemType = item end
-
+        local movable = string.find(item, "Moveables.")
+        local typing = movable and "Moveables.Moveable" or item
+        local itemScript = getScriptManager():getItem(typing)
+        if itemScript then itemType = typing end
         return itemType, false, itemCat
     else
 
@@ -815,9 +908,10 @@ function storeWindow:displayStoreStock()
     local managed = self:isBeingManaged() and _internal.canManageStore(storeObj,self.player)
 
     for _,listing in pairs(storeObj.listings) do
-
+        local movable = string.find(listing.item, "Moveables.") and "Moveables.Moveable"
         local script = scriptManager:getItem(listing.item)
-        local itemDisplayName = listing.item
+        local fieldName = listing.fields and listing.fields.name
+        local itemDisplayName = fieldName or listing.item
         if script then itemDisplayName = script:getDisplayName() end
 
         local isCategoryListingAndIsValid = (string.match(listing.item, "category:") and isValidItemDictionaryCategory(listing.item:gsub("category:","")))
@@ -859,7 +953,7 @@ function storeWindow:displayStoreStock()
             end
             tooltipText = tooltipText.." [buyback "..listing.buybackRate.."%]"
 
-            if not script and not isCategoryListingAndIsValid then tooltipText = "\<INVALID ITEM\> "..tooltipText end
+            if not script and not movable and not isCategoryListingAndIsValid then tooltipText = "\<INVALID ITEM\> "..tooltipText end
 
             local resell = listing.reselling
             if resell~=SandboxVars.ShopsAndTraders.TradersResellItems then if resell then tooltipText = tooltipText.." [resell]" else tooltipText = tooltipText.." [no resell]" end end
@@ -1358,6 +1452,7 @@ function storeWindow:render()
 
     if not (shouldSeeStorePresetOptions and self.importEditToggleButton.toggled) then self:displayOrderTotal() end
 
+    self.addListingList:setVisible(managed and not blocked)
     self.addStockBtn:setVisible(managed and not blocked)
     self.manageStoreName:setVisible(managed and not blocked)
     self.addStockEntry:setVisible(managed and not blocked)
@@ -1543,8 +1638,11 @@ function storeWindow:onClick(button)
 
         local reselling = self.resell.selected[1]
 
+        local fields
         sendClientCommand("shop", "listNewItem", { isBeingManaged=store.isBeingManaged, alwaysShow = (self.alwaysShow.selected[1] or false),
-        item=newEntry, price=price, quantity=quantity, buybackRate=buybackRate, reselling=reselling, storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
+        item=newEntry, price=price, fields=fields, quantity=quantity, buybackRate=buybackRate, reselling=reselling, storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
+
+        self.addListingList:clear()
     end
 
     if button.internal == "CANCEL" then
@@ -1666,7 +1764,8 @@ function storeWindow:finalizeDeal()
                     end
                 else
                     removeItem = true
-                    table.insert(itemsToSell, itemType)
+                    local fields
+                    table.insert(itemsToSell, {itemType=itemType,fields=fields})
                 end
 
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
@@ -1759,6 +1858,9 @@ function storeWindow:closeStoreWindow()
         end
         if needUpdate then self.worldObject:transmitModData() end
     end
+
+    self.addListingList:setVisible(false)
+    self.addListingList:removeFromUIManager()
 
     self:setVisible(false)
     self:removeFromUIManager()
