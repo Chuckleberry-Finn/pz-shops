@@ -155,10 +155,11 @@ local function hideButtons(UI, STEP)
             if worldObj then
                 local canView = containerLockOut.canInteract(worldObj,getSpecificPlayer(UI.player))
                 if containerButton then
-                    if worldObj:getModData().storeObjID then containerButton.textureOverride = getTexture("media/textures/shopicon.png") end
-
-                    containerButton.onclick = ISInventoryPage.onShopClick
-                    containerButton.onRightMouseDown = ISInventoryPage.onShopRightMouseDown
+                    if worldObj:getModData().storeObjID then
+                        containerButton.onRightMouseDown = ISInventoryPage.onShopRightMouseDown
+                        containerButton.onclick = ISInventoryPage.onShopClick
+                        containerButton.textureOverride = getTexture("media/textures/shopicon.png")
+                    end
 
                     if not canView then
                         containerButton:setOnMouseOverFunction(nil)
