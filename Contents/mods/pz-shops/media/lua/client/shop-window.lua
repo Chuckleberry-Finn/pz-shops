@@ -93,12 +93,9 @@ function storeWindow:onStoreItemDoubleClick()
         self.storeStockData:removeItemByIndex(self.storeStockData.selected)
 
         self.addStockEntry:setText("")
-        self.addStockPrice:setText("")
-        self.addStockBuyBackRate:setText("")
 
         self.alwaysShow.selected[1] = false
         self.resell.selected[1] = true
-        self.addStockQuantity:setText("")
 
         sendClientCommand("shop", "removeListing", { item=item, storeID=self.storeObj.ID })
         return
@@ -368,18 +365,14 @@ function storeWindow:populateListingList(listing)
 
     self.addListingList:clear()
 
-    self.addStockPrice:setText(tostring(listing.price))
     self.addListingList:addItem("Price: "..listing.price, listing.price)
-
-    self.addStockBuyBackRate:setText(tostring(listing.buybackRate))
     self.addListingList:addItem("Buyback Rate: "..listing.buybackRate, listing.buybackRate)
 
     local movable = string.find(listing.item, "Moveables.") and "Moveables.Moveable"
     local script = getScriptManager():getItem(listing.item)
+
     if not script and not movable then
-        self.addStockQuantity:setText("")
     else
-        self.addStockQuantity:setText(tostring(listing.stock))
         self.addListingList:addItem("Stock: "..listing.stock, listing.stock)
     end
 
@@ -456,54 +449,9 @@ function storeWindow:initialise()
     self.addStockEntry:instantiate()
     self:addChild(self.addStockEntry)
 
-    self.addStockPrice = ISTextEntryBox:new("0", self.addStockEntry.x+10, self.addStockEntry.y+self.addStockEntry.height+3, 30, self.addStockBtn.height)
-    self.addStockPrice.font = UIFont.Small
-    self.addStockPrice.tooltip = getText("IGUI_CURRENCY_TOOLTIP")
-    self.addStockPrice:initialise()
-    self.addStockPrice:instantiate()
-    self:addChild(self.addStockPrice)
-
-    self.addStockQuantity = ISTextEntryBox:new("0", self.addStockPrice.x+self.addStockPrice.width+20, self.addStockPrice.y, 30, self.addStockBtn.height)
-    self.addStockQuantity.font = UIFont.Small
-    self.addStockQuantity.tooltip = getText("IGUI_STOCK_TOOLTIP")
-    self.addStockQuantity:initialise()
-    self.addStockQuantity:instantiate()
-    self:addChild(self.addStockQuantity)
-
-    self.addStockBuyBackRate = ISTextEntryBox:new("0", self.addStockQuantity.x+self.addStockQuantity.width+20, self.addStockQuantity.y, 30, self.addStockBtn.height)
-    self.addStockBuyBackRate.font = UIFont.Small
-    self.addStockBuyBackRate.tooltip = getText("IGUI_RATE_TOOLTIP")
-    self.addStockBuyBackRate:initialise()
-    self.addStockBuyBackRate:instantiate()
-    self:addChild(self.addStockBuyBackRate)
-
-    local addSearchX = self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10
-    self.addStockSearchPartition = ISComboBox:new(addSearchX, self.addStockBuyBackRate.y, self.width-addSearchX-10, 18)
-    self.addStockSearchPartition.borderColor = { r = 1, g = 1, b = 1, a = 0.4 }
-    self.addStockSearchPartition.onChange = storeWindow.addItemEntryChange
-    self.addStockSearchPartition:initialise()
-    self.addStockSearchPartition:instantiate()
-    self:addChild(self.addStockSearchPartition)
-    self.addStockSearchPartition:addOptionWithData(getText("IGUI_Name"), "name")
-    self.addStockSearchPartition:addOptionWithData(getText("IGUI_invpanel_Type"), "type")
-    self.addStockSearchPartition:addOptionWithData(getText("IGUI_invpanel_Category"), "category")
-
-    local addStockListY = self.addStockPrice.height+self.addStockPrice.y+5
-    local addStockListW = self.width-self.addStockBuyBackRate.width-self.addStockBuyBackRate.x+8
-    self.addStockList = ISScrollingListBox:new(self.addStockEntry.x, addStockListY, addStockListW, self.height-addStockListY-10)
-    self.addStockList:initialise()
-    self.addStockList:instantiate()
-    self.addStockList:setOnMouseDownFunction(self, self.onAddStockListSelected)
-    self.addStockList.itemheight = getTextManager():getFontHeight(UIFont.NewSmall)+4
-    self.addStockList.selected = 0
-    self.addStockList.labels = {}
-    self.addStockList.joypadParent = self
-    self.addStockList.font = UIFont.NewSmall
-    self.addStockList.doDrawItem = self.drawAddStockList
-    --self.addStockList.onMouseUp = self.addStockListMouseUp
-    self.addStockList.drawBorder = true
-    self:addChild(self.addStockList)
-
+    --addStockBuyBackRate
+    --addStockPrice
+    --addStockQuantity
 
     self.addListingList = ISScrollingListBox:new(0, 0, listWidh, self.height-32)
     self.addListingList:initialise()
@@ -541,8 +489,24 @@ function storeWindow:initialise()
     self.addListingList:addToUIManager()
     --addChild(self.addListingList)
 
+    self.purchase = ISButton:new(self.storeStockData.x + self.storeStockData.width - (math.max(btnWid, getTextManager():MeasureStringX(UIFont.Small, getText("IGUI_PURCHASE")) + 10)), self:getHeight() - padBottom - btnHgt, btnWid, btnHgt - 3, getText("IGUI_PURCHASE"), self, storeWindow.onClick)
+    self.purchase.internal = "PURCHASE"
+    self.purchase.borderColor = {r=1, g=1, b=1, a=0.4}
+    self.purchase:initialise()
+    self.purchase:instantiate()
+    self:addChild(self.purchase)
 
-    self.resell = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.addStockSearchPartition.y+self.addStockSearchPartition.height+2, 18, 18, "", self, nil)
+    self.addStockSearchPartition = ISComboBox:new(self.purchase.x, self.addStockEntry.y+self.addStockEntry.height+6, self.purchase.width-2, 18)
+    self.addStockSearchPartition.borderColor = { r = 1, g = 1, b = 1, a = 0.4 }
+    self.addStockSearchPartition.onChange = storeWindow.addItemEntryChange
+    self.addStockSearchPartition:initialise()
+    self.addStockSearchPartition:instantiate()
+    self:addChild(self.addStockSearchPartition)
+    self.addStockSearchPartition:addOptionWithData(getText("IGUI_Name"), "name")
+    self.addStockSearchPartition:addOptionWithData(getText("IGUI_invpanel_Type"), "type")
+    self.addStockSearchPartition:addOptionWithData(getText("IGUI_invpanel_Category"), "category")
+
+    self.resell = ISTickBox:new(self.purchase.x+4, self.purchase.y-self.purchase.height-8, 18, 18, "", self, nil)
     self.resell.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
     self.resell.tooltip = getText("IGUI_RESELL_TOOLTIP")
     self.resell:initialise()
@@ -552,7 +516,7 @@ function storeWindow:initialise()
     self:setResellOrSell()
     self:addChild(self.resell)
 
-    self.alwaysShow = ISTickBox:new(self.addStockBuyBackRate.x+self.addStockBuyBackRate.width+10, self.resell.y+self.resell.height+2, 18, 18, "", self, nil)
+    self.alwaysShow = ISTickBox:new(self.purchase.x+4, self.resell.y-self.resell.height, 18, 18, "", self, nil)
     self.alwaysShow.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
     self.alwaysShow.tooltip = getText("IGUI_ALWAYSSHOW_TOOLTIP")
     self.alwaysShow:initialise()
@@ -561,18 +525,27 @@ function storeWindow:initialise()
     self.alwaysShow:addOption(getText("IGUI_ALWAYSSHOW"))
     self:addChild(self.alwaysShow)
 
-    self.purchase = ISButton:new(self.storeStockData.x + self.storeStockData.width - (math.max(btnWid, getTextManager():MeasureStringX(UIFont.Small, getText("IGUI_PURCHASE")) + 10)), self:getHeight() - padBottom - btnHgt, btnWid, btnHgt - 3, getText("IGUI_PURCHASE"), self, storeWindow.onClick)
-    self.purchase.internal = "PURCHASE"
-    self.purchase.borderColor = {r=1, g=1, b=1, a=0.4}
-    self.purchase:initialise()
-    self.purchase:instantiate()
-    self:addChild(self.purchase)
-
     self.manageBtn = ISButton:new((self.width/2)-45, 77-btnHgt, 70, 20, getText("IGUI_MANAGESTORE"), self, storeWindow.onClick)
     self.manageBtn.internal = "MANAGE"
     self.manageBtn:initialise()
     self.manageBtn:instantiate()
     self:addChild(self.manageBtn)
+
+    local addStockListY = self.addStockSearchPartition.y
+    local addStockListW = self.storeStockData.width-self.purchase.width-8
+    self.addStockList = ISScrollingListBox:new(self.storeStockData.x, addStockListY, addStockListW, self.height-addStockListY-10)
+    self.addStockList:initialise()
+    self.addStockList:instantiate()
+    self.addStockList:setOnMouseDownFunction(self, self.onAddStockListSelected)
+    self.addStockList.itemheight = getTextManager():getFontHeight(UIFont.NewSmall)+4
+    self.addStockList.selected = 0
+    self.addStockList.labels = {}
+    self.addStockList.joypadParent = self
+    self.addStockList.font = UIFont.NewSmall
+    self.addStockList.doDrawItem = self.drawAddStockList
+    --self.addStockList.onMouseUp = self.addStockListMouseUp
+    self.addStockList.drawBorder = true
+    self:addChild(self.addStockList)
 
     local restockHours = ""
     if self.storeObj then restockHours = tostring(self.storeObj.restockHrs) end
@@ -1018,7 +991,7 @@ function storeWindow:removeItem(item) self.yourCartData:removeItem(item.text) en
 
 function storeWindow:validateElementColor(e)
     if not e then return end
-    if e==self.addStockQuantity and self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)=="category" then
+    if self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)=="category" then
         e.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
         e.textColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
         return
@@ -1210,20 +1183,8 @@ function storeWindow:prerender()
     local fontHeight = getTextManager():getFontHeight(font)
 
     if self:isBeingManaged() and _internal.canManageStore(self.storeObj,self.player) then
-        self:validateElementColor(self.addStockPrice)
-        local color = self.addStockPrice.textColor
-        self:drawText(getText("IGUI_CURRENCY_PREFIX"), self.addStockPrice.x-12, self.addStockPrice.y, color.r,color.g,color.b,color.a, font)
-        self:drawText(" "..getText("IGUI_CURRENCY_SUFFIX"), self.addStockPrice.x+self.addStockPrice.width+12, self.addStockPrice.y, color.r,color.g,color.b,color.a, font)
 
-        if self.addStockQuantity:isVisible() then
-            self:validateElementColor(self.addStockQuantity)
-            color = self.addStockQuantity.textColor
-            self:drawText(getText("IGUI_STOCK"), self.addStockQuantity.x-12, self.addStockQuantity.y, color.r,color.g,color.b,color.a, font)
-        end
-
-        self:validateElementColor(self.addStockBuyBackRate)
-        color = self.addStockBuyBackRate.textColor
-        self:drawText(getText("IGUI_RATE"), self.addStockBuyBackRate.x-14, self.addStockBuyBackRate.y, color.r,color.g,color.b,color.a, font)
+        local color
 
         if self.storeObj then
             local ownerID = self.storeObj.ownerID
@@ -1456,21 +1417,14 @@ function storeWindow:render()
     self.addStockBtn:setVisible(managed and not blocked)
     self.manageStoreName:setVisible(managed and not blocked)
     self.addStockEntry:setVisible(managed and not blocked)
-    self.addStockPrice:setVisible(managed and not blocked)
-    self.addStockQuantity:setVisible((not self.storeObj or (self.storeObj and not self.storeObj.ownerID)) and managed and not blocked)
-    self.addStockBuyBackRate:setVisible(managed and not blocked)
     self.clearStore:setVisible(managed and not blocked)
     self.restockHours:setVisible(managed and not blocked)
     self.addStockSearchPartition:setVisible(managed and not blocked)
     self.alwaysShow:setVisible(managed and not blocked)
     self.resell:setVisible(managed and not blocked)
     self.addStockList:setVisible(managed and not blocked)
-
     self.manageStoreName:isEditable(not blocked)
     self.addStockEntry:isEditable(not blocked)
-    self.addStockPrice:isEditable(not blocked)
-    self.addStockQuantity:isEditable(not blocked and (self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)~="category"))
-    self.addStockBuyBackRate:isEditable(not blocked)
 
     local totalForTransaction, invalidOrder = self:getOrderTotal()
 
@@ -1511,19 +1465,10 @@ function storeWindow:render()
 
     if self.addStockBtn:isVisible() then
 
-        local elements = {self.addStockBtn, self.addStockEntry, self.addStockPrice, self.addStockQuantity, self.addStockBuyBackRate}
+        local elements = {self.addStockBtn, self.addStockEntry}
 
         self.addStockEntry.enable = self:validateAddStockEntry()
-
-        self.addStockPrice.enable = (self.addStockPrice:getInternalText()=="" or tonumber(self.addStockPrice:getInternalText()))
-        self.addStockQuantity.enable = (self.addStockQuantity:getInternalText()=="" or tonumber(self.addStockQuantity:getInternalText()))
-
-        if self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)=="category" then self.addStockQuantity:setText("") end
-
-        local convertedBuyBackRate = tonumber(self.addStockBuyBackRate:getInternalText())
-        self.addStockBuyBackRate.enable = (self.addStockBuyBackRate:getInternalText()=="" or (convertedBuyBackRate and (convertedBuyBackRate < 100 or convertedBuyBackRate > 0)))
-        self.addStockBtn.enable = (self.addStockEntry.enable and self.addStockPrice.enable and (self.addStockQuantity.enable or self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)=="category") and self.addStockBuyBackRate.enable)
-
+        self.addStockBtn.enable = self.addStockEntry.enable
         for _,e in pairs(elements) do self:validateElementColor(e) end
     end
 
@@ -1621,20 +1566,18 @@ function storeWindow:onClick(button)
         end
 
         local price = 0
-        if self.addStockPrice.enable and self.addStockPrice:getInternalText() then
-            price = tonumber(self.addStockPrice:getInternalText())
-
+        --TODO: GET PRICE FROM LISTING
+        if price then
             if SandboxVars.ShopsAndTraders.ShopItemPriceLimit and SandboxVars.ShopsAndTraders.ShopItemPriceLimit > 0 and price > SandboxVars.ShopsAndTraders.ShopItemPriceLimit then
                 price = SandboxVars.ShopsAndTraders.ShopItemPriceLimit
             end
-
         end
 
         local quantity = 0
-        if self.addStockQuantity.enable and self.addStockQuantity:getInternalText() then quantity = tonumber(self.addStockQuantity:getInternalText()) end
+        --TODO: GET QUANTITY FROM LISTING
 
         local buybackRate = 0
-        if self.addStockBuyBackRate.enable and self.addStockBuyBackRate:getInternalText() then buybackRate = tonumber(self.addStockBuyBackRate:getInternalText()) end
+        --TODO: GET BUYBACK RATE FROM LISTING
 
         local reselling = self.resell.selected[1]
 
