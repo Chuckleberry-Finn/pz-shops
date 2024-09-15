@@ -341,13 +341,13 @@ function storeWindow:listingInputEntered()
         value = tonumber(value) or value
 
         if value == "false" then value = false end
-        if value == "true" then value = false end
+        if value == "true" then value = true end
 
         print("field: ",field, " = ", value)
 
-        if listing[field] then
+        if listing[field] ~= nil then
             listing[field] = value
-        elseif listing.fields[field] then
+        elseif listing.fields and listing.fields[field] ~= nil then
             listing.fields[field] = value
         end
 
@@ -1621,8 +1621,8 @@ function storeWindow:onClick(button)
         local quantity = listingSelected and listingSelected.quantity or 0
         local buybackRate = listingSelected and listingSelected.buybackRate or 0
 
-        local alwaysShow = listingSelected and listingSelected.alwaysShow or false
-        local reselling = listingSelected and listingSelected.reselling or true
+        local alwaysShow = listingSelected and (listingSelected.alwaysShow ~= nil and listingSelected.alwaysShow) or false
+        local reselling = listingSelected and (listingSelected.reselling ~= nil and listingSelected.reselling) or true
 
         self.selectedListing = nil
 
