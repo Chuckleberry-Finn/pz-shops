@@ -549,6 +549,7 @@ function storeWindow:initialise()
     self.listingInput.onCommandEntered = storeWindow.listingInputEntered
     self.listingInput:initialise()
     self.listingInput:instantiate()
+    --parent is not store window
     self.addListingList:addChild(self.listingInput)
     self.listingInput:setVisible(false)
 
@@ -929,9 +930,8 @@ function storeWindow:displayStoreStock()
         local movable = string.find(listing.item, "Moveables.") and "Moveables.Moveable"
         local script = scriptManager:getItem(listing.item)
         local fieldName = listing.fields and listing.fields.name
-        local itemDisplayName = fieldName or listing.item
-        if script then itemDisplayName = script:getDisplayName() end
-
+        local itemDisplayName = fieldName or (script and script:getDisplayName()) or listing.item
+        
         local isCategoryListingAndIsValid = (string.match(listing.item, "category:") and isValidItemDictionaryCategory(listing.item:gsub("category:","")))
 
         local inCart = 0
@@ -1607,6 +1607,8 @@ function storeWindow:onClick(button)
             newEntry = script:getFullName()
         end
 
+        self.listingInputEntered(self.listingInput)
+
         local listingSelected = self.selectedListing
 
         local listingID = listingSelected and listingSelected.listingID
@@ -1624,9 +1626,12 @@ function storeWindow:onClick(button)
         local alwaysShow = listingSelected and (listingSelected.alwaysShow ~= nil and listingSelected.alwaysShow) or false
         local reselling = listingSelected and (listingSelected.reselling ~= nil and listingSelected.reselling) or true
 
+        print("listingSelected: ", listingSelected)
+
         self.selectedListing = nil
 
-        local fields
+        local fields = listingSelected and listingSelected.fields
+
         sendClientCommand("shop", "listNewItem", {
             isBeingManaged=store.isBeingManaged,
             alwaysShow = alwaysShow,
