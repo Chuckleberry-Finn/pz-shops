@@ -34,3 +34,9 @@ Credit to EasyPeasyViking:
 - Fix loading/editing shops in SP issues.
 - Change language regarding manage mode.
 [ ------ ]
+
+[ 9/14/24]
+- Removed three inputs for stock/price/buyback
+- Added manage-mode list of fields
+
+[ ------]

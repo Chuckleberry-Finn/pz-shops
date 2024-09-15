@@ -11,6 +11,7 @@ storeWindow = ISPanelJoypad:derive("storeWindow")
 storeWindow.messages = {}
 storeWindow.CoolDownMessage = 300
 storeWindow.MaxItems = 20
+storeWindow.modifiedListings = {}
 
 
 function storeWindow:getItemTypesInStoreContainer(itemType)
@@ -91,11 +92,7 @@ function storeWindow:onStoreItemDoubleClick()
         local item = self.storeStockData.items[row].item
 
         self.storeStockData:removeItemByIndex(self.storeStockData.selected)
-
         self.addStockEntry:setText("")
-
-        self.alwaysShow.selected[1] = false
-        self.resell.selected[1] = true
 
         sendClientCommand("shop", "removeListing", { item=item, storeID=self.storeObj.ID })
         return
@@ -201,8 +198,6 @@ function storeWindow:setStockInput(listing)
 
     if not text then return end
     self.addStockEntry:setText(text)
-    self.alwaysShow.selected[1] = listing.alwaysShow
-    self.resell.selected[1] = listing.reselling
     self:populateListingList(listing)
 end
 
@@ -270,14 +265,6 @@ function storeWindow:addItemEntryChange()
 end
 
 
-function storeWindow:setResellOrSell()
-    local resellOrSell = "IGUI_RESELL"
-    if self.storeObj and self.storeObj.ownerID then resellOrSell = "IGUI_SELL" end
-    self.resell.options[1] = getText(resellOrSell)
-    self.resell.tooltip = getText(resellOrSell.."_TOOLTIP")
-end
-
-
 function storeWindow:getAvailableStoreFunds()
     if not self.storeObj then return end
     if self.storeObj.ownerID then
@@ -341,15 +328,36 @@ end
 
 
 
-function storeWindow:listingInputEntered()
-    local s = storeWindow.instance
-    if not s then return end
-    if not s:isBeingManaged() then return end
 
-    s.addListingList.accessing = nil
-    s.listingInput:setVisible(false)
-    s.listingInput:setY(s.addListingList:getY())
-    s.listingInput:setHeight(0)
+function storeWindow:listingInputEntered()
+    if not self.parent.storeWindow:isBeingManaged() then return end
+
+    local storeWindow = self.parent.storeWindow
+
+    local listing = storeWindow.selectedListing
+    local field = listing and storeWindow.addListingList.accessing
+    if field then
+        local value = self:getText()
+        value = tonumber(value) or value
+
+        if value == "false" then value = false end
+        if value == "true" then value = false end
+
+        print("field: ",field, " = ", value)
+
+        if listing[field] then
+            listing[field] = value
+        elseif listing.fields[field] then
+            listing.fields[field] = value
+        end
+
+        storeWindow:populateListingList(listing)
+    end
+
+    storeWindow.addListingList.accessing = nil
+    self:setVisible(false)
+    self:setY(storeWindow.addListingList:getY())
+    self:setHeight(0)
 end
 
 
@@ -363,6 +371,7 @@ function storeWindow:drawAddListingList(y, item, alt)
         local input = self.storeWindow.listingInput
         input:setY(y)
         if not input:isVisible() then
+            input:setOnlyNumbers((tonumber(item.item) ~= nil))
             input:setText(tostring(item.item))
             input:setVisible(true)
             input:setHeight(self.itemheight)
@@ -415,6 +424,12 @@ function storeWindow:populateListingList(listing)
         local stock = self.addListingList:addItem("Stock: "..listing.stock, listing.stock)
         stock.fieldID = "stock"
     end
+
+    local alwaysShow = self.addListingList:addItem("Always Show: "..tostring(listing.alwaysShow), listing.alwaysShow)
+    alwaysShow.fieldID = "alwaysShow"
+
+    local reselling = self.addListingList:addItem("Resell: "..tostring(listing.reselling), listing.reselling)
+    reselling.fieldID = "reselling"
 
     if listing.fields then
         for field,value in pairs(listing.fields) do
@@ -554,24 +569,6 @@ function storeWindow:initialise()
     self.addStockSearchPartition:addOptionWithData(getText("IGUI_invpanel_Type"), "type")
     self.addStockSearchPartition:addOptionWithData(getText("IGUI_invpanel_Category"), "category")
 
-    self.resell = ISTickBox:new(self.purchase.x+4, self.purchase.y-self.purchase.height-8, 18, 18, "", self, nil)
-    self.resell.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
-    self.resell.tooltip = getText("IGUI_RESELL_TOOLTIP")
-    self.resell:initialise()
-    self.resell:instantiate()
-    self.resell.selected[1] = SandboxVars.ShopsAndTraders.TradersResellItems
-    self.resell:addOption(getText("IGUI_RESELL"))
-    self:setResellOrSell()
-    self:addChild(self.resell)
-
-    self.alwaysShow = ISTickBox:new(self.purchase.x+4, self.resell.y-self.resell.height, 18, 18, "", self, nil)
-    self.alwaysShow.textColor = { r = 1, g = 0, b = 0, a = 0.7 }
-    self.alwaysShow.tooltip = getText("IGUI_ALWAYSSHOW_TOOLTIP")
-    self.alwaysShow:initialise()
-    self.alwaysShow:instantiate()
-    self.alwaysShow.selected[1] = false
-    self.alwaysShow:addOption(getText("IGUI_ALWAYSSHOW"))
-    self:addChild(self.alwaysShow)
 
     self.manageBtn = ISButton:new((self.width/2)-45, 77-btnHgt, 70, 20, getText("IGUI_MANAGESTORE"), self, storeWindow.onClick)
     self.manageBtn.internal = "MANAGE"
@@ -1037,7 +1034,7 @@ end
 function storeWindow:removeItem(item) self.yourCartData:removeItem(item.text) end
 
 
-function storeWindow:validateElementColor(e)
+function storeWindow:validateAddStockColor(e)
     if not e then return end
     if self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)=="category" then
         e.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
@@ -1329,8 +1326,6 @@ function storeWindow:updateButtons()
     self.clearStore.enable = false
     self.addStockBtn.enable = false
     self.addStockSearchPartition.enable = false
-    self.alwaysShow.enable = false
-    self.resell.enable = false
     self.addStockList.enable = false
 
     self.importText.enable = false
@@ -1371,8 +1366,6 @@ function storeWindow:updateButtons()
             self.clearStore.enable = true
             self.addStockBtn.enable = true
             self.addStockSearchPartition.enable = true
-            self.alwaysShow.enable = true
-            self.resell.enable = true
             self.addStockList.enable = true
         end
     end
@@ -1401,13 +1394,12 @@ end
 
 
 function storeWindow:render()
-
+    --self.addStockBtn
     local worldObjModData
     if self.worldObject then
         worldObjModData = self.worldObject:getModData()
         if worldObjModData and worldObjModData.storeObjID then
             self.storeObj = CLIENT_STORES[worldObjModData.storeObjID]
-            self:setResellOrSell()
         end
         if self.storeObj and not worldObjModData.storeObjID then self.storeObj = nil end
     end
@@ -1468,8 +1460,6 @@ function storeWindow:render()
     self.clearStore:setVisible(managed and not blocked)
     self.restockHours:setVisible(managed and not blocked)
     self.addStockSearchPartition:setVisible(managed and not blocked)
-    self.alwaysShow:setVisible(managed and not blocked)
-    self.resell:setVisible(managed and not blocked)
     self.addStockList:setVisible(managed and not blocked)
     self.manageStoreName:isEditable(not blocked)
     self.addStockEntry:isEditable(not blocked)
@@ -1511,13 +1501,17 @@ function storeWindow:render()
     self.purchase.textColor = { r = 1, g = gb, b = gb, a = 0.7 }
     self.purchase.borderColor = { r = 1, g = gb, b = gb, a = 0.7 }
 
+    local selectedListing = self.selectedListing
+    self.altFrame = (not selectedListing) and 0 or ((self.altFrame and (self.altFrame > 0) and self.altFrame or 7) - 0.5)
+    self.addStockBtn.backgroundColor = {r=(self.altFrame/10), g=(self.altFrame/10), b=(self.altFrame/10), a=1.0}
+
     if self.addStockBtn:isVisible() then
-
         local elements = {self.addStockBtn, self.addStockEntry}
-
-        self.addStockEntry.enable = self:validateAddStockEntry()
-        self.addStockBtn.enable = self.addStockEntry.enable
-        for _,e in pairs(elements) do self:validateElementColor(e) end
+        local enabled = self:validateAddStockEntry()
+        for _,e in pairs(elements) do
+            e.enable = enabled
+            self:validateAddStockColor(e)
+        end
     end
 
     self.blocker:setVisible(blocked)
@@ -1613,25 +1607,37 @@ function storeWindow:onClick(button)
             newEntry = script:getFullName()
         end
 
-        local price = 0
-        --TODO: GET PRICE FROM LISTING
+        local listingSelected = self.selectedListing
+
+        local listingID = listingSelected and listingSelected.listingID
+
+        local price = listingSelected and listingSelected.price or 0
         if price then
             if SandboxVars.ShopsAndTraders.ShopItemPriceLimit and SandboxVars.ShopsAndTraders.ShopItemPriceLimit > 0 and price > SandboxVars.ShopsAndTraders.ShopItemPriceLimit then
                 price = SandboxVars.ShopsAndTraders.ShopItemPriceLimit
             end
         end
 
-        local quantity = 0
-        --TODO: GET QUANTITY FROM LISTING
+        local quantity = listingSelected and listingSelected.quantity or 0
+        local buybackRate = listingSelected and listingSelected.buybackRate or 0
 
-        local buybackRate = 0
-        --TODO: GET BUYBACK RATE FROM LISTING
+        local alwaysShow = listingSelected and listingSelected.alwaysShow or false
+        local reselling = listingSelected and listingSelected.reselling or true
 
-        local reselling = self.resell.selected[1]
+        self.selectedListing = nil
 
         local fields
-        sendClientCommand("shop", "listNewItem", { isBeingManaged=store.isBeingManaged, alwaysShow = (self.alwaysShow.selected[1] or false),
-        item=newEntry, price=price, fields=fields, quantity=quantity, buybackRate=buybackRate, reselling=reselling, storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
+        sendClientCommand("shop", "listNewItem", {
+            isBeingManaged=store.isBeingManaged,
+            alwaysShow = alwaysShow,
+            item=newEntry,
+            price=price,
+            fields=fields,
+            listingID=listingID,
+            quantity=quantity,
+            buybackRate=buybackRate,
+            reselling=reselling,
+            storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
 
         self.addListingList:clear()
     end
