@@ -340,13 +340,39 @@ function storeWindow:onAddListingListSelected(selected)
 end
 
 
+
+function storeWindow:listingInputEntered()
+    local s = storeWindow.instance
+    if not s then return end
+    if not s:isBeingManaged() then return end
+
+    s.addListingList.accessing = nil
+    s.listingInput:setVisible(false)
+    s.listingInput:setY(s.addListingList:getY())
+    s.listingInput:setHeight(0)
+end
+
+
+
 function storeWindow:drawAddListingList(y, item, alt)
     if not self.storeWindow:isBeingManaged() then return y end
 
     self.itemAlpha = ((y/self.itemheight) % 2 == 0) and 0.3 or 0.6
 
-    self:drawRect(0, (y), self:getWidth(), self.itemheight-1, self.itemAlpha, 0.4, 0.4, 0.4)
-    self:drawText(item.text, 4, y+2, self.itemTextColor.r, self.itemTextColor.g, self.itemTextColor.b, self.itemTextColor.a, self.font)
+    if self.accessing and self.accessing == item.fieldID then
+        local input = self.storeWindow.listingInput
+        input:setY(y)
+        if not input:isVisible() then
+            input:setText(tostring(item.item))
+            input:setVisible(true)
+            input:setHeight(self.itemheight)
+            input:focus()
+        end
+        input:drawTextRight(item.fieldID, self:getWidth()-8, 2, self.itemTextColor.r, self.itemTextColor.g, self.itemTextColor.b, self.itemTextColor.a*0.66, self.font)
+    else
+        self:drawRect(0, (y), self:getWidth(), self.itemheight-1, self.itemAlpha, 0.4, 0.4, 0.4)
+        self:drawText(item.text, 4, y+2, self.itemTextColor.r, self.itemTextColor.g, self.itemTextColor.b, self.itemTextColor.a, self.font)
+    end
 
     return y + self.itemheight
 end
@@ -355,6 +381,16 @@ end
 function storeWindow:addListingListMouseUp(x, y)
     print("x:, ",x)
     print("y:, ",y)
+
+    local spot = self:rowAt(x, y)
+    if not spot then return end
+
+    local field = self.items[spot]
+    if not field then return end
+    print("field: ", field.fieldID)
+
+    self.accessing = field.fieldID
+
 end
 
 
@@ -362,23 +398,28 @@ function storeWindow:populateListingList(listing)
     if not self:isBeingManaged() then return end
 
     print("listing: ",listing)
-
+    self.selectedListing = listing
     self.addListingList:clear()
 
-    self.addListingList:addItem("Price: "..listing.price, listing.price)
-    self.addListingList:addItem("Buyback Rate: "..listing.buybackRate, listing.buybackRate)
+    local price = self.addListingList:addItem("Price: "..listing.price, listing.price)
+    price.fieldID = "price"
+
+    local buyback = self.addListingList:addItem("Buyback Rate: "..listing.buybackRate, listing.buybackRate)
+    buyback.fieldID = "buybackRate"
 
     local movable = string.find(listing.item, "Moveables.") and "Moveables.Moveable"
     local script = getScriptManager():getItem(listing.item)
 
     if not script and not movable then
     else
-        self.addListingList:addItem("Stock: "..listing.stock, listing.stock)
+        local stock = self.addListingList:addItem("Stock: "..listing.stock, listing.stock)
+        stock.fieldID = "stock"
     end
 
     if listing.fields then
         for field,value in pairs(listing.fields) do
-            self.addListingList:addItem(field..": "..tostring(value), value)
+            local addedField = self.addListingList:addItem(field..": "..tostring(value), value)
+            addedField.fieldID = field
         end
     end
 
@@ -477,7 +518,6 @@ function storeWindow:initialise()
             ISScrollingListBox.prerender(self.addListingList)
         end
     end
-
     local _font = UIFont.Large
     local FONT_HGT = getTextManager():getFontHeight(_font)
     self.addListingList.label = ISLabel:new(0+(self.addListingList.width/2), 0-FONT_HGT, FONT_HGT, "MANAGE MODE", 1, 0, 0, 0.7, _font, true)
@@ -488,6 +528,14 @@ function storeWindow:initialise()
     self.addListingList:setVisible(false)
     self.addListingList:addToUIManager()
     --addChild(self.addListingList)
+
+    self.listingInput = ISTextEntryBox:new("", self.addListingList:getX(), self.y, self.addListingList:getWidth(), 0)
+    self.listingInput.font = UIFont.NewMedium
+    self.listingInput.onCommandEntered = storeWindow.listingInputEntered
+    self.listingInput:initialise()
+    self.listingInput:instantiate()
+    self.addListingList:addChild(self.listingInput)
+    self.listingInput:setVisible(false)
 
     self.purchase = ISButton:new(self.storeStockData.x + self.storeStockData.width - (math.max(btnWid, getTextManager():MeasureStringX(UIFont.Small, getText("IGUI_PURCHASE")) + 10)), self:getHeight() - padBottom - btnHgt, btnWid, btnHgt - 3, getText("IGUI_PURCHASE"), self, storeWindow.onClick)
     self.purchase.internal = "PURCHASE"
