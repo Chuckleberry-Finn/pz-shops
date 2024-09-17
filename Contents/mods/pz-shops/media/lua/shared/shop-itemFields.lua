@@ -163,12 +163,11 @@ function itemFields.gatherFields(item)
     --if initialised then fields.initialised = initialised end
 
     if instanceof(item, "Clothing") then
-
-        --      if (this.getSpriteName() != null)
-        --      if (this.dirtyness != 0.0)
-        --      if (this.bloodLevel != 0.0F)
-        --      if (this.wetness != 0.0F)
-        --      if (this.lastWetnessUpdate != 0.0F)
+        fields.spriteName = item:getSpriteName()
+        fields.dirtyness = item:getDirtyness()
+        fields.bloodLevel = item:getBloodLevel()
+        fields.wetness = item:getWetness()
+        fields.lastWetnessUpdate = item:getLastWetnessUpdate()
 
         ---hashmap
         --      if (this.patches != null) {
@@ -281,7 +280,7 @@ function itemFields.gatherFields(item)
     if instanceof(item, "Literature") then
         fields.numberOfPages = item:getNumberOfPages()
         fields.alreadyReadPages = item:getAlreadyReadPages()
-        fields.canBeWrite = item:setCanBeWrite()
+        fields.canBeWrite = item:CanBeWrite() ---???
         ---hashmap
         --fields.customPages = hashmap < int, string >
         fields.lockedBy = item:getLockedBy()
@@ -348,6 +347,35 @@ function itemFields.getFieldAssociatedFunctions(item)
         fields.lightB = "setLightB"
     end
 
+    local invCont = instanceof(item, "InventoryContainer") and item
+    if invCont then
+        fields = fields or {}
+        fields.weightReduction = "setWeightReduction"
+    end
+    
+    local literature = instanceof(item, "Literature") and item
+    if literature then
+        fields = fields or {}
+        fields.numberOfPages = "setNumberOfPages"
+        fields.alreadyReadPages = "setAlreadyReadPages"
+        fields.canBeWrite ="setCanBeWrite"
+        fields.lockedBy = "setLockedBy"
+    end
+
+    
+    local map = instanceof(item, "MapItem") and item
+    if map then
+        fields = fields or {}
+        fields.mapID = "setMapID"
+    end
+
+    local alarm = (instanceof(item, "AlarmClock") or instanceof(item, "AlarmClockClothing")) and item
+    if alarm then
+        fields.hour = "setHour"
+        fields.minute = "setMinute"
+        fields.alarmSet = "AlarmSet" ---???
+    end
+    
     return fields
 end
 
