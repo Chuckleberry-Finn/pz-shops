@@ -1,538 +1,312 @@
 local itemFields = {}
 
----@param item InventoryItem
+---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.gatherFields(item)
 
     local fields
-
-    ---@type InventoryItem
     fields = fields or {}
 
     ---name - ignore if original
     local name = item:getName()
     local script = item:getScriptItem()
+
     if (not script) or script and script:getDisplayName()~=name then
         fields.name = name
     end
 
-    --if currentName and currentName~=item:originalName
+    ---Original name vs Current Name
+    --if (this.name != null && !this.name.equals(this.originalName))
 
-    --      if (this.name != null && !this.name.equals(this.originalName)) {
-    --         var6.addFlags(8);
-    --         GameWindow.WriteString(var1, this.name);
-    --      }
+    local currentUses = item:getCurrentUses()
+    if currentUses ~= 1 then
+        fields.uses = currentUses
+    end
 
+    if item:IsDrainable() then
+        local usedDelta = item:getUsedDelta()
+        if usedDelta < 1 then
+            fields.usedDelta = usedDelta
+        end
+    end
 
-    --      if (this.uses != 1) {
-    --         var3.addFlags(1);
-    --         if (this.uses > 32767) {
-    --            var1.putShort((short)32767);
-    --         } else {
-    --            var1.putShort((short)this.uses);
-    --         }
-    --      }
-    --
-    --      if (this.IsDrainable() && ((DrainableComboItem)this).getUsedDelta() < 1.0F) {
-    --         var3.addFlags(2);
-    --         float var4 = ((DrainableComboItem)this).getUsedDelta();
-    --         byte var5 = (byte)((byte)((int)(var4 * 255.0F)) + -128);
-    --         var1.put(var5);
-    --      }
-    --
-    --      if (this.Condition != this.ConditionMax) {
-    --         var3.addFlags(4);
-    --         var1.put((byte)this.getCondition());
-    --      }
-    --
-    --      if (this.visual != null) {
-    --         var3.addFlags(8);
-    --         this.visual.save(var1);
-    --      }
-    --
-    --      if (this.isCustomColor() && (this.col.r != 1.0F || this.col.g != 1.0F || this.col.b != 1.0F || this.col.a != 1.0F)) {
-    --         var3.addFlags(16);
-    --         var1.put(Bits.packFloatUnitToByte(this.getColor().r));
-    --         var1.put(Bits.packFloatUnitToByte(this.getColor().g));
-    --         var1.put(Bits.packFloatUnitToByte(this.getColor().b));
-    --         var1.put(Bits.packFloatUnitToByte(this.getColor().a));
-    --      }
-    --
-    --      if (this.itemCapacity != -1.0F) {
-    --         var3.addFlags(32);
-    --         var1.putFloat(this.itemCapacity);
-    --      }
-    --
-    --      if (this.table != null && !this.table.isEmpty()) {
-    --         var6.addFlags(1);
-    --         this.table.save(var1);
-    --      }
-    --
-    --      if (this.isActivated()) {
-    --         var6.addFlags(2);
-    --      }
-    --
-    --      if (this.haveBeenRepaired != 1) {
-    --         var6.addFlags(4);
-    --         var1.putShort((short)this.getHaveBeenRepaired());
-    --      }
-    --
-    --      if (this.name != null && !this.name.equals(this.originalName)) {
-    --         var6.addFlags(8);
-    --         GameWindow.WriteString(var1, this.name);
-    --      }
-    --
-    --      if (this.byteData != null) {
-    --         var6.addFlags(16);
-    --         this.byteData.rewind();
-    --         var1.putInt(this.byteData.limit());
-    --         var1.put(this.byteData);
-    --         this.byteData.flip();
-    --      }
-    --
-    --      if (this.extraItems != null && this.extraItems.size() > 0) {
-    --         var6.addFlags(32);
-    --         var1.putInt(this.extraItems.size());
-    --
-    --         for(int var7 = 0; var7 < this.extraItems.size(); ++var7) {
-    --            var1.putShort(WorldDictionary.getItemRegistryID((String)this.extraItems.get(var7)));
-    --         }
-    --      }
-    --
-    --      if (this.isCustomName()) {
-    --         var6.addFlags(64);
-    --      }
-    --
-    --      if (this.isCustomWeight()) {
-    --         var6.addFlags(128);
-    --         var1.putFloat(this.isCustomWeight() ? this.getActualWeight() : -1.0F);
-    --      }
-    --
-    --      if (this.keyId != -1) {
-    --         var6.addFlags(256);
-    --         var1.putInt(this.getKeyId());
-    --      }
-    --
-    --      if (this.isTaintedWater()) {
-    --         var6.addFlags(512);
-    --      }
-    --
-    --      if (this.remoteControlID != -1 || this.remoteRange != 0) {
-    --         var6.addFlags(1024);
-    --         var1.putInt(this.getRemoteControlID());
-    --         var1.putInt(this.getRemoteRange());
-    --      }
-    --
-    --      if (this.colorRed != 1.0F || this.colorGreen != 1.0F || this.colorBlue != 1.0F) {
-    --         var6.addFlags(2048);
-    --         var1.put(Bits.packFloatUnitToByte(this.colorRed));
-    --         var1.put(Bits.packFloatUnitToByte(this.colorGreen));
-    --         var1.put(Bits.packFloatUnitToByte(this.colorBlue));
-    --      }
-    --
-    --      if (this.worker != null) {
-    --         var6.addFlags(4096);
-    --         GameWindow.WriteString(var1, this.getWorker());
-    --      }
-    --
-    --      if (this.wetCooldown != -1.0F) {
-    --         var6.addFlags(8192);
-    --         var1.putFloat(this.wetCooldown);
-    --      }
-    --
-    --      if (this.isFavorite()) {
-    --         var6.addFlags(16384);
-    --      }
-    --
-    --      if (this.stashMap != null) {
-    --         var6.addFlags(32768);
-    --         GameWindow.WriteString(var1, this.stashMap);
-    --      }
-    --
-    --      if (this.isInfected()) {
-    --         var6.addFlags(65536);
-    --      }
-    --
-    --      if (this.currentAmmoCount != 0) {
-    --         var6.addFlags(131072);
-    --         var1.putInt(this.currentAmmoCount);
-    --      }
-    --
-    --      if (this.attachedSlot != -1) {
-    --         var6.addFlags(262144);
-    --         var1.putInt(this.attachedSlot);
-    --      }
-    --
-    --      if (this.attachedSlotType != null) {
-    --         var6.addFlags(524288);
-    --         GameWindow.WriteString(var1, this.attachedSlotType);
-    --      }
-    --
-    --      if (this.attachedToModel != null) {
-    --         var6.addFlags(1048576);
-    --         GameWindow.WriteString(var1, this.attachedToModel);
-    --      }
-    --
-    --      if (this.maxCapacity != -1) {
-    --         var6.addFlags(2097152);
-    --         var1.putInt(this.maxCapacity);
-    --      }
-    --
-    --      if (this.isRecordedMedia()) {
-    --         var6.addFlags(4194304);
-    --         var1.putShort(this.recordedMediaIndex);
-    --      }
-    --
-    --      if (this.worldZRotation > -1) {
-    --         var6.addFlags(8388608);
-    --         var1.putInt(this.worldZRotation);
-    --      }
-    --
-    --      if (this.worldScale != 1.0F) {
-    --         var6.addFlags(16777216);
-    --         var1.putFloat(this.worldScale);
-    --      }
-    --
-    --      if (this.isInitialised) {
-    --         var6.addFlags(33554432);
-    --      }
-    --
-    --      if (!var6.equals(0)) {
-    --         var3.addFlags(64);
-    --         var6.write();
-    --      } else {
-    --         var1.position(var6.getStartPosition());
-    --      }
-    --
-    --      var3.write();
-    --      var3.release();
-    --      var6.release();
-    --   }
+    local condition = item:getCondition()
+    if condition ~= item:getConditionMax() then
+        fields.condition = condition
+    end
 
-    ---@type Clothing
-    --   public void save(ByteBuffer var1, boolean var2) throws IOException {
-    --      super.save(var1, var2);
-    --      BitHeaderWrite var3 = BitHeader.allocWrite(BitHeader.HeaderSize.Byte, var1);
-    --      if (this.getSpriteName() != null) {
-    --         var3.addFlags(1);
-    --         GameWindow.WriteString(var1, this.getSpriteName());
-    --      }
-    --
-    --      if (this.dirtyness != 0.0F) {
-    --         var3.addFlags(2);
-    --         var1.putFloat(this.dirtyness);
-    --      }
-    --
-    --      if (this.bloodLevel != 0.0F) {
-    --         var3.addFlags(4);
-    --         var1.putFloat(this.bloodLevel);
-    --      }
-    --
-    --      if (this.wetness != 0.0F) {
-    --         var3.addFlags(8);
-    --         var1.putFloat(this.wetness);
-    --      }
-    --
-    --      if (this.lastWetnessUpdate != 0.0F) {
-    --         var3.addFlags(16);
-    --         var1.putFloat(this.lastWetnessUpdate);
-    --      }
-    --
-    --      if (this.patches != null) {
-    --         var3.addFlags(32);
-    --         var1.put((byte)this.patches.size());
-    --         Iterator var4 = this.patches.keySet().iterator();
-    --
-    --         while(var4.hasNext()) {
-    --            int var5 = (Integer)var4.next();
-    --            var1.put((byte)var5);
-    --            ((Clothing.ClothingPatch)this.patches.get(var5)).save(var1, false);
-    --         }
-    --      }
-    --
-    --      var3.write();
-    --      var3.release();
-    --   }
+    ---Item Visual
+    -- if (this.visual != null)
 
-    ---@type Food
+    if item:isCustomColor() then
+        local c = item:getColor()
+        local r = c:getR()
+        local g = c:getG()
+        local b = c:getB()
+        local a = c:getAlpha()
+        if r~=1 or g~=1 or b~=1 then
+            fields.color = {r=r,g=g,b=b,a=a}
+        end
+    end
 
-    --      var1.putFloat(this.Age);
-    --      var1.putFloat(this.LastAged);
+    local capacity = item:getItemCapacity()
+    if capacity ~= -1 then
+        fields.capacity = capacity
+    end
 
-    --      if (this.calories != 0.0F || this.proteins != 0.0F || this.lipids != 0.0F || this.carbohydrates != 0.0F) {
-    --         var1.putFloat(this.calories);
-    --         var1.putFloat(this.proteins);
-    --         var1.putFloat(this.lipids);
-    --         var1.putFloat(this.carbohydrates);
-    --      }
-    --
-    --      if (this.hungChange != 0.0F) { var1.putFloat(this.hungChange); }
-    --      if (this.baseHunger != 0.0F) { var1.putFloat(this.baseHunger); }
-    --      if (this.unhappyChange != 0.0F) { var1.putFloat(this.unhappyChange); }
-    --      if (this.boredomChange != 0.0F) { var1.putFloat(this.boredomChange); }
-    --      if (this.thirstChange != 0.0F) { var1.putFloat(this.thirstChange); }
-    --
-    --      BitHeaderWrite var4 = BitHeader.allocWrite(BitHeader.HeaderSize.Integer, var1);
-    --      if (this.Heat != 1.0F) {
-    --         var1.putFloat(this.Heat);
-    --      }
-    --
-    --      if (this.LastCookMinute != 0) {
-    --         var1.putInt(this.LastCookMinute);
-    --      }
-    --
-    --      if (this.CookingTime != 0.0F) {
-    --         var1.putFloat(this.CookingTime);
-    --      }
-    --
-    --      if (this.Cooked) { }
-    --      if (this.Burnt) { }
-    --
-    --      if (this.IsCookable) {}
-    --
-    --      if (this.bDangerousUncooked) {}
-    --
-    --      if (this.poisonDetectionLevel != -1) {var1.put((byte)this.poisonDetectionLevel);}
-    --
-    --      if (this.spices != null) {
-    --         var1.put((byte)this.spices.size());
-    --         Iterator var5 = this.spices.iterator();
-    --         while(var5.hasNext()) {
-    --            String var6 = (String)var5.next();
-    --            GameWindow.WriteString(var1, var6);
-    --         }
-    --      }
-    --
-    --      if (this.PoisonPower != 0) { var1.put((byte)this.PoisonPower); }
-    --      if (this.Chef != null) { GameWindow.WriteString(var1, this.Chef); }
-    --      if ((double)this.OffAge != 1.0E9D) { var1.putInt(this.OffAge); }
-    --      if ((double)this.OffAgeMax != 1.0E9D) { var1.putInt(this.OffAgeMax); }
-    --      if (this.painReduction != 0.0F) { var1.putFloat(this.painReduction); }
-    --      if (this.fluReduction != 0) { var1.putInt(this.fluReduction); }
-    --      if (this.ReduceFoodSickness != 0) { var1.putInt(this.ReduceFoodSickness); }
-    --      if (this.Poison) { }
-    --      if (this.UseForPoison != 0) { var1.putShort((short)this.UseForPoison); }
-    --      if (this.freezingTime != 0.0F) { var1.putFloat(this.freezingTime);}
-    --      if (this.isFrozen()) {}
-    --      if (this.LastFrozenUpdate != 0.0F) { var1.putFloat(this.LastFrozenUpdate);}
-    --      if (this.rottenTime != 0.0F) {var1.putFloat(this.rottenTime);}
-    --      if (this.compostTime != 0.0F) {var1.putFloat(this.compostTime);}
-    --      if (this.cookedInMicrowave) {}
-    --      if (this.fatigueChange != 0.0F) {var1.putFloat(this.fatigueChange);}
-    --      if (this.endChange != 0.0F) {var1.putFloat(this.endChange);}
+    if item:hasModData() then
+        fields.modData = item:getModData()
+    end
+
+    local activated = item:isActivated()
+    if activated then
+        fields.activated = activated
+    end
+
+    local repaired = item:getHaveBeenRepaired()
+    if repaired ~= 1 then
+        fields.repaired = repaired
+    end
 
 
-    ---@type HandWeapon
-    --  public void save(ByteBuffer var1, boolean var2) throws IOException {
-    --      super.save(var1, var2);
-    --      BitHeaderWrite var3 = BitHeader.allocWrite(BitHeader.HeaderSize.Integer, var1);
-    --      if (this.maxRange != 1.0F) {
-    --         var3.addFlags(1);
-    --         var1.putFloat(this.maxRange);
-    --      }
-    --
-    --      if (this.minRangeRanged != 0.0F) {
-    --         var3.addFlags(2);
-    --         var1.putFloat(this.minRangeRanged);
-    --      }
-    --
-    --      if (this.ClipSize != 0) {
-    --         var3.addFlags(4);
-    --         var1.putInt(this.ClipSize);
-    --      }
-    --
-    --      if (this.minDamage != 0.4F) {
-    --         var3.addFlags(8);
-    --         var1.putFloat(this.minDamage);
-    --      }
-    --
-    --      if (this.maxDamage != 1.5F) {
-    --         var3.addFlags(16);
-    --         var1.putFloat(this.maxDamage);
-    --      }
-    --
-    --      if (this.RecoilDelay != 0) {
-    --         var3.addFlags(32);
-    --         var1.putInt(this.RecoilDelay);
-    --      }
-    --
-    --      if (this.aimingTime != 0) {
-    --         var3.addFlags(64);
-    --         var1.putInt(this.aimingTime);
-    --      }
-    --
-    --      if (this.reloadTime != 0) {
-    --         var3.addFlags(128);
-    --         var1.putInt(this.reloadTime);
-    --      }
-    --
-    --      if (this.HitChance != 0) {
-    --         var3.addFlags(256);
-    --         var1.putInt(this.HitChance);
-    --      }
-    --
-    --      if (this.minAngle != 0.5F) {
-    --         var3.addFlags(512);
-    --         var1.putFloat(this.minAngle);
-    --      }
-    --
-    --      if (this.getScope() != null) {
-    --         var3.addFlags(1024);
-    --         var1.putShort(this.getScope().getRegistry_id());
-    --      }
-    --
-    --      if (this.getClip() != null) {
-    --         var3.addFlags(2048);
-    --         var1.putShort(this.getClip().getRegistry_id());
-    --      }
-    --
-    --      if (this.getRecoilpad() != null) {
-    --         var3.addFlags(4096);
-    --         var1.putShort(this.getRecoilpad().getRegistry_id());
-    --      }
-    --
-    --      if (this.getSling() != null) {
-    --         var3.addFlags(8192);
-    --         var1.putShort(this.getSling().getRegistry_id());
-    --      }
-    --
-    --      if (this.getStock() != null) {
-    --         var3.addFlags(16384);
-    --         var1.putShort(this.getStock().getRegistry_id());
-    --      }
-    --
-    --      if (this.getCanon() != null) {
-    --         var3.addFlags(32768);
-    --         var1.putShort(this.getCanon().getRegistry_id());
-    --      }
-    --
-    --      if (this.getExplosionTimer() != 0) {
-    --         var3.addFlags(65536);
-    --         var1.putInt(this.getExplosionTimer());
-    --      }
-    --
-    --      if (this.maxAngle != 1.0F) {
-    --         var3.addFlags(131072);
-    --         var1.putFloat(this.maxAngle);
-    --      }
-    --
-    --      if (this.bloodLevel != 0.0F) {
-    --         var3.addFlags(262144);
-    --         var1.putFloat(this.bloodLevel);
-    --      }
-    --
-    --      if (this.containsClip) {
-    --         var3.addFlags(524288);
-    --      }
-    --
-    --      if (this.roundChambered) {
-    --         var3.addFlags(1048576);
-    --      }
-    --
-    --      if (this.isJammed) {
-    --         var3.addFlags(2097152);
-    --      }
-    --
-    --      if (!StringUtils.equals(this.weaponSprite, this.getScriptItem().getWeaponSprite())) {
-    --         var3.addFlags(4194304);
-    --         GameWindow.WriteString(var1, this.weaponSprite);
-    --      }
-    --
-    --      var3.write();
-    --      var3.release();
-    --   }
+    ---byteData (???)
+    --if (this.byteData != null) {var6.addFlags(16);this.byteData.rewind();var1.putInt(this.byteData.limit());var1.put(this.byteData);this.byteData.flip();}
 
-    ---@type InventoryContainer
-    --   public void save(ByteBuffer var1, boolean var2) throws IOException {
-    --      super.save(var1, var2);
-    --      var1.putInt(this.container.ID);
-    --      var1.putInt(this.weightReduction);
-    --      this.container.save(var1);
-    --   }
+    local extraItems = item:getExtraItems()
+    if extraItems and extraItems:size() > 0 then
+        local extraItemsTable = {}
+        for i=0, extraItems:size()-1 do
+            local eI = extraItems:get(i)
+            if eI then
+                table.insert(extraItemsTable, eI)
+            end
+        end
+        fields.extraItems = extraItemsTable
+    end
 
-    ---@type Literature
-    --  public void save(ByteBuffer var1, boolean var2) throws IOException {
-    --      super.save(var1, var2);
-    --      BitHeaderWrite var3 = BitHeader.allocWrite(BitHeader.HeaderSize.Byte, var1);
-    --      byte var4 = 0;
-    --      if (this.numberOfPages >= 127 && this.numberOfPages < 32767) {
-    --         var4 = 1;
-    --      } else if (this.numberOfPages >= 32767) {
-    --         var4 = 2;
-    --      }
-    --
-    --      if (this.numberOfPages != -1) {
-    --         var3.addFlags(1);
-    --         if (var4 == 1) {
-    --            var3.addFlags(2);
-    --            var1.putShort((short)this.numberOfPages);
-    --         } else if (var4 == 2) {
-    --            var3.addFlags(4);
-    --            var1.putInt(this.numberOfPages);
-    --         } else {
-    --            var1.put((byte)this.numberOfPages);
-    --         }
-    --      }
-    --
-    --      if (this.alreadyReadPages != 0) {
-    --         var3.addFlags(8);
-    --         if (var4 == 1) {
-    --            var1.putShort((short)this.alreadyReadPages);
-    --         } else if (var4 == 2) {
-    --            var1.putInt(this.alreadyReadPages);
-    --         } else {
-    --            var1.put((byte)this.alreadyReadPages);
-    --         }
-    --      }
-    --
-    --      if (this.canBeWrite) {
-    --         var3.addFlags(16);
-    --      }
-    --
-    --      if (this.customPages != null && this.customPages.size() > 0) {
-    --         var3.addFlags(32);
-    --         var1.putInt(this.customPages.size());
-    --         Iterator var5 = this.customPages.values().iterator();
-    --
-    --         while(var5.hasNext()) {
-    --            String var6 = (String)var5.next();
-    --            GameWindow.WriteString(var1, var6);
-    --         }
-    --      }
-    --
-    --      if (this.lockedBy != null) {
-    --         var3.addFlags(64);
-    --         GameWindow.WriteString(var1, this.getLockedBy());
-    --      }
-    --
-    --      var3.write();
-    --      var3.release();
-    --   }
+    local customName = item:isCustomName()
+    if customName then
+        fields.customName = customName
+    end
 
-    ---@type MapItem
-    --   public void save(ByteBuffer var1, boolean var2) throws IOException {
-    --      super.save(var1, var2);
-    --      GameWindow.WriteString(var1, this.m_mapID);
-    --      this.m_symbols.save(var1);
-    --   }
+    local customWeight = item:isCustomWeight()
+    if customWeight then
+        fields.customWeight = customWeight
+    end
+    ---customWeight
+    --if (this.isCustomWeight()) {var6.addFlags(128);var1.putFloat(this.isCustomWeight() ? this.getActualWeight() : -1.0F);}
 
-    ---@type AlarmClockClothing
-    --    public void save(ByteBuffer var1, boolean var2) throws IOException {
-    --        super.save(var1, var2);
-    --        var1.putInt(this.alarmHour);
-    --        var1.putInt(this.alarmMinutes);
-    --        var1.put((byte)(this.alarmSet ? 1 : 0));
-    --        var1.putFloat((float)this.ringSince);
-    --    }
+    local keyId = item:getKeyId()
+    if keyId ~= -1 then
+        fields.keyId = keyId
+    end
+
+    local taintedWater = item:isTaintedWater()
+    if taintedWater then
+        fields.taintedWater = taintedWater
+    end
+
+    local remoteControlID = item:getRemoteControlID()
+    local remoteRange = item:getRemoteRange()
+    if remoteControlID ~= -1 or remoteRange ~= 0 then
+        fields.remoteControlID = remoteControlID
+        fields.remoteRange = remoteRange
+    end
+
+    local colorR, colorG, colorB = item:getColorRed(), item:getColorGreen(), item:getColorBlue()
+    if colorR ~= 1 or colorG ~= 1 or colorB ~= 1 then
+        fields.colorR = colorR
+        fields.colorG = colorG
+        fields.colorB = colorB
+    end
+
+    ---Worker appears unused (?)
+    --if (this.worker != null) {var6.addFlags(4096);GameWindow.WriteString(var1, this.getWorker());}
+
+    local wetCooldown = item:getWetCooldown()
+    if wetCooldown ~= -1 then
+        fields.wetCooldown = wetCooldown
+    end
+
+    ---stash mao has no getter
+    --if (this.stashMap != null)
+
+    ---isInfected not used
+    --      if (this.isInfected())
+
+    local currentAmmoCount = item:getCurrentAmmoCount()
+    if currentAmmoCount ~= 0 then
+        fields.currentAmmoCount = currentAmmoCount
+    end
+
+    ---Part of hotbar logic - should ignore
+    --if (this.attachedSlot != -1)
+    --if (this.attachedSlotType != null)
+    --if (this.attachedToModel != null)
+
+    local maxCapacity = item:getMaxCapacity()
+    if maxCapacity ~= -1 then
+        fields.maxCapacity = maxCapacity
+    end
+
+    if item:isRecordedMedia() then
+        fields.recordedMediaIndex = item:getRecordedMediaIndex()
+    end
+
+    ---probably fine to ignore(?)
+    --if (this.worldZRotation > -1)
+
+    ---No getter for world scale (used for fishes maybe?)
+    --      if (this.worldScale != 1.0F)
+
+    ---Not sure if this is use-able
+    --local initialised = item:isInitialised()
+    --if initialised then fields.initialised = initialised end
+
+    if instanceof(item, "Clothing") then
+
+        --      if (this.getSpriteName() != null)
+        --      if (this.dirtyness != 0.0)
+        --      if (this.bloodLevel != 0.0F)
+        --      if (this.wetness != 0.0F)
+        --      if (this.lastWetnessUpdate != 0.0F)
+
+        ---hashmap
+        --      if (this.patches != null) {
+        --         var3.addFlags(32);
+        --         var1.put((byte)this.patches.size());
+        --         Iterator var4 = this.patches.keySet().iterator();
+        --
+        --         while(var4.hasNext()) {
+        --            int var5 = (Integer)var4.next();
+        --            var1.put((byte)var5);
+        --            ((Clothing.ClothingPatch)this.patches.get(var5)).save(var1, false);
+        --         }
+        --      }
+    end
 
 
-    ---@type AlarmClock
-    --   public void save(ByteBuffer var1, boolean var2) throws IOException {
-    --      super.save(var1, var2);
-    --      var1.putInt(this.alarmHour);
-    --      var1.putInt(this.alarmMinutes);
-    --      var1.put((byte)(this.alarmSet ? 1 : 0));
-    --      var1.putFloat((float)this.ringSince);
-    --   }
+    if instanceof(item, "Food") then
+        fields.age = item:getAge()
+        fields.lastAged = item:getLastAged()
+        fields.calories = item:getCalories()
+        fields.proteins = item:getProteins()
+        fields.lipids = item:getLipids()
+        fields.carbohydrates = item:getCarbohydrates()
+        fields.hungChange = item:getHungChange()
+        fields.baseHunger = item:getBaseHunger()
+        fields.unhappyChange = item:getUnhappyChange()
+        fields.boredomChange = item:getBoredomChange()
+        fields.thirstChange = item:getThirstChange()
+        fields.heat = item:getHeat()
+        fields.LastCookMinute = item:getLastCookMinute()
+        fields.CookingTime = item:getCookingTime()
+        fields.Cooked = item:isCooked()
+        fields.Burnt = item:isBurnt()
+        fields.IsCookable = item:isCookable()
+        fields.bDangerousUncooked = item:isbDangerousUncooked()
+        fields.poisonDetectionLevel = item:getPoisonDetectionLevel()
+
+        local spices = item:getSpices()
+        if spices and spices:size() > 0 then
+            local spicesTable = {}
+            for i=0, spices:size()-1 do
+                local s = spices:get(i)
+                if s then
+                    table.insert(spicesTable, s)
+                end
+            end
+            fields.spices = spicesTable
+        end
+
+        fields.PoisonPower = item:getPoisonPower()
+        fields.Chef = item:getChef()
+        fields.OffAge = item:getOffAge()
+        fields.OffAgeMax = item:getOffAgeMax()
+        fields.painReduction = item:getPainReduction()
+        fields.fluReduction = item:getFluReduction()
+        fields.ReduceFoodSickness = item:getReduceFoodSickness()
+        fields.Poison = item:isPoison()
+        fields.UseForPoison = item:getUseForPoison()
+        fields.freezingTime = item:getFreezingTime()
+        fields.isFrozen = item:isFrozen()
+        --fields.LastFrozenUpdate ---No getter
+        fields.rottenTime = item:getRottenTime()
+        fields.compostTime = item:getCompostTime()
+        fields.cookedInMicrowave = item:isCookedInMicrowave()
+        fields.fatigueChange = item:getFatigueChange()
+        fields.endChange = item:getEndChange()
+    end
+
+
+    if instanceof(item, "HandWeapon") then
+
+        fields.maxRange = item:getMaxRange()
+        fields.minRangeRanged = item:getMinRangeRanged()
+        fields.ClipSize = item:getClipSize()
+        fields.minDamage = item:getMinDamage()
+        fields.maxDamage = item:getMaxDamage()
+        fields.RecoilDelay = item:getRecoilDelay()
+        fields.aimingTime = item:getAimingTime()
+        fields.reloadTime = item:getReloadTime()
+        fields.hitChance = item:getHitChance()
+        fields.minAngle = item:getMinAngle()
+
+        fields.scope = item:getScope():getFullType()--.getRegistry_id() ?
+        fields.clip = item:getClip():getFullType()--.getRegistry_id() ?
+        fields.recoilPad = item:getRecoilPad():getFullType()--.getRegistry_id() ?
+        fields.sling = item:getSling():getFullType()--.getRegistry_id() ?
+        fields.stock = item:getStock():getFullType()--.getRegistry_id() ?
+        fields.canon = item:getCanon():getFullType()--.getRegistry_id() ?
+
+        fields.explosionTimer = item:getExplosionTimer()
+        fields.maxAngle = item:getMaxAngle()
+
+        fields.bloodLevel = item:getBloodLevel()
+
+        fields.containsClip = item:isContainsClip()
+        fields.roundChambered = item:isRoundChambered()
+        fields.jammed = item:isJammed()
+
+        fields.weaponSprite = item:getWeaponSprite()
+    end
+
+    if instanceof(item, "InventoryContainer") then
+        ---no getter for container ID - can't really save containers
+        --TODO: When selling InventoryContainer make it dump the contents out?
+        --fields.containerID = item:getContainer().ID
+        fields.weightReduction = item:getWeightReduction()
+    end
+
+
+    if instanceof(item, "Literature") then
+        fields.numberOfPages = item:getNumberOfPages()
+        fields.alreadyReadPages = item:getAlreadyReadPages()
+        fields.canBeWrite = item:setCanBeWrite()
+        ---hashmap
+        --fields.customPages = hashmap < int, string >
+        fields.lockedBy = item:getLockedBy()
+    end
+
+
+    if instanceof(item, "MapItem") then
+        fields.mapID = item:getMapID()
+        ---Symbols are their own class -- check paperAPI for how I copied symbol sets
+        --fields.symbols = item:getSymbols()
+    end
+
+    if instanceof(item, "AlarmClockClothing") then
+        fields.hour = item:getHour()
+        fields.minute = item:getMinute()
+        fields.alarmSet = item:isAlarmSet()
+        --fields.ringSince ---No Getter
+    end
+
+    if instanceof(item, "AlarmClock") then
+        fields.hour = item:getHour()
+        fields.minute = item:getMinute()
+        fields.alarmSet = item:isAlarmSet()
+        --fields.ringSince ---No Getter
+    end
 
     ---@type Moveable
     local movable = instanceof(item, "Moveable") and item
