@@ -962,10 +962,12 @@ function storeWindow:displayStoreStock()
             if managed then itemDisplayName = "category: "..itemDisplayName end
         end
 
-        local listedItem = self.storeStockData:addItem(price.."  "..itemDisplayName..stockText, listing.item)
+        local label = price.."  "..itemDisplayName..stockText
+        local listedItem = self.storeStockData:addItem(label, listing.item)
 
+        local tooltipText = label
         if managed then
-            local tooltipText = ""
+            tooltipText = tooltipText.."\n"
             if not string.match(listedItem.item, "category:") then
                 tooltipText = tooltipText.." [restock x"..listing.stock.."]"
             end
@@ -975,8 +977,8 @@ function storeWindow:displayStoreStock()
 
             local resell = listing.reselling
             if resell~=SandboxVars.ShopsAndTraders.TradersResellItems then if resell then tooltipText = tooltipText.." [resell]" else tooltipText = tooltipText.." [no resell]" end end
-            if tooltipText ~= "" then listedItem.tooltip = tooltipText end
         end
+        if tooltipText ~= "" then listedItem.tooltip = tooltipText end
     end
 end
 

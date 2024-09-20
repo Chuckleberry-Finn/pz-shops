@@ -71,6 +71,7 @@ function itemFields.gatherFields(item)
     ---byteData (???)
     --if (this.byteData != null) {var6.addFlags(16);this.byteData.rewind();var1.putInt(this.byteData.limit());var1.put(this.byteData);this.byteData.flip();}
 
+    --[[
     local extraItems = item:getExtraItems()
     if extraItems and extraItems:size() > 0 then
         local extraItemsTable = {}
@@ -82,6 +83,7 @@ function itemFields.gatherFields(item)
         end
         fields.extraItems = extraItemsTable
     end
+    --]]
 
     local customName = item:isCustomName()
     if customName then
@@ -167,7 +169,6 @@ function itemFields.gatherFields(item)
         fields.dirtyness = item:getDirtyness()
         fields.bloodLevel = item:getBloodLevel()
         fields.wetness = item:getWetness()
-        fields.lastWetnessUpdate = item:getLastWetnessUpdate()
 
         ---hashmap
         --      if (this.patches != null) {
@@ -327,11 +328,52 @@ function itemFields.gatherFields(item)
     return fields
 end
 
+itemFields.specials = {}
 
+---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
+function itemFields.specials.setColor(item, color)
+    local col = Color.new(color.r, color.g, color.b, color.a)
+    item:setColor(col)
+    return true
+end
+
+---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
+function itemFields.specials.setModData(item, data)
+    item:copyModData(data)
+    return true
+end
+
+
+---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.getFieldAssociatedFunctions(item)
 
     local fields
 
+    fields.name = "setName"
+    fields.usedDelta = 'setUsedDelta'
+    fields.condition = "setCondition"
+
+    fields.color = "setColor"
+    fields.modData = "setModData"
+
+    fields.capacity = "setItemCapacity"
+    fields.activated = "setActivated"
+    fields.repaired = "setHaveBeenRepaired"
+    fields.customName = "setCustomName"
+    fields.customWeight = "setCustomWeight"
+    fields.keyId = "setKeyId"
+    fields.taintedWater = "setTaintedWater"
+    fields.remoteControlID = "setRemoteControlID"
+    fields.remoteRange = "setRemoteRange"
+    fields.colorR = "setColorRed"
+    fields.colorG = "setColorGreen"
+    fields.colorB = "setColorBlue"
+    fields.wetCooldown = "setWetCooldown"
+    fields.currentAmmoCount = "setCurrentAmmoCount"
+    fields.maxCapacity = "setMaxCapacity"
+    fields.recordedMediaIndex = "setRecordedMediaIndex"
+
+    ---@type Moveable
     local movable = instanceof(item, "Moveable") and item
     if movable then
         fields = fields or {}
@@ -347,12 +389,26 @@ function itemFields.getFieldAssociatedFunctions(item)
         fields.lightB = "setLightB"
     end
 
+
+    ---@type Clothing
+    local clothing = instanceof(item, "Clothing") and item
+    if clothing then
+        fields.spriteName = "setSpriteName"
+        fields.dirtyness = "setDirtyness"
+        fields.bloodLevel = "setBloodLevel"
+        fields.wetness = "setWetness"
+    end
+
+
+    ---@type InventoryContainer
     local invCont = instanceof(item, "InventoryContainer") and item
     if invCont then
         fields = fields or {}
         fields.weightReduction = "setWeightReduction"
     end
-    
+
+
+    ---@type Literature
     local literature = instanceof(item, "Literature") and item
     if literature then
         fields = fields or {}
@@ -362,18 +418,21 @@ function itemFields.getFieldAssociatedFunctions(item)
         fields.lockedBy = "setLockedBy"
     end
 
-    
+
+    ---@type MapItem
     local map = instanceof(item, "MapItem") and item
     if map then
         fields = fields or {}
         fields.mapID = "setMapID"
     end
 
+
+    ---@type AlarmClock|AlarmClockClothing
     local alarm = (instanceof(item, "AlarmClock") or instanceof(item, "AlarmClockClothing")) and item
     if alarm then
         fields.hour = "setHour"
         fields.minute = "setMinute"
-        fields.alarmSet = "AlarmSet" ---???
+        fields.alarmSet = "setAlarmSet"
     end
     
     return fields

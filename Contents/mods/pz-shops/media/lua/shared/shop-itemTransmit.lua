@@ -17,7 +17,14 @@ function itemTransmit.doIt(itemsToTransmit, playerObj)
 
         for field,func in pairs(fieldFunc) do
             local value = fields[field]
-            local associatedFunc = item[func]
+
+            local specialFunc = itemFields.specials[func]
+            if specialFunc then
+                local valid = specialFunc(item, value)
+                if (not valid) then specialFunc = false end
+            end
+
+            local associatedFunc = (not specialFunc) and item[func]
             if associatedFunc and value then
                 item[associatedFunc](item, value)
             end
