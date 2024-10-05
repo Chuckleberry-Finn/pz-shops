@@ -225,7 +225,7 @@ function itemFields.gatherFields(item)
         fields.painReduction = item:getPainReduction()
         fields.fluReduction = item:getFluReduction()
         fields.ReduceFoodSickness = item:getReduceFoodSickness()
-        fields.Poison = item:isPoison()
+        --fields.Poison = item:isPoison()
         fields.UseForPoison = item:getUseForPoison()
         fields.freezingTime = item:getFreezingTime()
         fields.isFrozen = item:isFrozen()
@@ -251,12 +251,12 @@ function itemFields.gatherFields(item)
         fields.hitChance = item:getHitChance()
         fields.minAngle = item:getMinAngle()
 
-        fields.scope = item:getScope():getFullType()--.getRegistry_id() ?
-        fields.clip = item:getClip():getFullType()--.getRegistry_id() ?
-        fields.recoilPad = item:getRecoilPad():getFullType()--.getRegistry_id() ?
-        fields.sling = item:getSling():getFullType()--.getRegistry_id() ?
-        fields.stock = item:getStock():getFullType()--.getRegistry_id() ?
-        fields.canon = item:getCanon():getFullType()--.getRegistry_id() ?
+        fields.scope = item:getScope():getFullType()
+        fields.clip = item:getClip():getFullType()
+        fields.recoilPad = item:getRecoilPad():getFullType()
+        fields.sling = item:getSling():getFullType()
+        fields.stock = item:getStock():getFullType()
+        fields.canon = item:getCanon():getFullType()
 
         fields.explosionTimer = item:getExplosionTimer()
         fields.maxAngle = item:getMaxAngle()
@@ -330,6 +330,7 @@ end
 
 itemFields.specials = {}
 
+
 ---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.specials.setColor(item, color)
     local col = Color.new(color.r, color.g, color.b, color.a)
@@ -340,6 +341,56 @@ end
 ---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.specials.setModData(item, data)
     item:copyModData(data)
+    return true
+end
+
+---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
+function itemFields.specials.setSpiceTable(item, data)
+    local spices = ArrayList.new()
+    for _,spice in pairs(data) do spices:add(spice) end
+    item:setSpices(spices)
+    return true
+end
+
+---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
+function itemFields.specials.setScopeWithType(item, data)
+    local part = InventoryItemFactory.CreateItem(data)
+    if part then item:setScope(part) end
+    return true
+end
+
+---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
+function itemFields.specials.setClipWithType(item, data)
+    local part = InventoryItemFactory.CreateItem(data)
+    if part then item:setClip(part) end
+    return true
+end
+
+---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
+function itemFields.specials.setRecoilPadWithType(item, data)
+    local part = InventoryItemFactory.CreateItem(data)
+    if part then item:setRecoilpad(part) end
+    return true
+end
+
+---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
+function itemFields.specials.setSlingWithType(item, data)
+    local part = InventoryItemFactory.CreateItem(data)
+    if part then item:setSling(part) end
+    return true
+end
+
+---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
+function itemFields.specials.setStockWithType(item, data)
+    local part = InventoryItemFactory.CreateItem(data)
+    if part then item:setStock(part) end
+    return true
+end
+
+---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
+function itemFields.specials.setCanonWithType(item, data)
+    local part = InventoryItemFactory.CreateItem(data)
+    if part then item:setCanon(part) end
     return true
 end
 
@@ -434,7 +485,82 @@ function itemFields.getFieldAssociatedFunctions(item)
         fields.minute = "setMinute"
         fields.alarmSet = "setAlarmSet"
     end
-    
+
+    ---type Food
+    local food = instanceof(item, "Food") and item
+    if food then
+        fields.age = "setAge"
+        fields.lastAged = "setLastAged"
+        fields.calories = "setCalories"
+        fields.proteins = "setProteins"
+        fields.lipids = "setLipids"
+        fields.carbohydrates = "setCarbohydrates"
+        fields.hungChange = "setHungChange"
+        fields.baseHunger = "setBaseHunger"
+        fields.unhappyChange = "setUnhappyChange"
+        fields.boredomChange = "setBoredomChange"
+        fields.thirstChange = "setThirstChange"
+        fields.heat = "setHeat"
+        fields.LastCookMinute = "setLastCookMinute"
+        fields.CookingTime = "setCookingTime"
+        fields.Cooked = "setCooked"
+        fields.Burnt = "setBurnt"
+        fields.IsCookable = "setIsCookable"
+        fields.bDangerousUncooked = "setbDangerousUncooked"
+        fields.poisonDetectionLevel = "setPoisonDetectionLevel"
+        fields.spices = "setSpiceTable"
+        fields.PoisonPower = "setPoisonPower"
+        fields.Chef = "setChef"
+        fields.OffAge = "setOffAge"
+        fields.OffAgeMax = "setOffAgeMax"
+        fields.painReduction = "setPainReduction"
+        fields.fluReduction = "setFluReduction"
+        fields.ReduceFoodSickness = "setReduceFoodSickness"
+        --fields.Poison = item:isPoison()
+        fields.UseForPoison = "setUseForPoison"
+        fields.freezingTime = "setFreezingTime"
+        fields.isFrozen = "setFrozen"
+        --fields.LastFrozenUpdate ---No getter
+        fields.rottenTime = "setRottenTime"
+        fields.compostTime = "setCompostTime"
+        fields.cookedInMicrowave = "setCookedInMicrowave"
+        fields.fatigueChange = "setFatigueChange"
+        fields.endChange = "setEndChange"
+    end
+
+
+    ---type Food
+    local weapon = instanceof(item, "HandWeapon") and item
+    if weapon then
+
+        fields.maxRange = "setMaxRange"
+        fields.minRangeRanged = "setMinRangeRanged"
+        fields.ClipSize = "setClipSize"
+        fields.minDamage = "setMinDamage"
+        fields.maxDamage = "setMaxDamage"
+        fields.RecoilDelay = "setRecoilDelay"
+        fields.aimingTime = "setAimingTime"
+        fields.reloadTime = "setReloadTime"
+        fields.hitChance = "setHitChance"
+        fields.minAngle = "setMinAngle"
+
+        fields.scope = "setScopeWithType"
+        fields.clip = "setClipWithType"
+        fields.recoilPad = "setRecoilPadWithType"
+        fields.sling = "setSlingWithType"
+        fields.stock = "setStockWithType"
+        fields.canon = "setCanonWithType"
+
+        fields.explosionTimer = "setExplosionTimer"
+        fields.maxAngle = "setMaxAngle"
+        fields.bloodLevel = "setBloodLevel"
+        fields.containsClip = "setContainsClip"
+        fields.roundChambered = "setRoundChambered"
+        fields.jammed = "setJammed"
+        fields.weaponSprite = "setWeaponSprite"
+    end
+
+
     return fields
 end
 
