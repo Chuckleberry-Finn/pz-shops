@@ -398,10 +398,10 @@ end
 ---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.getFieldAssociatedFunctions(item)
 
-    local fields
+    local fields = {}
 
     fields.name = "setName"
-    fields.usedDelta = 'setUsedDelta'
+    fields.usedDelta = "setUsedDelta"
     fields.condition = "setCondition"
 
     fields.color = "setColor"

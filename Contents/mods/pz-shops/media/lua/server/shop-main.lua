@@ -323,6 +323,7 @@ end
 
 
 function STORE_HANDLER.validateItemType(storeID,itemType)
+    if not itemType then print("ERROR: validatePurchases: itemType = nil") return end
     if not storeID then print("ERROR: validatePurchases: No storeID") return end
     local storeObj = STORE_HANDLER.getStoreByID(storeID)
     if not storeObj then print("ERROR: validatePurchases: No storeObj") return end
@@ -351,7 +352,7 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
 
     for _,data in pairs(selling) do
 
-        local listing = STORE_HANDLER.validateItemType(storeID,itemType)
+        local listing = STORE_HANDLER.validateItemType(storeID,data.itemType)
         if listing then
 
             local adjustedPrice = listing.price*(listing.buybackRate/100)
@@ -370,7 +371,7 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
             end
 
             if listing.reselling == true then
-                if listing.item ~= itemType then
+                if listing.item ~= data.itemType then
                     local newListing = STORE_HANDLER.newListing(storeObj,data.itemType,data.itemFields,listing.price,0,listing.buybackRate,listing.reselling)
                     if not storeObj.ownerID then newListing.available = newListing.available+1 end
                 else

@@ -370,7 +370,7 @@ function storeWindow:drawAddListingList(y, item, alt)
     if self.accessing and self.accessing == item.fieldID then
         local input = self.storeWindow.listingInput
         input:setY(y)
-        if not input:isVisible() then
+        if (not input:isVisible()) then
             input:setOnlyNumbers((tonumber(item.item) ~= nil))
             input:setText(tostring(item.item))
             input:setVisible(true)
@@ -396,10 +396,16 @@ function storeWindow:addListingListMouseUp(x, y)
 
     local field = self.items[spot]
     if not field then return end
+    if self.accessing then return end
+
+    if field.fieldID == "categoryListing" then
+        print("test")
+        self.storeWindow.listingInput:focus()
+        return
+    end
+
     print("field: ", field.fieldID)
-
     self.accessing = field.fieldID
-
 end
 
 
@@ -409,6 +415,12 @@ function storeWindow:populateListingList(listing)
     print("listing: ",listing)
     self.selectedListing = listing
     self.addListingList:clear()
+
+    local isCategoryListingAndIsValid = (string.match(listing.item, "category:") and isValidItemDictionaryCategory(listing.item:gsub("category:","")))
+    if isCategoryListingAndIsValid then
+        local categoryListing = self.addListingList:addItem("Category Listing: "..listing.item, true)
+        categoryListing.fieldID = "categoryListing"
+    end
 
     local price = self.addListingList:addItem("Price: "..listing.price, listing.price)
     price.fieldID = "price"
