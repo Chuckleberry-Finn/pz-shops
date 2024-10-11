@@ -781,6 +781,8 @@ function storeWindow:rtrnTypeIfValid(item)
 
         if storeObj and itemType then
 
+            --TODO: Differentiate items to listings - like movable, food, etc.
+            
             local listing = storeObj.listings[itemType]
             if not listing and itemCat then listing = storeObj.listings["category:"..tostring(itemCat)] end
             if not listing then return false, "IGUI_NOTRADE_INVALIDTYPE" end
