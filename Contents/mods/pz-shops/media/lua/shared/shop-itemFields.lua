@@ -1,16 +1,35 @@
 local itemFields = {}
 
----@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
-function itemFields.gatherFields(item)
+---@param i string
+function itemFields.gatherFields(i)
 
-    local fields
-    fields = fields or {}
+    print(" gatherFields:", i)
+    if not i then print(" --- no i") return end
+
+    ---@type InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
+    local item = instanceof(i, "InventoryItem") and i
+
+    if (not item) and type(i) == "string" then
+
+        local _category = i:gsub("category:","")
+        local category = _category and isValidItemDictionaryCategory(_category) and _category
+
+        if not category then
+            item = InventoryItemFactory.CreateItem(i)
+        else
+            item = InventoryItem.new()
+        end
+    end
+
+    if not item then print(" --- no item") return else print(" --- item: ", item) end
+
+    local fields = {}
 
     ---name - ignore if original
     local name = item:getName()
     local script = item:getScriptItem()
 
-    if (not script) or script and script:getDisplayName()~=name then
+    if (script and script:getDisplayName()~=name) then
         fields.name = name
     end
 
@@ -29,10 +48,8 @@ function itemFields.gatherFields(item)
         end
     end
 
-    local condition = item:getCondition()
-    if condition ~= item:getConditionMax() then
-        fields.condition = condition
-    end
+    fields.condition = item:getCondition()
+    fields.broken = item:isBroken()
 
     ---Item Visual
     -- if (this.visual != null)
@@ -403,10 +420,9 @@ function itemFields.getFieldAssociatedFunctions(item)
     fields.name = "setName"
     fields.usedDelta = "setUsedDelta"
     fields.condition = "setCondition"
-
+    fields.broken = "setBroken"
     fields.color = "setColor"
     fields.modData = "setModData"
-
     fields.capacity = "setItemCapacity"
     fields.activated = "setActivated"
     fields.repaired = "setHaveBeenRepaired"

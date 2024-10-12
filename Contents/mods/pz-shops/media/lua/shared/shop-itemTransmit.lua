@@ -13,20 +13,21 @@ function itemTransmit.doIt(itemsToTransmit, playerObj)
 
         local item = InventoryItemFactory.CreateItem(itemType)
 
-        local fieldFunc = itemFields.getFieldAssociatedFunctions(item)
+        if fields then
+            local fieldFunc = itemFields.getFieldAssociatedFunctions(item)
+            for field,func in pairs(fieldFunc) do
+                local value = fields[field]
+                if value then
+                    local specialFunc = itemFields.specials[func]
+                    if specialFunc then
+                        local valid = specialFunc(item, value)
+                        if (not valid) then specialFunc = false end
+                    end
 
-        for field,func in pairs(fieldFunc) do
-            local value = fields[field]
-            if value then
-                local specialFunc = itemFields.specials[func]
-                if specialFunc then
-                    local valid = specialFunc(item, value)
-                    if (not valid) then specialFunc = false end
-                end
-
-                local associatedFunc = (not specialFunc) and item[func]
-                if associatedFunc and value and item[associatedFunc] then
-                    item[associatedFunc](item, value)
+                    local associatedFunc = (not specialFunc) and item[func]
+                    if associatedFunc and value and item[associatedFunc] then
+                        item[associatedFunc](item, value)
+                    end
                 end
             end
         end

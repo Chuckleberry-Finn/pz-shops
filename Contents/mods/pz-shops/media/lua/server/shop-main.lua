@@ -280,16 +280,12 @@ function STORE_HANDLER.clearStoreFromObject(isoObj, player)
 
     if storeObj and storeObj.ownerID then
         STORE_HANDLER.deleteStore(storeID)
-
         if player then
-            local itemsToTransmit = {"ShopsAndTraders.ShopDeed"}
-
+            local itemsToTransmit = {item="ShopsAndTraders.ShopDeed"}
             if isServer() then
                 sendServerCommand(player, "shop", "transmitItems", {items=itemsToTransmit})
             else
-                for _,itemType in pairs(itemsToTransmit) do
-                    player:getInventory():AddItem(itemType)
-                end
+                itemTransmit.doIt(itemsToTransmit, player)
             end
         end
     end

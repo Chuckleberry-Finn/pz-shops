@@ -103,6 +103,7 @@ end
 function storeWindow:addItemToYourStock(itemType, store, x, y, z, worldObjName, item, worldObject)
 
     local fields = itemFields.gatherFields(item)
+
     sendClientCommand("shop", "listNewItem",
             { isBeingManaged=store.isBeingManaged, alwaysShow = false,
               item=itemType, fields=fields, price=0, quantity=0, buybackRate=0, reselling=false,
