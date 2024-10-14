@@ -13,16 +13,23 @@ storeWindow.CoolDownMessage = 300
 storeWindow.MaxItems = 20
 storeWindow.modifiedListings = {}
 
+---@param item InventoryItem
+function storeWindow.validateItemForStock(item, name)
+    return ((not name) or (item:getDisplayName()==name))
+end
 
-function storeWindow:getItemTypesInStoreContainer(itemType)
+function storeWindow:getItemTypesInStoreContainer(listing)
     ---@type IsoObject
     local worldObject = self.worldObject
     if not worldObject then return end
 
+    local itemType = listing.item
+
     local container = worldObject:getContainer()
     if not _internal.isValidContainer(container) then return end
 
-    local items = container:getAllType(itemType)
+    local fieldName = listing.fields and listing.fields.name
+    local items = container:getAllTypeEvalArg(itemType, storeWindow.validateItemForStock, fieldName)
     if items then return items end
 end
 
@@ -33,7 +40,7 @@ function storeWindow:getAvailableStock(listing)
 
         if listing.reselling==false then return 0 end
 
-        local stock = self:getItemTypesInStoreContainer(listing.item)
+        local stock = self:getItemTypesInStoreContainer(listing)
         if stock then return stock:size() end
     end
     return listing.available
@@ -53,7 +60,8 @@ function storeWindow:storeItemRowAt(y)
     for i,v in ipairs(self.storeStockData.items) do
         if not v.height then v.height = self.storeStockData.itemheight end
 
-        local listing = listings[v.item]
+        local listing = listings[v.listingID]
+        if not listing then return end
 
         local texture, script, validCategory = nil, nil, false
         if type(v.item) == "string" then
@@ -88,8 +96,9 @@ end
 function storeWindow:onStoreItemDoubleClick()
     if self:isBeingManaged() then
         local row = self:storeItemRowAt(self.storeStockData:getMouseY())
+
         if not self.storeStockData.items[row] then return end
-        local item = self.storeStockData.items[row].item
+        local item = self.storeStockData.items[row].listingID
 
         self.storeStockData:removeItemByIndex(self.storeStockData.selected)
         self.addStockEntry:setText("")
@@ -103,7 +112,7 @@ end
 
 function storeWindow:addItemToYourStock(itemType, store, x, y, z, worldObjName, item, worldObject)
 
-    local fields = itemFields.gatherFields(item)
+    local fields = itemFields.gatherFields(item, true)
 
     sendClientCommand("shop", "listNewItem",
             { isBeingManaged=store.isBeingManaged, alwaysShow = false,
@@ -166,6 +175,8 @@ end
 function storeWindow:setStockInput(listing)
     if not self:isBeingManaged() then return end
 
+    if not listing then return end
+
     local option = self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)
     local text
 
@@ -207,22 +218,24 @@ end
 function storeWindow:onStoreItemSelected()
     local row = self:storeItemRowAt(self.storeStockData:getMouseY())
     if not self.storeStockData.items[row] then return end
-    local item = self.storeStockData.items[row].item
 
-    local listing = self.storeObj.listings[item]
+    local item = self.storeStockData.items[row].item
+    local listingID = self.storeStockData.items[row].listingID
+    local listing = self.storeObj.listings[listingID]
 
     if self:isBeingManaged() then self:setStockInput(listing) return end
 
     if #self.yourCartData.items >= self.MaxItems then return end
     local inCart = 0
-    for _,v in pairs(self.yourCartData.items) do if v.item == item then inCart = inCart+1 end end
+    for _,v in pairs(self.yourCartData.items) do if v.item == listingID then inCart = inCart+1 end end
 
     local availableStock = self:getAvailableStock(listing)
 
     if self.storeObj and ((availableStock >= inCart+1) or (availableStock == -1)) then
-        local script = getScriptManager():getItem(item)
+        local script = getScriptManager():getItem(listing.item)
         local scriptName = script:getDisplayName()
-        self.yourCartData:addItem(scriptName, item)
+        local cartItem = self.yourCartData:addItem(scriptName, listingID)
+        cartItem.itemType = item
     end
 end
 
@@ -332,7 +345,6 @@ end
 
 
 function storeWindow:listingInputEntered()
-    if not _internal.isAdminHostDebug() then return end
     if not self.parent.storeWindow:isBeingManaged() then return end
 
     local storeWindow = self.parent.storeWindow
@@ -340,13 +352,14 @@ function storeWindow:listingInputEntered()
     local listing = storeWindow.selectedListing
     local field = listing and storeWindow.addListingList.accessing
     if field then
+
+        if (storeWindow.storeObj and storeWindow.storeObj.ownerID) and (listing.fields and listing.fields[field]~=nil) then return end
+
         local value = self:getText()
         value = tonumber(value) or value
 
         if value == "false" then value = false end
         if value == "true" then value = true end
-
-        print("field: ",field, " = ", value)
 
         if listing[field] ~= nil then
             listing[field] = value
@@ -373,18 +386,26 @@ function storeWindow:drawAddListingList(y, item, alt)
 
     if self.accessing and self.accessing == item.fieldID then
         local input = self.storeWindow.listingInput
-        input:setY(y)
-        if (not input:isVisible()) then
-            input:setOnlyNumbers((tonumber(item.item) ~= nil))
-            input:setText(tostring(item.item))
-            input:setVisible(true)
-            input:setHeight(self.itemheight)
-            input:focus()
+        local scrolledY = y+self:getYScroll()
+
+        if scrolledY < 0 or scrolledY > (self:getHeight()-self.itemheight) then
+            input:setVisible(false)
+        else
+            input:setY(scrolledY)
+            if (not input:isVisible()) then
+                input:setOnlyNumbers((tonumber(item.item) ~= nil))
+                input:setText(tostring(item.item))
+                input:setVisible(true)
+                input:setHeight(self.itemheight)
+                input:focus()
+            end
+            input:drawTextRight(item.fieldID, self:getWidth()-8, 2, self.itemTextColor.r, self.itemTextColor.g, self.itemTextColor.b, self.itemTextColor.a*0.66, self.font)
         end
-        input:drawTextRight(item.fieldID, self:getWidth()-8, 2, self.itemTextColor.r, self.itemTextColor.g, self.itemTextColor.b, self.itemTextColor.a*0.66, self.font)
+
     else
         self:drawRect(0, (y), self:getWidth(), self.itemheight-1, self.itemAlpha, 0.4, 0.4, 0.4)
-        self:drawText(item.text, 4, y+2, self.itemTextColor.r, self.itemTextColor.g, self.itemTextColor.b, self.itemTextColor.a, self.font)
+        local alphaShift = item.faded and 0.35 or self.itemTextColor.a
+        self:drawText(item.text, 4, y+2, self.itemTextColor.r, self.itemTextColor.g, self.itemTextColor.b, alphaShift, self.font)
     end
 
     return y + self.itemheight
@@ -392,9 +413,6 @@ end
 
 
 function storeWindow:addListingListMouseUp(x, y)
-    if not _internal.isAdminHostDebug() then return end
-    print("x:, ",x)
-    print("y:, ",y)
 
     local spot = self:rowAt(x, y)
     if not spot then return end
@@ -405,18 +423,19 @@ function storeWindow:addListingListMouseUp(x, y)
 
     if field.fieldID == "categoryListing" then return end
 
-    if field.item == true or field.item == false then
-        local listing = self.storeWindow.selectedListing
-        if listing then
+    local listing = self.storeWindow.selectedListing
+    if listing then
+        if (self.storeWindow.storeObj and self.storeWindow.storeObj.ownerID) and (listing.fields and listing.fields[field.fieldID]~=nil) then return end
+
+        if field.item == true or field.item == false then
             if listing[field.fieldID] ~= nil then
                 listing[field.fieldID] = (not field.item)
             elseif listing.fields and listing.fields[field.fieldID] ~= nil then
                 listing.fields[field.fieldID] = (not field.item)
             end
+            self.storeWindow:populateListingList(listing)
+            return
         end
-
-        self.storeWindow:populateListingList(listing)
-        return
     end
 
     self.accessing = field.fieldID
@@ -426,7 +445,6 @@ end
 function storeWindow:populateListingList(listing)
     if not self:isBeingManaged() then return end
 
-    print("listing: ",listing)
     self.selectedListing = listing
     self.addListingList:clear()
 
@@ -449,8 +467,10 @@ function storeWindow:populateListingList(listing)
 
     if not script and not movable then
     else
-        local stock = self.addListingList:addItem("Stock: "..listing.stock, listing.stock)
-        stock.fieldID = "stock"
+        if self.storeObj and not self.storeObj.ownerID then
+            local stock = self.addListingList:addItem("Stock: "..listing.stock, listing.stock)
+            stock.fieldID = "stock"
+        end
     end
 
     local alwaysShow = self.addListingList:addItem("Always Show: "..tostring(listing.alwaysShow), listing.alwaysShow)
@@ -460,9 +480,18 @@ function storeWindow:populateListingList(listing)
     reselling.fieldID = "reselling"
 
     if listing.fields then
-        for field,value in pairs(listing.fields) do
-            local addedField = self.addListingList:addItem(field..": "..tostring(value), value)
-            addedField.fieldID = field
+        local total_fields = itemFields.gatherFields(listing.item)
+        if total_fields then
+            for field,_value in pairs(total_fields) do
+                local value = listing.fields[field] or _value
+                local addedField = self.addListingList:addItem(field..": "..tostring(value), value)
+
+                if (not listing.fields[field]) or (self.storeObj and self.storeObj.ownerID) then
+                    addedField.faded = true
+                end
+
+                addedField.fieldID = field
+            end
         end
     end
 
@@ -561,6 +590,7 @@ function storeWindow:initialise()
             ISScrollingListBox.prerender(self.addListingList)
         end
     end
+
     local _font = UIFont.Large
     local FONT_HGT = getTextManager():getFontHeight(_font)
     self.addListingList.label = ISLabel:new(0+(self.addListingList.width/2), 0-FONT_HGT, FONT_HGT, "MANAGE MODE", 1, 0, 0, 0.7, _font, true)
@@ -797,9 +827,11 @@ function storeWindow:rtrnTypeIfValid(item)
 
         if storeObj and itemType then
 
-            --TODO: Differentiate items to listings - like movable, food, etc.
-            
-            local listing = storeObj.listings[itemType]
+            local itemScript = getScriptManager():getItem(itemType)
+            local _fieldName = itemScript:getDisplayName()
+            local fieldName = _fieldName~=item:getDisplayName() and "_".._fieldName or ""
+
+            local listing = storeObj.listings[itemType..fieldName]
             if not listing and itemCat then listing = storeObj.listings["category:"..tostring(itemCat)] end
             if not listing then return false, "IGUI_NOTRADE_INVALIDTYPE" end
             if listing then
@@ -819,13 +851,17 @@ end
 
 function storeWindow:drawCart(y, item, alt)
     local texture
-    local itemType, reason, itemCat = self.parent:rtrnTypeIfValid(item.item)
 
-    if type(item.item) == "string" then texture = getScriptManager():getItem(item.item):getNormalTexture()
+    local checkThis = item.itemType or ((type(item.item) ~= "string") and item.item:getFullType()) or item.item
+    local itemType, reason, itemCat = self.parent:rtrnTypeIfValid(checkThis)
+
+    if type(item.item) == "string" then
+        local script = getScriptManager():getItem(item.itemType)
+        texture = script and script:getNormalTexture()
+
     else texture = item.item:getTex() end
 
     local color = {r=1, g=1, b=1, a=0.9}
-    local storeObj = self.parent.storeObj
     local noList = false
     if reason and type(item.item) ~= "string" then
         color = {r=0.75, g=0, b=0, a=0.45}
@@ -852,8 +888,21 @@ function storeWindow:drawCart(y, item, alt)
     end
 
     local balanceDiff = 0
+
+    local storeObj = self.parent.storeObj
     if storeObj and (not noList) then
-        local listing = storeObj.listings[itemType] or storeObj.listings["category:"..tostring(itemCat)] or _internal.isMoneyType(itemType)
+
+        local listingID = item.itemType or item.item
+        if type(item.item) ~= "string" then
+            local _item = item.item:getFullType()
+            local script = item.item:getScriptItem()
+            local scriptName = script:getDisplayName()
+            local displayName = item.item:getDisplayName()
+            local fieldName = (displayName ~= scriptName) and "_"..displayName or ""
+            listingID = _item..fieldName
+        end
+
+        local listing = storeObj.listings[listingID] or storeObj.listings["category:"..tostring(itemCat)] or _internal.isMoneyType(itemType)
         if listing then
             if type(item.item) == "string" then balanceDiff = listing.price
             else
@@ -883,24 +932,29 @@ function storeWindow:drawCart(y, item, alt)
 end
 
 
-function storeWindow:drawStock(y, item, alt)
+function storeWindow:drawStock(y, entry, alt)
+
+    local text = entry.text
+    local item = entry.item
+    local listingID = entry.listingID
+
     local texture, script, validCategory = nil, nil, nil
-    if type(item.item) == "string" then
-        script = getScriptManager():getItem(item.item)
+    if type(item) == "string" then
+        script = getScriptManager():getItem(item)
         if script then
             texture = script:getNormalTexture()
         else
-            validCategory = isValidItemDictionaryCategory(item.item:gsub("category:",""))
+            validCategory = isValidItemDictionaryCategory(item:gsub("category:",""))
         end
     else
-        texture = item.item:getTex()
+        texture = item:getTex()
     end
 
     local color = {r=1, g=1, b=1, a=0.9}
 
     local storeObj = self.parent.storeObj
     if storeObj then
-        local listing = storeObj.listings[item.item]
+        local listing = storeObj.listings[listingID]
         if listing then
 
             local availableStock = self.parent:getAvailableStock(listing)
@@ -918,9 +972,9 @@ function storeWindow:drawStock(y, item, alt)
 
             if showListing or managing then
 
-                if not string.match(item.item, "category:") then
+                if not string.match(item, "category:") then
                     local inCart = 0
-                    for _,v in pairs(self.parent.yourCartData.items) do if v.item == item.item then inCart = inCart+1 end end
+                    for _,v in pairs(self.parent.yourCartData.items) do if v.item == listingID then inCart = inCart+1 end end
                     local availableTemp = availableStock-inCart
 
                     if storeObj.ownerID and listing.reselling==false and listing.buybackRate>0 then availableTemp = 1 end
@@ -933,7 +987,7 @@ function storeWindow:drawStock(y, item, alt)
 
                 self:drawRectBorder(0, (y), self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
                 if texture then self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b) end
-                self:drawText(extra..item.text, 32, y+6, color.r, color.g, color.b, color.a, self.font)
+                self:drawText(extra..text, 32, y+6, color.r, color.g, color.b, color.a, self.font)
 
                 return y + self.itemheight
             end
@@ -961,11 +1015,14 @@ function storeWindow:displayStoreStock()
         local script = scriptManager:getItem(listing.item)
         local fieldName = listing.fields and listing.fields.name
         local itemDisplayName = fieldName or (script and script:getDisplayName()) or listing.item
-        
+
+        local _fieldName = fieldName and "_"..fieldName or ""
+        local listingID = listing.item.._fieldName
+
         local isCategoryListingAndIsValid = (string.match(listing.item, "category:") and isValidItemDictionaryCategory(listing.item:gsub("category:","")))
 
         local inCart = 0
-        for _,v in pairs(self.yourCartData.items) do if v.item == listing.item then inCart = inCart+1 end end
+        for _,v in pairs(self.yourCartData.items) do if v.item == listingID then inCart = inCart+1 end end
 
         local availableStock = self:getAvailableStock(listing)
 
@@ -994,6 +1051,7 @@ function storeWindow:displayStoreStock()
 
         local label = price.."  "..itemDisplayName..stockText
         local listedItem = self.storeStockData:addItem(label, listing.item)
+        listedItem.listingID = listingID
 
         local tooltipText = label
         if managed then
@@ -1015,7 +1073,7 @@ end
 
 function storeWindow:addItemToYourCart(item)
     local add = true
-    for _,v in ipairs(self.yourCartData.items) do if v.item == item then add = false break end end
+    for _,v in ipairs(self.yourCartData.items) do if v.item == item.listingID then add = false break end end
     if add then self.yourCartData:addItem(item:getName(), item) end
 end
 
@@ -1086,22 +1144,32 @@ function storeWindow:getOrderTotal()
     local itemListedInCart = false
 
     for i,v in ipairs(self.yourCartData.items) do
-        local itemType, reason, itemCat = self:rtrnTypeIfValid(v.item)
+        local itemType, reason, itemCat = self:rtrnTypeIfValid(v.itemType or v.item)
         if itemType then
             if reason then invalidOrder = true end
             if type(v.item) ~= "string" then
                 if _internal.isMoneyType(itemType) then
                     totalForTransaction = totalForTransaction-(v.item:getModData().value)
                 else
-                    local itemListing = self.storeObj.listings[itemType] or self.storeObj.listings["category:"..tostring(itemCat)]
+                    ---@type Item
+                    local script = v.item:getScriptItem()
+                    local scriptName = script:getDisplayName()
+                    local itemName = v.item:getDisplayName()
+                    local fieldName = (scriptName ~= itemName) and "_"..itemName or ""
+                    local listingID = itemType..fieldName
+
+                    local itemListing = self.storeObj.listings[listingID] or self.storeObj.listings["category:"..tostring(itemCat)]
+
                     if itemListing then
+                        print("listingID: ", listingID)
                         itemListedInCart = true
                         totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100))
                     end
                 end
             else
-                local itemListing = self.storeObj.listings[v.item]
+                local itemListing = self.storeObj.listings[v.itemType or v.item]
                 if itemListing then
+                    print("v.item: ", v.itemType or v.item)
                     itemListedInCart = true
                     totalForTransaction = totalForTransaction+itemListing.price
                 end
@@ -1110,16 +1178,19 @@ function storeWindow:getOrderTotal()
     end
 
     if not itemListedInCart then invalidOrder = true end
+
+    print("totalForTransaction:",totalForTransaction,"   invalidOrder:",invalidOrder)
+
     return totalForTransaction, invalidOrder
 end
 
 function storeWindow:getPurchaseTotal()
     local totalForPurchase = 0
     for i,v in ipairs(self.yourCartData.items) do
-        local itemType, _, itemCat = self:rtrnTypeIfValid(v.item)
+        local itemType, _, itemCat = self:rtrnTypeIfValid(v.itemType or v.item)
         if itemType then
             if type(v.item) == "string" then
-                local itemListing = self.storeObj.listings[v.item]
+                local itemListing = self.storeObj.listings[v.itemType or v.item]
                 if itemListing then totalForPurchase = totalForPurchase+itemListing.price end
             end
         end
@@ -1628,10 +1699,7 @@ function storeWindow:onClick(button)
         local matches, matchesToType = findMatchesFromItemDictionary(newEntry, self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected))
         if not matches then return end
 
-        print("CATEGORY ?: ", newEntry)
-
         if isValidItemDictionaryCategory(newEntry) then
-            print(" -- CATEGORY TRUE")
             newEntry = "category:"..newEntry
         else
             local scriptType = matchesToType[newEntry]
@@ -1656,15 +1724,9 @@ function storeWindow:onClick(button)
 
         local stock = listingSelected and listingSelected.stock or 0
         local buybackRate = listingSelected and listingSelected.buybackRate or 0
-
         local alwaysShow = listingSelected and (listingSelected.alwaysShow ~= nil and listingSelected.alwaysShow) or false
         local reselling = listingSelected and (listingSelected.reselling ~= nil and listingSelected.reselling) or true
-
-        print("listingSelected: ", listingSelected)
-
-        local fields = listingSelected and listingSelected.fields or itemFields.gatherFields(newEntry)
-
-        print(" -- fields: ", fields)
+        local fields = listingSelected and listingSelected.fields or itemFields.gatherFields(newEntry, true)
 
         sendClientCommand("shop", "listNewItem", {
             isBeingManaged=store.isBeingManaged,
@@ -1758,17 +1820,17 @@ function storeWindow:finalizeDeal()
 
     local counts = {}
     for i,v in ipairs(self.yourCartData.items) do
-        if type(v.item) == "string" then
+
+        local _item = v.item
+
+        if type(_item) == "string" then
             if self.storeObj.ownerID then
 
-                local storeStock = self:getItemTypesInStoreContainer(v.item)
-                if storeStock then
-                    counts[v.item] = (counts[v.item] or -1) + 1
-                    local item = storeStock:get(counts[v.item])
+                local storeStock = self:getItemTypesInStoreContainer(v)
+                if storeStock and storeStock:size() > 0 then
+                    counts[_item] = (counts[_item] or -1) + 1
+                    local item = storeStock:get(counts[_item])
                     if item then
-
-                        if self.player:isEquipped(item) then ISTimedActionQueue.add(ISUnequipAction:new(self.player, item, 1)) end
-
                         local action = ISInventoryTransferAction:new(self.player, item, worldObjectCont, self.player:getInventory(), 0)
                         action.stopOnWalk = false
                         action.stopOnRun = false
@@ -1778,9 +1840,9 @@ function storeWindow:finalizeDeal()
                     end
                 end
             end
-            table.insert(itemToPurchase, v.item)
+            table.insert(itemToPurchase, _item)
         else
-            local itemType, _, _ = self:rtrnTypeIfValid(v.item)
+            local itemType, _, _ = self:rtrnTypeIfValid(v.itemType or v.item)
             if itemType then
                 local removeItem, isMoney = false, false
                 if _internal.isMoneyType(itemType) then

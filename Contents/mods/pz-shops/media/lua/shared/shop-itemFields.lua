@@ -1,10 +1,9 @@
 local itemFields = {}
 
 ---@param i string
-function itemFields.gatherFields(i)
+function itemFields.gatherFields(i, purgeHidden)
 
-    print(" gatherFields:", i)
-    if not i then print(" --- no i") return end
+    if not i then return end
 
     ---@type InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
     local item = instanceof(i, "InventoryItem") and i
@@ -15,45 +14,56 @@ function itemFields.gatherFields(i)
         local _category = i:gsub("category:","")
         category = _category and isValidItemDictionaryCategory(_category) and _category
         if not category then
-            print("item type: ", i)
             item = InventoryItemFactory.CreateItem(i)
         else
             local dict = getItemDictionary()
             local dictType = dict.categoryExample[category]
-            print("item type: ", dictType)
             item = InventoryItemFactory.CreateItem(dictType)
         end
     end
 
-    if not item then print(" --- no item") return else print(" --- item: ", item:getType()) end
+    if not item then return end
 
     local fields = {}
+    local hidden_fields = {}
 
     ---name - ignore if original
-    local name = item:getName()
+    local name = item:getDisplayName()
     local script = item:getScriptItem()
 
-    if (script and script:getDisplayName()~=name) then
-        fields.name = name
+    fields.name = name
+    if (script and script:getDisplayName()==name) then
+        hidden_fields.name = true
     end
 
     ---Original name vs Current Name
     --if (this.name != null && !this.name.equals(this.originalName))
 
     local currentUses = item:getCurrentUses()
-    if currentUses ~= 1 then
-        fields.uses = currentUses
+    fields.uses = currentUses
+    if not (currentUses ~= 1) then
+        hidden_fields.uses = true
     end
 
     if item:IsDrainable() then
         local usedDelta = item:getUsedDelta()
-        if usedDelta < 1 then
-            fields.usedDelta = usedDelta
+        fields.usedDelta = usedDelta
+        if not (usedDelta < 1) then
+            hidden_fields.usedDelta = true
         end
     end
 
-    fields.condition = item:getCondition()
-    fields.broken = item:isBroken()
+    local condition = item:getCondition()
+    fields.condition = condition
+    if condition <= script:getConditionMax() then
+        hidden_fields.condition = true
+    end
+
+    local broken = item:isBroken()
+    fields.broken = broken
+    if not broken then
+        hidden_fields.broken = true
+    end
 
     ---Item Visual
     -- if (this.visual != null)
@@ -64,30 +74,40 @@ function itemFields.gatherFields(i)
         local g = c:getG()
         local b = c:getB()
         local a = c:getAlpha()
-        if r~=1 or g~=1 or b~=1 then
-            fields.color = {r=r,g=g,b=b,a=a}
+
+        fields.color = {r=r,g=g,b=b,a=a}
+        if not (r~=1 or g~=1 or b~=1) then
+            hidden_fields.color = true
         end
+    else
+        fields.color = ""
+        hidden_fields.color = true
     end
 
     local capacity = item:getItemCapacity()
-    if capacity ~= -1 then
-        fields.capacity = capacity
+    fields.capacity = capacity
+    if (capacity == -1) then
+        hidden_fields.capacity = true
     end
 
     if item:hasModData() then
         fields.modData = item:getModData()
+    else
+        fields.modData = ""
+        hidden_fields.modData = true
     end
 
     local activated = item:isActivated()
-    if activated then
-        fields.activated = activated
+    fields.activated = activated
+    if not activated then
+        hidden_fields.activated = true
     end
 
     local repaired = item:getHaveBeenRepaired()
-    if repaired ~= 1 then
-        fields.repaired = repaired
+    fields.repaired = repaired
+    if (repaired == 1) then
+        hidden_fields.repaired = true
     end
-
 
     ---byteData (???)
     --if (this.byteData != null) {var6.addFlags(16);this.byteData.rewind();var1.putInt(this.byteData.limit());var1.put(this.byteData);this.byteData.flip();}
@@ -107,48 +127,58 @@ function itemFields.gatherFields(i)
     --]]
 
     local customName = item:isCustomName()
-    if customName then
-        fields.customName = customName
+    fields.customName = customName
+    if not customName then
+        hidden_fields.customName = true
     end
 
     local customWeight = item:isCustomWeight()
-    if customWeight then
-        fields.customWeight = customWeight
+    fields.customWeight = customWeight
+    if not customWeight then
+        hidden_fields.customWeight = true
     end
     ---customWeight
     --if (this.isCustomWeight()) {var6.addFlags(128);var1.putFloat(this.isCustomWeight() ? this.getActualWeight() : -1.0F);}
 
     local keyId = item:getKeyId()
-    if keyId ~= -1 then
-        fields.keyId = keyId
+    fields.keyId = keyId
+    if (keyId == -1) then
+        hidden_fields.keyId = true
     end
 
     local taintedWater = item:isTaintedWater()
-    if taintedWater then
-        fields.taintedWater = taintedWater
+    fields.taintedWater = taintedWater
+    if not taintedWater then
+        hidden_fields.taintedWater = true
     end
 
     local remoteControlID = item:getRemoteControlID()
     local remoteRange = item:getRemoteRange()
-    if remoteControlID ~= -1 or remoteRange ~= 0 then
-        fields.remoteControlID = remoteControlID
-        fields.remoteRange = remoteRange
+    fields.remoteControlID = remoteControlID
+    fields.remoteRange = remoteRange
+    if (remoteControlID == -1 and remoteRange == 0) then
+        hidden_fields.remoteControlID = true
+        hidden_fields.remoteRange = true
     end
 
     local colorR, colorG, colorB = item:getColorRed(), item:getColorGreen(), item:getColorBlue()
-    if colorR ~= 1 or colorG ~= 1 or colorB ~= 1 then
-        fields.colorR = colorR
-        fields.colorG = colorG
-        fields.colorB = colorB
-    end
+    fields.colorR = colorR
+    fields.colorG = colorG
+    fields.colorB = colorB
+    if colorR == 1 then hidden_fields.colorR = true end
+    if colorG == 1 then hidden_fields.colorG = true end
+    if colorB == 1 then hidden_fields.colorB = true end
 
     ---Worker appears unused (?)
     --if (this.worker != null) {var6.addFlags(4096);GameWindow.WriteString(var1, this.getWorker());}
 
+    --[[
     local wetCooldown = item:getWetCooldown()
-    if wetCooldown ~= -1 then
-        fields.wetCooldown = wetCooldown
+    fields.wetCooldown = wetCooldown
+    if not (wetCooldown ~= -1) then
+        hidden_fields.wetCooldown = true
     end
+    --]]
 
     ---stash mao has no getter
     --if (this.stashMap != null)
@@ -157,9 +187,8 @@ function itemFields.gatherFields(i)
     --      if (this.isInfected())
 
     local currentAmmoCount = item:getCurrentAmmoCount()
-    if currentAmmoCount ~= 0 then
-        fields.currentAmmoCount = currentAmmoCount
-    end
+    fields.currentAmmoCount = currentAmmoCount
+    if (currentAmmoCount == 0) then hidden_fields.currentAmmoCount = true end
 
     ---Part of hotbar logic - should ignore
     --if (this.attachedSlot != -1)
@@ -167,13 +196,10 @@ function itemFields.gatherFields(i)
     --if (this.attachedToModel != null)
 
     local maxCapacity = item:getMaxCapacity()
-    if maxCapacity ~= -1 then
-        fields.maxCapacity = maxCapacity
-    end
+    fields.maxCapacity = maxCapacity
+    if (maxCapacity == -1) then hidden_fields.maxCapacity = true end
 
-    if item:isRecordedMedia() then
-        fields.recordedMediaIndex = item:getRecordedMediaIndex()
-    end
+    if item:isRecordedMedia() then fields.recordedMediaIndex = item:getRecordedMediaIndex() end
 
     ---probably fine to ignore(?)
     --if (this.worldZRotation > -1)
@@ -186,10 +212,30 @@ function itemFields.gatherFields(i)
     --if initialised then fields.initialised = initialised end
 
     if instanceof(item, "Clothing") then
-        fields.spriteName = item:getSpriteName()
-        fields.dirtyness = item:getDirtyness()
-        fields.bloodLevel = item:getBloodLevel()
-        fields.wetness = item:getWetness()
+
+        local spriteName = item:getSpriteName()
+        fields.spriteName = spriteName
+        if spriteName == script:getSpriteName() then
+            hidden_fields.spriteName = true
+        end
+
+        local dirtyness = item:getDirtyness()
+        fields.dirtyness = dirtyness
+        if dirtyness <= 0 then
+            hidden_fields.dirtyness = true
+        end
+
+        local bloodLevel = item:getBloodLevel()
+        fields.bloodLevel = bloodLevel
+        if bloodLevel <= 0 then
+            hidden_fields.bloodLevel = true
+        end
+
+        local wetness = item:getWetness()
+        fields.wetness = wetness
+        if wetness <= 0 then
+            hidden_fields.wetness = true
+        end
 
         ---hashmap
         --      if (this.patches != null) {
@@ -207,25 +253,74 @@ function itemFields.gatherFields(i)
 
 
     if instanceof(item, "Food") then
-        fields.age = item:getAge()
-        fields.lastAged = item:getLastAged()
+
+        local age = item:getAge() or 0
+        fields.age = age
+        if age <= 0 then
+            hidden_fields.age = true
+        end
+
+        local lastAged = item:getLastAged() or 0
+        fields.lastAged = lastAged
+        if lastAged <= 0 then
+            hidden_fields.lastAged = true
+        end
+
         fields.calories = item:getCalories()
         fields.proteins = item:getProteins()
         fields.lipids = item:getLipids()
         fields.carbohydrates = item:getCarbohydrates()
+        fields.fatigueChange = item:getFatigueChange()
+        fields.endChange = item:getEndChange()
         fields.hungChange = item:getHungChange()
         fields.baseHunger = item:getBaseHunger()
         fields.unhappyChange = item:getUnhappyChange()
         fields.boredomChange = item:getBoredomChange()
         fields.thirstChange = item:getThirstChange()
-        fields.heat = item:getHeat()
-        fields.LastCookMinute = item:getLastCookMinute()
-        fields.CookingTime = item:getCookingTime()
-        fields.Cooked = item:isCooked()
-        fields.Burnt = item:isBurnt()
+
+        local heat = item:getHeat()
+        fields.heat = heat
+        if heat == 1 then
+            hidden_fields.heat = true
+        end
+
+        local LastCookMinute = item:getLastCookMinute()
+        fields.LastCookMinute = LastCookMinute
+        if LastCookMinute <= 0 then
+            hidden_fields.LastCookMinute = true
+        end
+
+        local CookingTime = item:getCookingTime()
+        fields.CookingTime = CookingTime
+        if CookingTime <= 0 then
+            hidden_fields.CookingTime = true
+        end
+
+        local Cooked = item:isCooked()
+        fields.Cooked = Cooked
+        if not Cooked then
+            hidden_fields.Cooked = true
+        end
+
+        local Burnt = item:isBurnt()
+        fields.Burnt = Burnt
+        if not Burnt then
+            hidden_fields.Burnt = true
+        end
+
         fields.IsCookable = item:isCookable()
-        fields.bDangerousUncooked = item:isbDangerousUncooked()
-        fields.poisonDetectionLevel = item:getPoisonDetectionLevel()
+
+        local bDangerousUncooked = item:isbDangerousUncooked()
+        fields.bDangerousUncooked = bDangerousUncooked
+        if not bDangerousUncooked then
+            hidden_fields.bDangerousUncooked = true
+        end
+
+        local poisonDetectionLevel = item:getPoisonDetectionLevel()
+        fields.poisonDetectionLevel = poisonDetectionLevel
+        if poisonDetectionLevel == -1 then
+            hidden_fields.poisonDetectionLevel = true
+        end
 
         local spices = item:getSpices()
         if spices and spices:size() > 0 then
@@ -239,23 +334,86 @@ function itemFields.gatherFields(i)
             fields.spices = spicesTable
         end
 
-        fields.PoisonPower = item:getPoisonPower()
-        fields.Chef = item:getChef()
-        fields.OffAge = item:getOffAge()
-        fields.OffAgeMax = item:getOffAgeMax()
-        fields.painReduction = item:getPainReduction()
-        fields.fluReduction = item:getFluReduction()
-        fields.ReduceFoodSickness = item:getReduceFoodSickness()
+        local PoisonPower = item:getPoisonPower()
+        fields.PoisonPower = PoisonPower
+        if PoisonPower <= 0 then
+            hidden_fields.PoisonPower = true
+        end
+
+        local chef = item:getChef()
+        if chef then
+            fields.Chef = item:getChef()
+        else
+            fields.Chef = ""
+            hidden_fields.Chef = true
+        end
+
+        local OffAge = item:getOffAge()
+        fields.OffAge = OffAge
+        if OffAge == 1000000000 then
+            hidden_fields.OffAge = true
+        end
+
+        local OffAgeMax = item:getOffAgeMax()
+        fields.OffAgeMax = OffAgeMax
+        if OffAgeMax == 1000000000 then
+            hidden_fields.OffAgeMax = true
+        end
+
+        local painReduction = item:getPainReduction()
+        fields.painReduction = painReduction
+        if painReduction == 0 then
+            hidden_fields.painReduction = true
+        end
+
+        local fluReduction = item:getFluReduction()
+        fields.fluReduction = fluReduction
+        if fluReduction == 0 then
+            hidden_fields.fluReduction = true
+        end
+
+        local ReduceFoodSickness = item:getReduceFoodSickness()
+        fields.ReduceFoodSickness = ReduceFoodSickness
+        if ReduceFoodSickness == 0 then
+            hidden_fields.ReduceFoodSickness = true
+        end
         --fields.Poison = item:isPoison()
-        fields.UseForPoison = item:getUseForPoison()
-        fields.freezingTime = item:getFreezingTime()
-        fields.isFrozen = item:isFrozen()
-        --fields.LastFrozenUpdate ---No getter
-        fields.rottenTime = item:getRottenTime()
-        fields.compostTime = item:getCompostTime()
-        fields.cookedInMicrowave = item:isCookedInMicrowave()
-        fields.fatigueChange = item:getFatigueChange()
-        fields.endChange = item:getEndChange()
+
+        local UseForPoison = item:getUseForPoison()
+        fields.UseForPoison = UseForPoison
+        if UseForPoison == 0 then
+            hidden_fields.UseForPoison = true
+        end
+
+        local freezingTime = item:getFreezingTime()
+        fields.freezingTime = freezingTime
+        if freezingTime == 0 then
+            hidden_fields.freezingTime = true
+        end
+
+        local isFrozen = item:isFrozen()
+        fields.freezingTime = isFrozen
+        if isFrozen == false then
+            hidden_fields.isFrozen = true
+        end
+
+        local rottenTime = item:getRottenTime()
+        fields.rottenTime = rottenTime
+        if rottenTime == 0 then
+            hidden_fields.rottenTime = true
+        end
+
+        local compostTime = item:getCompostTime()
+        fields.compostTime = compostTime
+        if compostTime == 0 then
+            hidden_fields.compostTime = true
+        end
+
+        local cookedInMicrowave = item:isCookedInMicrowave()
+        fields.cookedInMicrowave = cookedInMicrowave
+        if cookedInMicrowave == false then
+            hidden_fields.cookedInMicrowave = true
+        end
     end
 
 
@@ -272,30 +430,71 @@ function itemFields.gatherFields(i)
         fields.hitChance = item:getHitChance()
         fields.minAngle = item:getMinAngle()
 
-        fields.scope = item:getScope() and item:getScope():getFullType() or ""
-        fields.clip = item:getClip() and item:getClip():getFullType() or ""
-        fields.recoilPad = item:getRecoilpad() and item:getRecoilpad():getFullType() or ""
-        fields.sling = item:getSling() and item:getSling():getFullType() or ""
-        fields.stock = item:getStock() and item:getStock():getFullType() or ""
-        fields.canon = item:getCanon() and item:getCanon():getFullType() or ""
+        local scope = item:getScope() and item:getScope():getFullType()
+        fields.scope = scope or ""
+        hidden_fields.clip = (not scope)
 
-        fields.explosionTimer = item:getExplosionTimer()
-        fields.maxAngle = item:getMaxAngle()
+        local clip = item:getClip() and item:getClip():getFullType()
+        fields.clip = clip or ""
+        hidden_fields.clip = (not clip)
 
-        fields.bloodLevel = item:getBloodLevel()
+        local recoilPad = item:getRecoilpad() and item:getRecoilpad():getFullType()
+        fields.recoilPad = recoilPad or ""
+        hidden_fields.recoilPad = (not recoilPad)
+
+        local sling = item:getSling() and item:getSling():getFullType()
+        fields.sling = sling or ""
+        hidden_fields.sling = (not sling)
+
+        local stock = item:getStock() and item:getStock():getFullType()
+        fields.stock = stock or ""
+        hidden_fields.stock = (not stock)
+
+        local canon = item:getCanon() and item:getCanon():getFullType()
+        fields.canon = canon or ""
+        hidden_fields.canon = (not canon)
+
+        local explosionTimer = item:getExplosionTimer()
+        fields.explosionTimer = explosionTimer
+        if explosionTimer ~= 0 then
+            hidden_fields.explosionTimer = true
+        end
+
+        --[[
+        local maxAngle = item:getMaxAngle()
+        fields.maxAngle = maxAngle
+        --]]
+
+        local bloodLevel = item:getBloodLevel()
+        fields.bloodLevel = bloodLevel
+        if bloodLevel <= 0 then
+            hidden_fields.bloodLevel = true
+        end
 
         fields.containsClip = item:isContainsClip()
         fields.roundChambered = item:isRoundChambered()
         fields.jammed = item:isJammed()
 
+        local weaponSprite = item:getWeaponSprite()
         fields.weaponSprite = item:getWeaponSprite()
+        if weaponSprite == script:getWeaponSprite() then
+            hidden_fields.weaponSprite = true
+        end
+
     end
 
     if instanceof(item, "InventoryContainer") then
         ---no getter for container ID - can't really save containers
         --TODO: When selling InventoryContainer make it dump the contents out?
         --fields.containerID = item:getContainer().ID
+
         fields.weightReduction = item:getWeightReduction()
+
+        local bloodLevel = item:getBloodLevel()
+        fields.bloodLevel = bloodLevel
+        if bloodLevel <= 0 then
+            hidden_fields.bloodLevel = true
+        end
     end
 
 
@@ -334,6 +533,7 @@ function itemFields.gatherFields(i)
     if movable then
         fields = fields or {}
         fields.worldSprite = movable:getWorldSprite()
+
         if movable:isLight() then
             fields.usesBattery = movable:isLightUseBattery()
             fields.hasBattery = movable:isLightHasBattery()
@@ -343,6 +543,13 @@ function itemFields.gatherFields(i)
             fields.lightR = movable:getLightR()
             fields.lightG = movable:getLightG()
             fields.lightB = movable:getLightB()
+        end
+    end
+
+    for f=#fields, 0, -1 do
+        local field = fields[f]
+        if hidden_fields[field] then
+            fields[f] = nil
         end
     end
 

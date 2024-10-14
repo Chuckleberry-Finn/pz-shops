@@ -55,7 +55,7 @@ local function onClientCommand(_module, _command, _player, _data)
     end
 
     if _command == "transferFunds" then
-        local playerWalletID, amount, toStoreID = _data.playerWalletID, _data.amount, _data.toStoreID
+        local playerWalletID, amount, toStoreID, forceCash = _data.playerWalletID, _data.amount, _data.toStoreID, _data.forceCash
 
         if toStoreID then
             local storeObj = STORE_HANDLER.getStoreByID(toStoreID)
@@ -70,6 +70,9 @@ local function onClientCommand(_module, _command, _player, _data)
         if playerWalletID then playerWallet = WALLET_HANDLER.getOrSetPlayerWallet(playerWalletID) end
         if playerWallet and amount then
             WALLET_HANDLER.validateMoneyOrWallet(playerWallet,_player,amount)
+            if forceCash then
+                WALLET_HANDLER.validateMoneyOrWallet(playerWallet,_player,0-amount,true)
+            end
         end
     end
 
@@ -79,8 +82,8 @@ local function onClientCommand(_module, _command, _player, _data)
         local playerA, playerObjA = {offer=_data.offerA}, _data.playerA
         local playerB, playerObjB = {offer=_data.offerB}, _data.playerB
 
-        if playerA then playerA.walletID = playerObjA:getModData().wallet_UUID end
-        if playerB then playerB.walletID = playerObjB:getModData().wallet_UUID end
+        if playerA then playerA.walletID = playerObjA and playerObjA:getModData().wallet_UUID end
+        if playerB then playerB.walletID = playerObjB and playerObjB:getModData().wallet_UUID end
 
         local walletA, walletB
 

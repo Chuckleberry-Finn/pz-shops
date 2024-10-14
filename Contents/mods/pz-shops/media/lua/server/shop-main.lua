@@ -48,8 +48,8 @@ function WALLET_HANDLER.processCreditToStore(playerWallet,playerObj,amount,store
 end
 
 
-function WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,amount)
-    if SandboxVars.ShopsAndTraders.PlayerWallets then
+function WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,amount,forceCash)
+    if SandboxVars.ShopsAndTraders.PlayerWallets and (not forceCash) then
         local newValue = math.max(0, playerWallet.amount+amount)
         playerWallet.amount = _internal.floorCurrency(newValue)
         WALLET_HANDLER.updateWallet(playerObj, playerWallet)
@@ -113,21 +113,17 @@ store_listing.price = 0
 store_listing.buybackRate = 0
 store_listing.stock = 0
 store_listing.available = 0
-store_listing.listingID = false
 store_listing.reselling = true
 store_listing.alwaysShow = false
 store_listing.fields = false
 
 function STORE_HANDLER.newListing(storeObj,item,fields,price,stock,buybackRate,reselling,alwaysShow)
-    local _category = item:gsub("category:","")
-    local category = _category and isValidItemDictionaryCategory(_category) and _category
-    local old_typeOnlyListing = (not category) and storeObj.listings[item]
 
-    local dupeFlag = old_typeOnlyListing and "_"..getRandomUUID() or ""
     local fieldName = fields and fields.name and "_"..fields.name or ""
-
-    local oldListing = storeObj.listings[item..fieldName..dupeFlag]
+    local listingID = item..fieldName
+    local oldListing = storeObj.listings[listingID]
     local newListing = oldListing or copyTable(store_listing)
+
     newListing.item = item
     if price then
         if price < 0 then price = 0 end
@@ -152,7 +148,8 @@ function STORE_HANDLER.newListing(storeObj,item,fields,price,stock,buybackRate,r
     if reselling then newListing.reselling = true else newListing.reselling = false end
     if alwaysShow then newListing.alwaysShow = true else newListing.alwaysShow = false end
 
-    storeObj.listings[item] = newListing
+
+    storeObj.listings[listingID] = newListing
 
     STORE_HANDLER.updateStore(storeObj,storeObj.ID)
 
@@ -330,10 +327,13 @@ function STORE_HANDLER.validateItemType(storeID,itemType)
     if not storeID then print("ERROR: validatePurchases: No storeID") return end
     local storeObj = STORE_HANDLER.getStoreByID(storeID)
     if not storeObj then print("ERROR: validatePurchases: No storeObj") return end
-    local validItem = getScriptManager():getItem(itemType)
-    if not validItem then print("ERROR: no script found for \'"..itemType.."\'") return end
 
     local listing = storeObj.listings[itemType]
+    if not listing then print("ERROR: \'"..itemType.."\' not listed for \'"..storeObj.name.."\'") return end
+
+    local validItem = getScriptManager():getItem(listing.item)
+    if not validItem then print("ERROR: no script found for \'"..listing.item.."\'") return end
+
     local displayCat = validItem:getDisplayCategory()
 
     if not listing and displayCat then listing = storeObj.listings["category:"..displayCat] end

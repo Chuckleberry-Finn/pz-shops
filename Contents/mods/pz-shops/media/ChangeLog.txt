@@ -35,8 +35,11 @@ Credit to EasyPeasyViking:
 - Change language regarding manage mode.
 [ ------ ]
 
-[ 9/14/24]
+[ 10/14/24]
 - Removed three inputs for stock/price/buyback
 - Added manage-mode list of fields
-
+- Fixed issue with failed trades/exchanges
+- Lowered minimum for Money weight to 0.00
+- Refactored wallet withdraw to handle cash spawn on network
 [ ------]
+

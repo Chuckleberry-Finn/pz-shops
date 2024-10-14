@@ -147,20 +147,26 @@ local function onPlayerDeath(playerObj)
             playerObj:getInventory():AddItem(money)
         else print("ERROR: Split/Withdraw Wallet: No money object created. \<"..type.."\>") end
     end
-    CLIENT_WALLETS[playerModData.wallet_UUID] = nil
-    sendClientCommand("shop", "scrubWallet", {playerID=playerModData.wallet_UUID})
+
+    if SandboxVars.ShopsAndTraders.PlayerWalletsLostOnDeath then
+        CLIENT_WALLETS[playerModData.wallet_UUID] = nil
+        sendClientCommand("shop", "scrubWallet", {playerID=playerModData.wallet_UUID})
+    end
 end
 Events.OnPlayerDeath.Add(onPlayerDeath)
 
 
+
 ---@class ISSliderBox : ISTextBox
 ISSliderBox = ISTextBox:derive("ISSliderBox")
+
 
 function ISSliderBox:onValueChange(val)
     local title = "IGUI_SPLIT"
     if not self.item then title = "IGUI_WITHDRAW" end
     self.text = getText(title)..": ".._internal.numToCurrency(val)
 end
+
 
 function ISSliderBox:initialise()
     ISTextBox.initialise(self)
@@ -175,6 +181,18 @@ function ISSliderBox:initialise()
 
     local halfMax = _internal.floorCurrency(maxValue/2)
     self.slider = ISSliderPanel:new(self.entry.x, self.entry.y, w-margin, 20, self, ISSliderBox.onValueChange)
+
+    self.slider.render = function()
+        local maxVal = 0
+        local wallet = getWallet(self.playerObj)
+        if wallet then maxVal = wallet.amount end
+        self.slider.maxValue = maxVal
+
+        if self.slider:getCurrentValue() > maxVal then self.slider:setCurrentValue(maxVal) end
+
+        ISSliderPanel.render(self.slider)
+    end
+
     self.slider:setValues( 0.01, maxValue, 0.01, 0.5, true)
     self.slider:setCurrentValue(halfMax)
     self.slider:initialise()
@@ -219,28 +237,35 @@ end
 function ISSliderBox:onClick(button, playerObj, item)
     if button.internal == "OK" then
         if canManipulateMoney(item, playerObj) then
+
+            local wallet = getWallet(playerObj)
+            local walletValue = wallet and wallet.amount
+
+            if  button.parent.slider:getCurrentValue() > walletValue then
+                button.parent.slider:setCurrentValue(walletValue)
+            end
+
             local transferValue = button.parent.slider:getCurrentValue()
-            local moneyTypes = _internal.getMoneyTypes()
-            local type = moneyTypes[ZombRand(#moneyTypes)+1]
-            local money = InventoryItemFactory.CreateItem(type)
 
-            if money then
-                generateMoneyValue(money, transferValue, true)
+            if item and _internal.isMoneyType(item:getFullType()) and item:getModData() and item:getModData().value > 0 then
+                local newValue = item:getModData().value-transferValue
+                generateMoneyValue(item, newValue, true)
 
-                local container = item and item:getContainer() or playerObj:getInventory()
-                container:AddItem(money)
-
-                if item and _internal.isMoneyType(item:getFullType()) and item:getModData() and item:getModData().value > 0 then
-                    local newValue = item:getModData().value-transferValue
-                    generateMoneyValue(item, newValue, true)
+                local moneyTypes = _internal.getMoneyTypes()
+                local type = moneyTypes[ZombRand(#moneyTypes)+1]
+                local money = InventoryItemFactory.CreateItem(type)
+                if money then
+                    generateMoneyValue(money, transferValue, true)
+                    local container = item and item:getContainer() or playerObj:getInventory()
+                    container:AddItem(money)
                 end
+            end
 
-                if not item then
-                    local playerModData = playerObj:getModData()
-                    sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=(0-transferValue)})
-                end
+            if not item then
+                local playerModData = playerObj:getModData()
+                sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=(0-transferValue), forceCash=true})
+            end
 
-            else print("ERROR: Split/Withdraw Wallet: No money object created. \<"..type.."\>") end
         end
     end
 end
