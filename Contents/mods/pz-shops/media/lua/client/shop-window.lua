@@ -93,7 +93,8 @@ function storeWindow:onStoreItemDoubleClick()
 
         self.storeStockData:removeItemByIndex(self.storeStockData.selected)
         self.addStockEntry:setText("")
-
+        self.selectedListing = nil
+        self.addListingList:clear()
         sendClientCommand("shop", "removeListing", { item=item, storeID=self.storeObj.ID })
         return
     end
@@ -106,7 +107,7 @@ function storeWindow:addItemToYourStock(itemType, store, x, y, z, worldObjName, 
 
     sendClientCommand("shop", "listNewItem",
             { isBeingManaged=store.isBeingManaged, alwaysShow = false,
-              item=itemType, fields=fields, price=0, quantity=0, buybackRate=0, reselling=false,
+              item=itemType, fields=fields, price=0, stock=0, buybackRate=0, reselling=false,
               storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
 
     if worldObject and item then
@@ -331,6 +332,7 @@ end
 
 
 function storeWindow:listingInputEntered()
+    if not _internal.isAdminHostDebug() then return end
     if not self.parent.storeWindow:isBeingManaged() then return end
 
     local storeWindow = self.parent.storeWindow
@@ -357,6 +359,7 @@ function storeWindow:listingInputEntered()
 
     storeWindow.addListingList.accessing = nil
     self:setVisible(false)
+    self:clear()
     self:setY(storeWindow.addListingList:getY())
     self:setHeight(0)
 end
@@ -389,6 +392,7 @@ end
 
 
 function storeWindow:addListingListMouseUp(x, y)
+    if not _internal.isAdminHostDebug() then return end
     print("x:, ",x)
     print("y:, ",y)
 
@@ -399,13 +403,22 @@ function storeWindow:addListingListMouseUp(x, y)
     if not field then return end
     if self.accessing then return end
 
-    if field.fieldID == "categoryListing" then
-        print("test")
-        self.storeWindow.listingInput:focus()
+    if field.fieldID == "categoryListing" then return end
+
+    if field.item == true or field.item == false then
+        local listing = self.storeWindow.selectedListing
+        if listing then
+            if listing[field.fieldID] ~= nil then
+                listing[field.fieldID] = (not field.item)
+            elseif listing.fields and listing.fields[field.fieldID] ~= nil then
+                listing.fields[field.fieldID] = (not field.item)
+            end
+        end
+
+        self.storeWindow:populateListingList(listing)
         return
     end
 
-    print("field: ", field.fieldID)
     self.accessing = field.fieldID
 end
 
@@ -417,9 +430,11 @@ function storeWindow:populateListingList(listing)
     self.selectedListing = listing
     self.addListingList:clear()
 
-    local isCategoryListingAndIsValid = (string.match(listing.item, "category:") and isValidItemDictionaryCategory(listing.item:gsub("category:","")))
-    if isCategoryListingAndIsValid then
-        local categoryListing = self.addListingList:addItem("Category Listing: "..listing.item, true)
+    local _category = string.match(listing.item, "category:")
+    local _catName = listing.item:gsub("category:","")
+    local category = _category and isValidItemDictionaryCategory(_catName)
+    if category then
+        local categoryListing = self.addListingList:addItem("Category Listing: ".._catName, true)
         categoryListing.fieldID = "categoryListing"
     end
 
@@ -1050,26 +1065,17 @@ end
 
 function storeWindow:removeItem(item) self.yourCartData:removeItem(item.text) end
 
-
-function storeWindow:validateAddStockColor(e)
+--validateAddStockColor
+function storeWindow:applyElementColor(e, color)
     if not e then return end
-    if self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected)=="category" then
-        e.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
-        e.textColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
-        return
-    end
 
-    if e.enable then
-        if not self.addStockEntry.enable then
-            e.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
-            e.textColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
-        else
-            e.borderColor = { r = 1, g = 1, b = 1, a = 0.8 }
-            e.textColor = { r = 1, g = 1, b = 1, a = 0.8 }
-        end
-    else
-        e.borderColor = { r = 1, g = 0, b = 0, a = 0.8 }
-        e.textColor = { r = 1, g = 0, b = 0, a = 0.8 }
+    local r, g, b, a = color.r, color.g, color.b, color.a
+
+    e.borderColor = { r = r, g = g, b = b, a = a }
+    e.textColor = { r = r, g = g, b = b, a = a }
+
+    if e.javaObject.setTextColor then
+        e.javaObject:setTextColor(ColorInfo.new(e.textColor.r,e.textColor.g,e.textColor.b,e.textColor.a))
     end
 end
 
@@ -1479,7 +1485,8 @@ function storeWindow:render()
     self.addStockSearchPartition:setVisible(managed and not blocked)
     self.addStockList:setVisible(managed and not blocked)
     self.manageStoreName:isEditable(not blocked)
-    self.addStockEntry:isEditable(not blocked)
+
+    self.addStockEntry:isEditable((not self.selectedListing) and (not blocked))
 
     local totalForTransaction, invalidOrder = self:getOrderTotal()
 
@@ -1523,12 +1530,19 @@ function storeWindow:render()
     self.addStockBtn.backgroundColor = {r=(self.altFrame/10), g=(self.altFrame/10), b=(self.altFrame/10), a=1.0}
 
     if self.addStockBtn:isVisible() then
-        local elements = {self.addStockBtn, self.addStockEntry}
         local enabled = self:validateAddStockEntry()
-        for _,e in pairs(elements) do
-            e.enable = enabled
-            self:validateAddStockColor(e)
-        end
+
+        self.fadedEntryColor = self.fadedEntryColor or { r = 0.3, g = 0.3, b = 0.3, a = 0.3 }
+        self.redEntryColor = self.redEntryColor or { r = 1, g = 0, b = 0, a = 0.8 }
+        self.normalEntryColor = self.normalEntryColor or { r = 1, g = 1, b = 1, a = 0.8 }
+
+        self.addStockEntry.enable = (not self.selectedListing) and enabled
+        local stockEntryColor = ((not enabled) and self.redEntryColor) or (((not enabled) or self.selectedListing) and self.fadedEntryColor) or self.normalEntryColor
+        self:applyElementColor(self.addStockEntry, stockEntryColor)
+
+        self.addStockBtn.enable = enabled
+        local stockBtnColor = (not enabled) and self.redEntryColor or self.normalEntryColor
+        self:applyElementColor(self.addStockBtn, stockBtnColor)
     end
 
     self.blocker:setVisible(blocked)
@@ -1614,7 +1628,10 @@ function storeWindow:onClick(button)
         local matches, matchesToType = findMatchesFromItemDictionary(newEntry, self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected))
         if not matches then return end
 
+        print("CATEGORY ?: ", newEntry)
+
         if isValidItemDictionaryCategory(newEntry) then
+            print(" -- CATEGORY TRUE")
             newEntry = "category:"..newEntry
         else
             local scriptType = matchesToType[newEntry]
@@ -1637,7 +1654,7 @@ function storeWindow:onClick(button)
             end
         end
 
-        local quantity = listingSelected and listingSelected.quantity or 0
+        local stock = listingSelected and listingSelected.stock or 0
         local buybackRate = listingSelected and listingSelected.buybackRate or 0
 
         local alwaysShow = listingSelected and (listingSelected.alwaysShow ~= nil and listingSelected.alwaysShow) or false
@@ -1656,12 +1673,13 @@ function storeWindow:onClick(button)
             price=price,
             fields=fields,
             listingID=listingID,
-            quantity=quantity,
+            stock=stock,
             buybackRate=buybackRate,
             reselling=reselling,
             storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
 
         self.addListingList:clear()
+        self.addStockEntry:setText("")
     end
 
     if button.internal == "CANCEL" then

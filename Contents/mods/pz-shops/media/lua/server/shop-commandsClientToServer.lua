@@ -187,7 +187,7 @@ local function onClientCommand(_module, _command, _player, _data)
 
     elseif _command == "listNewItem" then
         local status, buybackRate, reselling = (_data.isBeingManaged or true), (_data.buybackRate or false), _data.reselling
-        local item, storeID, price, quantity, alwaysShow = _data.item, _data.storeID, (_data.price or 0), (_data.quantity or 0), _data.alwaysShow
+        local item, storeID, price, stock, alwaysShow = _data.item, _data.storeID, (_data.price or 0), (_data.stock or 0), _data.alwaysShow
         local fields = _data.fields
 
         if not item then print("ERROR: No item param to list!") return end
@@ -196,7 +196,7 @@ local function onClientCommand(_module, _command, _player, _data)
         local storeObj = STORE_HANDLER.getStoreByID(storeID)
         if not storeObj then print("ERROR: No storeObj to give new listing!") return end
         storeObj.isBeingManaged = status
-        STORE_HANDLER.newListing(storeObj,item,fields,price,quantity,buybackRate,reselling,alwaysShow)
+        STORE_HANDLER.newListing(storeObj,item,fields,price,stock,buybackRate,reselling,alwaysShow)
 
     elseif _command == "processOrder" then
 

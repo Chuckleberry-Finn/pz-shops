@@ -119,7 +119,14 @@ store_listing.alwaysShow = false
 store_listing.fields = false
 
 function STORE_HANDLER.newListing(storeObj,item,fields,price,stock,buybackRate,reselling,alwaysShow)
-    local oldListing = storeObj.listings[item..(fields and fields.name or "")]
+    local _category = item:gsub("category:","")
+    local category = _category and isValidItemDictionaryCategory(_category) and _category
+    local old_typeOnlyListing = (not category) and storeObj.listings[item]
+
+    local dupeFlag = old_typeOnlyListing and "_"..getRandomUUID() or ""
+    local fieldName = fields and "_"..fields.name or ""
+
+    local oldListing = storeObj.listings[item..fieldName..dupeFlag]
     local newListing = oldListing or copyTable(store_listing)
     newListing.item = item
     if price then

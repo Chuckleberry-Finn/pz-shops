@@ -8,16 +8,17 @@ function itemFields.gatherFields(i)
 
     ---@type InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
     local item = instanceof(i, "InventoryItem") and i
+    local category
 
     if (not item) and type(i) == "string" then
 
         local _category = i:gsub("category:","")
-        local category = _category and isValidItemDictionaryCategory(_category) and _category
-
+        category = _category and isValidItemDictionaryCategory(_category) and _category
         if not category then
             item = InventoryItemFactory.CreateItem(i)
         else
-            item = InventoryItem.new()
+            local dict = getItemDictionary()
+            item = InventoryItemFactory.CreateItem(dict.categoryExample[category])
         end
     end
 

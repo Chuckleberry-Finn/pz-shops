@@ -15,6 +15,7 @@ end
 local itemDictionary = {}
 itemDictionary.categories = {}
 itemDictionary.partition = {} -- first 3 characters
+itemDictionary.categoryExample = {}
 
 
 ---NEEDED FOR BETTER SORTING TO WORK IN MP
@@ -59,7 +60,12 @@ function itemDictionary.assemble(pushToServer)
             local displayCategory = itemScript:getDisplayCategory() -- category
             itemDictionary.itemsToCategories[itemModuleType] = displayCategory ---NEEDED FOR BETTER SORTING TO WORK IN MP
             itemDictionary.addToPartition("category", itemModuleType, displayCategory)
-            itemDictionary.categories[displayCategory] = true
+
+            if not itemDictionary.categories[displayCategory] then
+                itemDictionary.categories[displayCategory] = true
+                itemDictionary.categoryExample[displayCategory] = itemModuleType
+            end
+
 
         end
     end
