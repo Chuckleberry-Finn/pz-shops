@@ -3,6 +3,9 @@ VERSION = 1,
 option ShopsAndTraders.PercentageDropOnDeath
 {type = integer, min = 0, max = 100, default = 50, page = ShopsAndTraders, translation = ShopsAndTraders_PercentageDropOnDeath,}
 
+option ShopsAndTraders.PlayerWalletsLostOnDeath
+{type = boolean, default = false, page = ShopsAndTraders, translation = ShopsAndTraders_PlayerWalletsLostOnDeath,}
+
 option ShopsAndTraders.PlayerWallets
 {type = boolean, default = true, page = ShopsAndTraders, translation = ShopsAndTraders_PlayerWallets,}
 

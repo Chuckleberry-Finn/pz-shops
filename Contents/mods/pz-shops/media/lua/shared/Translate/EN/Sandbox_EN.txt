@@ -6,6 +6,9 @@ Sandbox_EN = {
     Sandbox_ShopsAndTraders_PlayerWallets = "Players Wallets"
     Sandbox_ShopsAndTraders_PlayerWallets_tooltip = "Disabling this would force players to always carry their cash."
 
+    ShopsAndTraders_PlayerWalletsLostOnDeath = "Player Wallets Lost on Death"
+    ShopsAndTraders_PlayerWalletsLostOnDeath_tooltip = "When the player dies their current wallet is deleted, after the drop percentage is deducted."
+
     Sandbox_ShopsAndTraders_CanWithdraw = "Can Withdraw Cash",
     Sandbox_ShopsAndTraders_CanWithdraw_tooltip = "If players can withdraw money-items from their wallets. Requires "Players Wallets" to be 'True' to have an impact.",
 
