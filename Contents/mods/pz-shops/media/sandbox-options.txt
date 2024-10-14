@@ -19,7 +19,7 @@ option ShopsAndTraders.StartingWallet
 {type = double, min = 0.00, max = 1000000, default = 25, page = ShopsAndTraders, translation = ShopsAndTraders_StartingWallet,}
 
 option ShopsAndTraders.MoneyWeight
-{type = double, min = 0.001, max = 1000, default = 0.001, page = ShopsAndTraders, translation = ShopsAndTraders_MoneyWeight,}
+{type = double, min = 0.00, max = 1000, default = 0.001, page = ShopsAndTraders, translation = ShopsAndTraders_MoneyWeight,}
 
 option ShopsAndTraders.MoneySpawnMin
 {type = double, min = 0.01, max = 1000000, default = 1.50, page = ShopsAndTraders, translation = ShopsAndTraders_MoneySpawnMin,}
