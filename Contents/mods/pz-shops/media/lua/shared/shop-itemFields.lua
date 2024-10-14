@@ -15,14 +15,17 @@ function itemFields.gatherFields(i)
         local _category = i:gsub("category:","")
         category = _category and isValidItemDictionaryCategory(_category) and _category
         if not category then
+            print("item type: ", i)
             item = InventoryItemFactory.CreateItem(i)
         else
             local dict = getItemDictionary()
-            item = InventoryItemFactory.CreateItem(dict.categoryExample[category])
+            local dictType = dict.categoryExample[category]
+            print("item type: ", dictType)
+            item = InventoryItemFactory.CreateItem(dictType)
         end
     end
 
-    if not item then print(" --- no item") return else print(" --- item: ", item) end
+    if not item then print(" --- no item") return else print(" --- item: ", item:getType()) end
 
     local fields = {}
 
@@ -269,12 +272,12 @@ function itemFields.gatherFields(i)
         fields.hitChance = item:getHitChance()
         fields.minAngle = item:getMinAngle()
 
-        fields.scope = item:getScope():getFullType()
-        fields.clip = item:getClip():getFullType()
-        fields.recoilPad = item:getRecoilPad():getFullType()
-        fields.sling = item:getSling():getFullType()
-        fields.stock = item:getStock():getFullType()
-        fields.canon = item:getCanon():getFullType()
+        fields.scope = item:getScope() and item:getScope():getFullType() or ""
+        fields.clip = item:getClip() and item:getClip():getFullType() or ""
+        fields.recoilPad = item:getRecoilpad() and item:getRecoilpad():getFullType() or ""
+        fields.sling = item:getSling() and item:getSling():getFullType() or ""
+        fields.stock = item:getStock() and item:getStock():getFullType() or ""
+        fields.canon = item:getCanon() and item:getCanon():getFullType() or ""
 
         fields.explosionTimer = item:getExplosionTimer()
         fields.maxAngle = item:getMaxAngle()
@@ -372,6 +375,7 @@ end
 
 ---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.specials.setScopeWithType(item, data)
+    if data ~= "" then return end
     local part = InventoryItemFactory.CreateItem(data)
     if part then item:setScope(part) end
     return true
@@ -379,6 +383,7 @@ end
 
 ---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.specials.setClipWithType(item, data)
+    if data ~= "" then return end
     local part = InventoryItemFactory.CreateItem(data)
     if part then item:setClip(part) end
     return true
@@ -386,6 +391,7 @@ end
 
 ---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.specials.setRecoilPadWithType(item, data)
+    if data ~= "" then return end
     local part = InventoryItemFactory.CreateItem(data)
     if part then item:setRecoilpad(part) end
     return true
@@ -393,6 +399,7 @@ end
 
 ---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.specials.setSlingWithType(item, data)
+    if data ~= "" then return end
     local part = InventoryItemFactory.CreateItem(data)
     if part then item:setSling(part) end
     return true
@@ -400,6 +407,7 @@ end
 
 ---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.specials.setStockWithType(item, data)
+    if data ~= "" then return end
     local part = InventoryItemFactory.CreateItem(data)
     if part then item:setStock(part) end
     return true
@@ -407,6 +415,7 @@ end
 
 ---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.specials.setCanonWithType(item, data)
+    if data ~= "" then return end
     local part = InventoryItemFactory.CreateItem(data)
     if part then item:setCanon(part) end
     return true

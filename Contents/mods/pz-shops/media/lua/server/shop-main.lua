@@ -124,7 +124,7 @@ function STORE_HANDLER.newListing(storeObj,item,fields,price,stock,buybackRate,r
     local old_typeOnlyListing = (not category) and storeObj.listings[item]
 
     local dupeFlag = old_typeOnlyListing and "_"..getRandomUUID() or ""
-    local fieldName = fields and "_"..fields.name or ""
+    local fieldName = fields and fields.name and "_"..fields.name or ""
 
     local oldListing = storeObj.listings[item..fieldName..dupeFlag]
     local newListing = oldListing or copyTable(store_listing)

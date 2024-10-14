@@ -1662,9 +1662,9 @@ function storeWindow:onClick(button)
 
         print("listingSelected: ", listingSelected)
 
-        self.selectedListing = nil
+        local fields = listingSelected and listingSelected.fields or itemFields.gatherFields(newEntry)
 
-        local fields = listingSelected and listingSelected.fields
+        print(" -- fields: ", fields)
 
         sendClientCommand("shop", "listNewItem", {
             isBeingManaged=store.isBeingManaged,
@@ -1678,6 +1678,7 @@ function storeWindow:onClick(button)
             reselling=reselling,
             storeID=store.ID, x=x, y=y, z=z, worldObjName=worldObjName })
 
+        self.selectedListing = nil
         self.addListingList:clear()
         self.addStockEntry:setText("")
     end
