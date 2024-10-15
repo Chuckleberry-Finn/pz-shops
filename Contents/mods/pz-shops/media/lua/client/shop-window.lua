@@ -853,7 +853,8 @@ end
 function storeWindow:drawCart(y, item, alt)
     local texture
 
-    local checkThis = item.itemType or ((type(item.item) ~= "string") and item.item:getFullType()) or item.item
+    local checkThis = ((type(item.item) ~= "string") and item.item:getFullType()) or item.item
+    print("checkThis: ", checkThis)
     local itemType, reason, itemCat = self.parent:rtrnTypeIfValid(checkThis)
 
     if type(item.item) == "string" then
@@ -1147,6 +1148,7 @@ function storeWindow:getOrderTotal()
     for i,v in ipairs(self.yourCartData.items) do
         local itemType, reason, itemCat = self:rtrnTypeIfValid(v.itemType or v.item)
         if itemType then
+            print("itemType: ", itemType)
             print("reason: ", reason)
             if reason then invalidOrder = true end
             if type(v.item) ~= "string" then
@@ -1163,14 +1165,14 @@ function storeWindow:getOrderTotal()
                     local itemListing = self.storeObj.listings[listingID] or self.storeObj.listings["category:"..tostring(itemCat)]
 
                     if itemListing then
-                        print("listingID: ", listingID)
+                        --print("listingID: ", listingID)
                         itemListedInCart = true
                         totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100))
                     end
                 end
             else
-                print("v.itemType: ", v.itemType, "     v.item", v.item)
-                local itemListing = self.storeObj.listings[v.itemType or v.item]
+                print("itemType: ", v.itemType, "   item", v.item)
+                local itemListing = self.storeObj.listings[v.itemType] --or self.storeObj.listings[v.item]
                 if itemListing then
                     itemListedInCart = true
                     totalForTransaction = totalForTransaction+itemListing.price
