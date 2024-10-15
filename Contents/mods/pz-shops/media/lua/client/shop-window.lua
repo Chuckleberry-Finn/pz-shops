@@ -829,7 +829,8 @@ function storeWindow:rtrnTypeIfValid(item)
 
             local itemScript = getScriptManager():getItem(itemType)
             local _fieldName = itemScript:getDisplayName()
-            local fieldName = _fieldName~=item:getDisplayName() and "_".._fieldName or ""
+            local itemName = item:getDisplayName()
+            local fieldName = _fieldName~=itemName and "_"..itemName or ""
 
             local listing = storeObj.listings[itemType..fieldName]
             if not listing and itemCat then listing = storeObj.listings["category:"..tostring(itemCat)] end
@@ -1146,6 +1147,7 @@ function storeWindow:getOrderTotal()
     for i,v in ipairs(self.yourCartData.items) do
         local itemType, reason, itemCat = self:rtrnTypeIfValid(v.itemType or v.item)
         if itemType then
+            print("reason: ", reason)
             if reason then invalidOrder = true end
             if type(v.item) ~= "string" then
                 if _internal.isMoneyType(itemType) then
@@ -1167,9 +1169,9 @@ function storeWindow:getOrderTotal()
                     end
                 end
             else
+                print("v.itemType: ", v.itemType, "     v.item", v.item)
                 local itemListing = self.storeObj.listings[v.itemType or v.item]
                 if itemListing then
-                    print("v.item: ", v.itemType or v.item)
                     itemListedInCart = true
                     totalForTransaction = totalForTransaction+itemListing.price
                 end
@@ -1177,9 +1179,9 @@ function storeWindow:getOrderTotal()
         end
     end
 
-    if not itemListedInCart then invalidOrder = true end
-
-    print("totalForTransaction:",totalForTransaction,"   invalidOrder:",invalidOrder)
+    if (not itemListedInCart) then invalidOrder = true end
+    print("itemListedInCart: ", itemListedInCart)
+    print("totalForTransaction:",totalForTransaction,"   invalidOrder:",invalidOrder, "\n")
 
     return totalForTransaction, invalidOrder
 end

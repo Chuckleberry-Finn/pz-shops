@@ -546,13 +546,12 @@ function itemFields.gatherFields(i, purgeHidden)
         end
     end
 
-    for f=#fields, 0, -1 do
-        local field = fields[f]
+    for field,value in pairs(fields) do
         if hidden_fields[field] then
-            fields[f] = nil
+            fields[field] = nil
         end
     end
-
+    
     return fields
 end
 
