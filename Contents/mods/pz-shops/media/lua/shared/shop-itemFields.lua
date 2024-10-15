@@ -546,12 +546,20 @@ function itemFields.gatherFields(i, purgeHidden)
         end
     end
 
-    for field,value in pairs(fields) do
+
+
+    local to_remove = {}
+
+    for field, value in pairs(fields) do
         if hidden_fields[field] then
-            fields[field] = nil
+            table.insert(to_remove, field)
         end
     end
-    
+
+    for _, field in pairs(to_remove) do
+        fields[field] = nil
+    end
+
     return fields
 end
 
