@@ -431,28 +431,28 @@ function itemFields.gatherFields(i, purgeHidden)
         fields.minAngle = item:getMinAngle()
 
         local scope = item:getScope() and item:getScope():getFullType()
-        fields.scope = scope or ""
-        hidden_fields.scope = (not scope)
+        fields.scopePart = scope or ""
+        hidden_fields.scopePart = (not scope)
 
         local clip = item:getClip() and item:getClip():getFullType()
-        fields.clip = clip or ""
-        hidden_fields.clip = (not clip)
+        fields.clipPart = clip or ""
+        hidden_fields.clipPart = (not clip)
 
         local recoilPad = item:getRecoilpad() and item:getRecoilpad():getFullType()
-        fields.recoilPad = recoilPad or ""
-        hidden_fields.recoilPad = (not recoilPad)
+        fields.recoilPadPart = recoilPad or ""
+        hidden_fields.recoilPadPart = (not recoilPad)
 
         local sling = item:getSling() and item:getSling():getFullType()
-        fields.sling = sling or ""
-        hidden_fields.sling = (not sling)
+        fields.slingPart = sling or ""
+        hidden_fields.slingPart = (not sling)
 
         local stock = item:getStock() and item:getStock():getFullType()
-        fields.stock = stock or ""
-        hidden_fields.stock = (not stock)
+        fields.stockPart = stock or ""
+        hidden_fields.stockPart = (not stock)
 
         local canon = item:getCanon() and item:getCanon():getFullType()
-        fields.canon = canon or ""
-        hidden_fields.canon = (not canon)
+        fields.canonPart = canon or ""
+        hidden_fields.canonPart = (not canon)
 
         local explosionTimer = item:getExplosionTimer()
         fields.explosionTimer = explosionTimer
@@ -779,12 +779,12 @@ function itemFields.getFieldAssociatedFunctions(item)
         fields.hitChance = "setHitChance"
         fields.minAngle = "setMinAngle"
 
-        fields.scope = "setScopeWithType"
-        fields.clip = "setClipWithType"
-        fields.recoilPad = "setRecoilPadWithType"
-        fields.sling = "setSlingWithType"
-        fields.stock = "setStockWithType"
-        fields.canon = "setCanonWithType"
+        fields.scopePart = "setScopeWithType"
+        fields.clipPart = "setClipWithType"
+        fields.recoilPadPart = "setRecoilPadWithType"
+        fields.slingPart = "setSlingWithType"
+        fields.stockPart = "setStockWithType"
+        fields.canonPart = "setCanonWithType"
 
         fields.explosionTimer = "setExplosionTimer"
         fields.maxAngle = "setMaxAngle"

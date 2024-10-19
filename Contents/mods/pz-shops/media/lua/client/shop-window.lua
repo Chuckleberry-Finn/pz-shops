@@ -483,7 +483,6 @@ function storeWindow:populateListingList(listing)
         local total_fields = itemFields.gatherFields(listing.item)
         if total_fields then
             for field,_value in pairs(total_fields) do
-                print("field: ", field, "  _value:", _value)
                 local value = listing.fields[field] or _value
                 local addedField = self.addListingList:addItem(field..": "..tostring(value), value)
 
