@@ -483,6 +483,7 @@ function storeWindow:populateListingList(listing)
         local total_fields = itemFields.gatherFields(listing.item)
         if total_fields then
             for field,_value in pairs(total_fields) do
+                print("field: ", field, "  _value:", _value)
                 local value = listing.fields[field] or _value
                 local addedField = self.addListingList:addItem(field..": "..tostring(value), value)
 
@@ -855,7 +856,6 @@ function storeWindow:drawCart(y, item, alt)
     local texture
 
     local checkThis = (type(item.item) ~= "string" and item.item) or item.itemType
-    print("checkThis: ", checkThis)
     local itemType, reason, itemCat = self.parent:rtrnTypeIfValid(checkThis)
 
     if type(item.item) == "string" then
@@ -871,8 +871,6 @@ function storeWindow:drawCart(y, item, alt)
         color = {r=0.75, g=0, b=0, a=0.45}
         noList = true
     end
-
-    print("NO LIST: ",noList , "   r:",reason)
 
     self:drawRectBorder(0, y, self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
     self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b)
@@ -1152,8 +1150,7 @@ function storeWindow:getOrderTotal()
     for i,v in ipairs(self.yourCartData.items) do
         local itemType, reason, itemCat = self:rtrnTypeIfValid(v.itemType or v.item)
         if itemType then
-            print("itemType: ", itemType)
-            print("reason: ", reason)
+
             if reason then invalidOrder = true end
             if type(v.item) ~= "string" then
                 if _internal.isMoneyType(itemType) then
@@ -1169,13 +1166,11 @@ function storeWindow:getOrderTotal()
                     local itemListing = self.storeObj.listings[listingID] or self.storeObj.listings["category:"..tostring(itemCat)]
 
                     if itemListing then
-                        --print("listingID: ", listingID)
                         itemListedInCart = true
                         totalForTransaction = totalForTransaction-(itemListing.price*(itemListing.buybackRate/100))
                     end
                 end
             else
-                print("itemType: ", v.itemType, "   item", v.item)
                 local itemListing = self.storeObj.listings[v.item] --or self.storeObj.listings[v.item]
                 if itemListing then
                     itemListedInCart = true
@@ -1186,8 +1181,6 @@ function storeWindow:getOrderTotal()
     end
 
     if (not itemListedInCart) then invalidOrder = true end
-    print("itemListedInCart: ", itemListedInCart)
-    print("totalForTransaction:",totalForTransaction,"   invalidOrder:",invalidOrder, "\n")
 
     return totalForTransaction, invalidOrder
 end
