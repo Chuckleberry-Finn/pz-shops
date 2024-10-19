@@ -55,9 +55,7 @@ function itemFields.gatherFields(i, purgeHidden)
 
     local condition = item:getCondition()
     fields.condition = condition
-    print(" + condition: ", condition)
     if condition == script:getConditionMax() then
-        print("  -- hide condition")
         hidden_fields.condition = true
     end
 
@@ -547,8 +545,6 @@ function itemFields.gatherFields(i, purgeHidden)
         end
     end
 
-    print("A: fields.condition: ", fields.condition)
-
     if purgeHidden then
         local to_remove = {}
 
@@ -562,8 +558,6 @@ function itemFields.gatherFields(i, purgeHidden)
             fields[field] = nil
         end
     end
-
-    print("B: fields.condition: ", fields.condition)
 
     return fields
 end
