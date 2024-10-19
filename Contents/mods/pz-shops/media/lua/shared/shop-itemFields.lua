@@ -55,7 +55,9 @@ function itemFields.gatherFields(i, purgeHidden)
 
     local condition = item:getCondition()
     fields.condition = condition
-    if condition <= script:getConditionMax() then
+    print(" + condition: ", condition)
+    if condition == script:getConditionMax() then
+        print("  -- hide condition")
         hidden_fields.condition = true
     end
 
@@ -432,7 +434,7 @@ function itemFields.gatherFields(i, purgeHidden)
 
         local scope = item:getScope() and item:getScope():getFullType()
         fields.scope = scope or ""
-        hidden_fields.clip = (not scope)
+        hidden_fields.scope = (not scope)
 
         local clip = item:getClip() and item:getClip():getFullType()
         fields.clip = clip or ""
@@ -456,7 +458,7 @@ function itemFields.gatherFields(i, purgeHidden)
 
         local explosionTimer = item:getExplosionTimer()
         fields.explosionTimer = explosionTimer
-        if explosionTimer ~= 0 then
+        if explosionTimer == 0 then
             hidden_fields.explosionTimer = true
         end
 
@@ -531,7 +533,6 @@ function itemFields.gatherFields(i, purgeHidden)
     ---@type Moveable
     local movable = instanceof(item, "Moveable") and item
     if movable then
-        fields = fields or {}
         fields.worldSprite = movable:getWorldSprite()
 
         if movable:isLight() then
@@ -546,19 +547,23 @@ function itemFields.gatherFields(i, purgeHidden)
         end
     end
 
+    print("A: fields.condition: ", fields.condition)
 
+    if purgeHidden then
+        local to_remove = {}
 
-    local to_remove = {}
+        for field, value in pairs(fields) do
+            if hidden_fields[field] then
+                table.insert(to_remove, field)
+            end
+        end
 
-    for field, value in pairs(fields) do
-        if hidden_fields[field] then
-            table.insert(to_remove, field)
+        for _, field in pairs(to_remove) do
+            fields[field] = nil
         end
     end
 
-    for _, field in pairs(to_remove) do
-        fields[field] = nil
-    end
+    print("B: fields.condition: ", fields.condition)
 
     return fields
 end
@@ -667,7 +672,6 @@ function itemFields.getFieldAssociatedFunctions(item)
     ---@type Moveable
     local movable = instanceof(item, "Moveable") and item
     if movable then
-        fields = fields or {}
         fields.worldSprite = "setWorldSprite"
         fields.isLight = "setLight"
         fields.usesBattery = "setLightUseBattery"
@@ -694,7 +698,6 @@ function itemFields.getFieldAssociatedFunctions(item)
     ---@type InventoryContainer
     local invCont = instanceof(item, "InventoryContainer") and item
     if invCont then
-        fields = fields or {}
         fields.weightReduction = "setWeightReduction"
     end
 
@@ -702,7 +705,6 @@ function itemFields.getFieldAssociatedFunctions(item)
     ---@type Literature
     local literature = instanceof(item, "Literature") and item
     if literature then
-        fields = fields or {}
         fields.numberOfPages = "setNumberOfPages"
         fields.alreadyReadPages = "setAlreadyReadPages"
         fields.canBeWrite ="setCanBeWrite"
@@ -713,7 +715,6 @@ function itemFields.getFieldAssociatedFunctions(item)
     ---@type MapItem
     local map = instanceof(item, "MapItem") and item
     if map then
-        fields = fields or {}
         fields.mapID = "setMapID"
     end
 
