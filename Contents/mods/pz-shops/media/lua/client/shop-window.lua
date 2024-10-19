@@ -837,7 +837,8 @@ function storeWindow:rtrnTypeIfValid(item)
             if not listing then return false, "IGUI_NOTRADE_INVALIDTYPE" end
             if listing then
 
-                if listing.buybackRate > 0 then return itemType, false, itemCat
+                if listing.buybackRate > 0 then
+                    return itemType, false, itemCat
                 else
                     return itemType, "IGUI_NOTRADE_ONLYSELL"
                 end
@@ -853,7 +854,7 @@ end
 function storeWindow:drawCart(y, item, alt)
     local texture
 
-    local checkThis = ((type(item.item) ~= "string") and item.item:getFullType()) or item.item
+    local checkThis = (type(item.item) ~= "string" and item.item) or item.itemType
     print("checkThis: ", checkThis)
     local itemType, reason, itemCat = self.parent:rtrnTypeIfValid(checkThis)
 
@@ -865,10 +866,13 @@ function storeWindow:drawCart(y, item, alt)
 
     local color = {r=1, g=1, b=1, a=0.9}
     local noList = false
-    if reason and type(item.item) ~= "string" then
+
+    if reason then
         color = {r=0.75, g=0, b=0, a=0.45}
         noList = true
     end
+
+    print("NO LIST: ",noList , "   r:",reason)
 
     self:drawRectBorder(0, y, self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
     self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b)
@@ -894,7 +898,7 @@ function storeWindow:drawCart(y, item, alt)
     local storeObj = self.parent.storeObj
     if storeObj and (not noList) then
 
-        local listingID = item.itemType or item.item
+        local listingID = item.item
         if type(item.item) ~= "string" then
             local _item = item.item:getFullType()
             local script = item.item:getScriptItem()
@@ -1172,7 +1176,7 @@ function storeWindow:getOrderTotal()
                 end
             else
                 print("itemType: ", v.itemType, "   item", v.item)
-                local itemListing = self.storeObj.listings[v.itemType] --or self.storeObj.listings[v.item]
+                local itemListing = self.storeObj.listings[v.item] --or self.storeObj.listings[v.item]
                 if itemListing then
                     itemListedInCart = true
                     totalForTransaction = totalForTransaction+itemListing.price
@@ -1194,7 +1198,7 @@ function storeWindow:getPurchaseTotal()
         local itemType, _, itemCat = self:rtrnTypeIfValid(v.itemType or v.item)
         if itemType then
             if type(v.item) == "string" then
-                local itemListing = self.storeObj.listings[v.itemType or v.item]
+                local itemListing = self.storeObj.listings[v.item]
                 if itemListing then totalForPurchase = totalForPurchase+itemListing.price end
             end
         end
