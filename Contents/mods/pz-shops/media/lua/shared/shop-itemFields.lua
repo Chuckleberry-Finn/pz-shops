@@ -419,16 +419,37 @@ function itemFields.gatherFields(i, purgeHidden)
 
     if instanceof(item, "HandWeapon") then
 
+
         fields.maxRange = item:getMaxRange()
+        hidden_fields.scopePart = (script:getMaxRange() == fields.maxRange)
+
         fields.minRangeRanged = item:getMinRangeRanged()
+        hidden_fields.minRangeRanged = (fields.minRangeRanged == 0)
+
         fields.ClipSize = item:getClipSize()
+        hidden_fields.ClipSize = (fields.ClipSize == 0)
+
         fields.minDamage = item:getMinDamage()
+        hidden_fields.minDamage = (fields.minDamage == 0.4)
+
         fields.maxDamage = item:getMaxDamage()
+        hidden_fields.minDamage = (script:getMaxDamage() == fields.maxDamage)
+
         fields.RecoilDelay = item:getRecoilDelay()
+        hidden_fields.RecoilDelay = (fields.RecoilDelay == 0)
+
         fields.aimingTime = item:getAimingTime()
+        hidden_fields.aimingTime = (fields.aimingTime == 0)
+
         fields.reloadTime = item:getReloadTime()
+        hidden_fields.minDamage = (fields.reloadTime == 0)
+
         fields.hitChance = item:getHitChance()
+        hidden_fields.minDamage = (fields.hitChance == 0)
+
         fields.minAngle = item:getMinAngle()
+        hidden_fields.minDamage = (script:getMinAngle() == fields.minAngle)
+
 
         local scope = item:getScope() and item:getScope():getFullType()
         fields.scopePart = scope or ""
@@ -658,7 +679,7 @@ function itemFields.getFieldAssociatedFunctions(item)
     fields.colorR = "setColorRed"
     fields.colorG = "setColorGreen"
     fields.colorB = "setColorBlue"
-    fields.wetCooldown = "setWetCooldown"
+    --fields.wetCooldown = "setWetCooldown"
     fields.currentAmmoCount = "setCurrentAmmoCount"
     fields.maxCapacity = "setMaxCapacity"
     fields.recordedMediaIndex = "setRecordedMediaIndex"
@@ -787,7 +808,7 @@ function itemFields.getFieldAssociatedFunctions(item)
         fields.canonPart = "setCanonWithType"
 
         fields.explosionTimer = "setExplosionTimer"
-        fields.maxAngle = "setMaxAngle"
+        --fields.maxAngle = "setMaxAngle"
         fields.bloodLevel = "setBloodLevel"
         fields.containsClip = "setContainsClip"
         fields.roundChambered = "setRoundChambered"
