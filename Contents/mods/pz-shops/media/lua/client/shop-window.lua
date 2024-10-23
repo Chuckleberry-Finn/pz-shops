@@ -350,24 +350,28 @@ function storeWindow:listingInputEntered()
     local storeWindow = self.parent.storeWindow
 
     local listing = storeWindow.selectedListing
+
     local field = listing and storeWindow.addListingList.accessing
+    print("field: ", field)
     if field then
-
-        if (storeWindow.storeObj and storeWindow.storeObj.ownerID) and (listing.fields and listing.fields[field]~=nil) then return end
-
+        print(" -- field ", listing.fields[field])
+        --if (storeWindow.storeObj and storeWindow.storeObj.ownerID) and (listing.fields and listing.fields[field]~=nil) then return end
+        print(" --- A ")
         local value = self:getText()
         value = tonumber(value) or value
 
         if value == "false" then value = false end
         if value == "true" then value = true end
 
+        --[[
         if listing[field] ~= nil then
             listing[field] = value
         elseif listing.fields and listing.fields[field] ~= nil then
             listing.fields[field] = value
         end
+        --]]
 
-        storeWindow:populateListingList(listing)
+        storeWindow:populateListingList(listing, field, value)
     end
 
     storeWindow.addListingList.accessing = nil
@@ -425,15 +429,23 @@ function storeWindow:addListingListMouseUp(x, y)
 
     local listing = self.storeWindow.selectedListing
     if listing then
-        if (self.storeWindow.storeObj and self.storeWindow.storeObj.ownerID) and (listing.fields and listing.fields[field.fieldID]~=nil) then return end
+        --if (self.storeWindow.storeObj and self.storeWindow.storeObj.ownerID) and (listing.fields and listing.fields[field.fieldID]~=nil) then return end
+
+        print(" field: ", field.fieldID)
 
         if field.item == true or field.item == false then
-            if listing[field.fieldID] ~= nil then
+            --[[if listing[field.fieldID] ~= nil then
                 listing[field.fieldID] = (not field.item)
             elseif listing.fields and listing.fields[field.fieldID] ~= nil then
                 listing.fields[field.fieldID] = (not field.item)
             end
-            self.storeWindow:populateListingList(listing)
+            --]]
+
+            local newValue = (not field.item)
+
+            print("  -- newValue: ", newValue)
+
+            self.storeWindow:populateListingList(listing, field.fieldID, newValue)
             return
         end
     end
@@ -442,7 +454,7 @@ function storeWindow:addListingListMouseUp(x, y)
 end
 
 
-function storeWindow:populateListingList(listing)
+function storeWindow:populateListingList(listing, changeToField, newValue)
     if not self:isBeingManaged() then return end
 
     self.selectedListing = listing
@@ -454,6 +466,13 @@ function storeWindow:populateListingList(listing)
     if category then
         local categoryListing = self.addListingList:addItem("Category Listing: ".._catName, true)
         categoryListing.fieldID = "categoryListing"
+    end
+
+    if changeToField and listing[changeToField] ~= nil then
+        if changeToField == "stock" then
+            listing.available = newValue
+        end
+        listing[changeToField] = newValue
     end
 
     local price = self.addListingList:addItem("Price: "..listing.price, listing.price)
@@ -482,6 +501,26 @@ function storeWindow:populateListingList(listing)
     if listing.fields then
         local total_fields = itemFields.gatherFields(listing.item)
         if total_fields then
+
+            local currentValue = listing.fields[changeToField]
+            local defaultValue = total_fields[changeToField]
+            
+            if changeToField and (not listing[changeToField]) then
+                if defaultValue == newValue then
+                    listing.fields[changeToField] = nil
+                elseif currentValue~=newValue then
+                    listing.fields[changeToField] = newValue
+                end
+            end
+
+            --[[
+            if listing[field] ~= nil then
+                listing[field] = value
+            elseif listing.fields and listing.fields[field] ~= nil then
+                listing.fields[field] = value
+            end
+            --]]
+
             for field,_value in pairs(total_fields) do
                 local value = listing.fields[field] or _value
                 local addedField = self.addListingList:addItem(field..": "..tostring(value), value)
