@@ -233,7 +233,8 @@ function storeWindow:onStoreItemSelected()
 
     if self.storeObj and ((availableStock >= inCart+1) or (availableStock == -1)) then
         local script = getScriptManager():getItem(listing.item)
-        local scriptName = script:getDisplayName()
+        local listingName = listing.fields and listing.fields.name
+        local scriptName = listingName or script:getDisplayName()
         local cartItem = self.yourCartData:addItem(scriptName, listingID)
         cartItem.itemType = item
     end
