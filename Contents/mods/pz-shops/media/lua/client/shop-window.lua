@@ -1111,6 +1111,7 @@ function storeWindow:addItemToYourCart(item)
             add = false break
         end
     end
+
     if add then self.yourCartData:addItem(item:getName(), item) end
 end
 
@@ -1129,9 +1130,12 @@ function storeWindow:yourOfferMouseUp(x, y)
                 if v.invPanel.collapsed[v.name] then
                     counta = 1
                     for i2,v2 in ipairs(v.items) do
-                        if counta > 1 then self.parent:addItemToYourCart(v2) end
+                        if counta > 1 then
+                            self.parent:addItemToYourCart(v2)
+                        end
                         counta = counta + 1
                     end
+
                 end
             end
         end
@@ -1898,7 +1902,7 @@ function storeWindow:finalizeDeal()
                     end
                 else
                     removeItem = true
-                    local fields
+                    local fields = itemFields.gatherFields(v.item, true)
                     table.insert(itemsToSell, {itemType=itemType,fields=fields})
                 end
 

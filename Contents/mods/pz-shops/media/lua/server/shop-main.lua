@@ -337,7 +337,7 @@ function STORE_HANDLER.validateItemType(storeID,itemType)
     local displayCat = validItem:getDisplayCategory()
 
     if not listing and displayCat then listing = storeObj.listings["category:"..displayCat] end
-    if not listing then print("ERROR: \'"..itemType.."\' or \'"..displayCat.."\' not listed for \'"..storeObj.name.."\'") return end
+    if not listing then print("ERROR: \'"..itemType.."\' (or category \'"..displayCat.."\') not listed for \'"..storeObj.name.."\'") return end
     return listing
 end
 
@@ -355,7 +355,10 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
 
     for _,data in pairs(selling) do
 
-        local listing = STORE_HANDLER.validateItemType(storeID,data.itemType)
+        local fieldName = data.fields and data.fields.name and "_"..data.fields.name or ""
+        local listingID = data.itemType..fieldName
+
+        local listing = STORE_HANDLER.validateItemType(storeID,listingID)
         if listing then
 
             local adjustedPrice = listing.price*(listing.buybackRate/100)
