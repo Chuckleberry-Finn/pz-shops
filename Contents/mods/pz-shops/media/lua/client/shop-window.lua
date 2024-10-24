@@ -1106,7 +1106,11 @@ end
 
 function storeWindow:addItemToYourCart(item)
     local add = true
-    for _,v in ipairs(self.yourCartData.items) do if v.item == item.listingID then add = false break end end
+    for _,v in ipairs(self.yourCartData.items) do
+        if (v.item == item.listingID) or v.item == item then
+            add = false break
+        end
+    end
     if add then self.yourCartData:addItem(item:getName(), item) end
 end
 
