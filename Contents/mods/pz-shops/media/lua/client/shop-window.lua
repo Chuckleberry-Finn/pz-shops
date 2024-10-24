@@ -348,15 +348,11 @@ function storeWindow:listingInputEntered()
     if not self.parent.storeWindow:isBeingManaged() then return end
 
     local storeWindow = self.parent.storeWindow
-
     local listing = storeWindow.selectedListing
-
     local field = listing and storeWindow.addListingList.accessing
-    print("field: ", field)
+
     if field then
-        print(" -- field ", listing.fields[field])
         --if (storeWindow.storeObj and storeWindow.storeObj.ownerID) and (listing.fields and listing.fields[field]~=nil) then return end
-        print(" --- A ")
         local value = self:getText()
         value = tonumber(value) or value
 
@@ -431,8 +427,6 @@ function storeWindow:addListingListMouseUp(x, y)
     if listing then
         --if (self.storeWindow.storeObj and self.storeWindow.storeObj.ownerID) and (listing.fields and listing.fields[field.fieldID]~=nil) then return end
 
-        print(" field: ", field.fieldID)
-
         if field.item == true or field.item == false then
             --[[if listing[field.fieldID] ~= nil then
                 listing[field.fieldID] = (not field.item)
@@ -442,9 +436,6 @@ function storeWindow:addListingListMouseUp(x, y)
             --]]
 
             local newValue = (not field.item)
-
-            print("  -- newValue: ", newValue)
-
             self.storeWindow:populateListingList(listing, field.fieldID, newValue)
             return
         end
@@ -504,7 +495,7 @@ function storeWindow:populateListingList(listing, changeToField, newValue)
 
             local currentValue = listing.fields[changeToField]
             local defaultValue = total_fields[changeToField]
-            
+
             if changeToField and (not listing[changeToField]) then
                 if defaultValue == newValue then
                     listing.fields[changeToField] = nil
