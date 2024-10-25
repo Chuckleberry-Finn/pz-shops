@@ -1865,7 +1865,8 @@ function storeWindow:finalizeDeal()
         if type(_item) == "string" then
             if self.storeObj.ownerID then
 
-                local storeStock = self:getItemTypesInStoreContainer(v)
+                local listing = self.storeObj.listings[v.item]
+                local storeStock = self:getItemTypesInStoreContainer(listing)
                 if storeStock and storeStock:size() > 0 then
                     counts[_item] = (counts[_item] or -1) + 1
                     local item = storeStock:get(counts[_item])
