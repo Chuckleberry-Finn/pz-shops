@@ -359,6 +359,7 @@ function storeWindow:listingInputEntered()
 
         if value == "false" then value = false end
         if value == "true" then value = true end
+        if field == "price" then value = math.max(0, value) end
 
         --[[
         if listing[field] ~= nil then
@@ -1864,7 +1865,6 @@ function storeWindow:finalizeDeal()
 
         if type(_item) == "string" then
             if self.storeObj.ownerID then
-
                 local listing = self.storeObj.listings[v.item]
                 local storeStock = self:getItemTypesInStoreContainer(listing)
                 if storeStock and storeStock:size() > 0 then
