@@ -1793,7 +1793,7 @@ function storeWindow:onClick(button)
 
     if button.internal == "IMPORT_EDIT_STORES" then
         local cacheDir = Core.getMyDocumentFolder()..getFileSeparator().."Lua"..getFileSeparator().."exportedShops.txt"
-        local exportedShops = self.importText:getText()
+        local exportedShops = _internal.tableToString(CLIENT_STORES)
         local writer = getFileWriter("exportedShops.txt", true, false)
         writer:write(exportedShops)
         writer:close()
@@ -1821,14 +1821,13 @@ function storeWindow:onClick(button)
             return
         end
         sendClientCommand(self.player,"shop", "ImportStores", {stores=tbl, close=true})
-        self.importText:setText(totalStr)
+        self.importText:setText("")
         self:populateComboList()
     end
 
     if button.internal == "IMPORT_EXPORT_STORES" then
         if self.importEditToggleButton.toggled~=true then
             sendClientCommand(self.player,"shop", "ImportStores", {close=true})
-            self.importText:setText(_internal.tableToString(CLIENT_STORES))
             self.importEditToggleButton:setTitle(getText("IGUI_EDIT"))
             self.importEditToggleButton.internal = "IMPORT_EDIT_STORES"
             self.importEditToggleButton.toggled = true
