@@ -353,7 +353,7 @@ function storeWindow:listingInputEntered()
     local field = listing and storeWindow.addListingList.accessing
 
     if field then
-        if (storeWindow.storeObj and storeWindow.storeObj.ownerID) then return end
+        if (storeWindow.storeObj and storeWindow.storeObj.ownerID) and (listing[field]==nil) then return end
         local value = self:getText()
         value = tonumber(value) or value
 
@@ -427,7 +427,7 @@ function storeWindow:addListingListMouseUp(x, y)
 
     local listing = self.storeWindow.selectedListing
     if listing then
-        if (self.storeWindow.storeObj and self.storeWindow.storeObj.ownerID) then return end
+        if (self.storeWindow.storeObj and self.storeWindow.storeObj.ownerID) and (listing[field.fieldID]==nil) then return end
 
         if field.item == true or field.item == false then
             local newValue = (not field.item)
