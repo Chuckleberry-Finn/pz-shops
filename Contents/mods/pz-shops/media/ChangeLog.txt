@@ -35,7 +35,7 @@ Credit to EasyPeasyViking:
 - Change language regarding manage mode.
 [ ------ ]
 
-[ 10/14/24]
+[ 10/27/24]
 - Removed three inputs for stock/price/buyback
 - Added manage-mode list of fields
 - Now supports listing items of the same type with specialized names (furniture and evolved-recipes.)
@@ -44,3 +44,6 @@ Credit to EasyPeasyViking:
 - Refactored wallet withdraw to handle cash spawn on network
 [ ------]
 
+[ 10/28/24 ]
+- Fixed sandbox name/tooltip
+[ ------]
