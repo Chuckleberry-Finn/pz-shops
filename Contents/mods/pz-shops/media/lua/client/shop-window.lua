@@ -216,6 +216,9 @@ end
 
 
 function storeWindow:onStoreItemSelected()
+
+    if self.selectedListing then return end
+    
     local row = self:storeItemRowAt(self.storeStockData:getMouseY())
     if not self.storeStockData.items[row] then return end
 
@@ -1588,9 +1591,9 @@ function storeWindow:render()
     self.restockHours:setVisible(managed and not blocked)
     self.addStockSearchPartition:setVisible(managed and not blocked)
     self.addStockList:setVisible(managed and not blocked)
-    self.manageStoreName:isEditable(not blocked)
+    self.manageStoreName:setEditable(not blocked)
 
-    self.addStockEntry:isEditable((not self.selectedListing) and (not blocked))
+    self.addStockEntry:setEditable((not self.addListingList.accessing) and (not self.selectedListing) and (not blocked))
 
     local totalForTransaction, invalidOrder = self:getOrderTotal()
 
@@ -1640,7 +1643,7 @@ function storeWindow:render()
         self.redEntryColor = self.redEntryColor or { r = 1, g = 0, b = 0, a = 0.8 }
         self.normalEntryColor = self.normalEntryColor or { r = 1, g = 1, b = 1, a = 0.8 }
 
-        self.addStockEntry.enable = (not self.selectedListing) and enabled
+        self.addStockEntry.enable = (not self.addListingList.accessing) and (not self.selectedListing) and enabled
         local stockEntryColor = ((not enabled) and self.redEntryColor) or (((not enabled) or self.selectedListing) and self.fadedEntryColor) or self.normalEntryColor
         self:applyElementColor(self.addStockEntry, stockEntryColor)
 
