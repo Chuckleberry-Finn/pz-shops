@@ -44,7 +44,7 @@ Credit to EasyPeasyViking:
 - Refactored wallet withdraw to handle cash spawn on network
 [ ------]
 
-[ 10/31/24 ]
+[ 11/2/24 ]
 - Fixed sandbox name/tooltip
 - Improved listing handling (disables input/stock selection if currently editing listing.)
 [ ------]
