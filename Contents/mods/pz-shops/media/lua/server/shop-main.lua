@@ -400,7 +400,7 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
             if purchasePower-listing.price < 0 then break end
 
             local moneyNeeded = math.min(listing.price, money)
-            money = money-moneyNeeded
+            money = math.max(0, money-moneyNeeded)
             local costRemainder = math.max(0, listing.price-moneyNeeded)
 
             if listing.available > 0 then listing.available = listing.available-1 end
@@ -422,6 +422,13 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
                 table.insert(itemsToTransmit,{item=listing.item,fields=listing.fields})
             end
         end
+    end
+
+    if SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then --credit
+        WALLET_HANDLER.processCreditToStore(playerWallet,playerObj,money,storeID)
+    elseif SandboxVars.ShopsAndTraders.ShopsUseCash == 3 then --nothing
+    else --- if 1 or nil (not set)
+        WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,money)
     end
 
     if #itemsToTransmit > 0 then itemTransmit.doIt(itemsToTransmit, playerObj) end

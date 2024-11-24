@@ -109,7 +109,6 @@ function storeWindow:onStoreItemDoubleClick()
     end
 end
 
-
 function storeWindow:addItemToYourStock(itemType, store, x, y, z, worldObjName, item, worldObject)
 
     local fields = itemFields.gatherFields(item, true)
@@ -847,7 +846,7 @@ function storeWindow:rtrnTypeIfValid(item)
         if (item:getCondition()/item:getConditionMax())<0.75 or item:isBroken() then return false, "IGUI_NOTRADE_DAMAGED" end
         itemType = item:getFullType()
         if (_internal.isMoneyType(itemType) and item:getModData().value) then
-            if SandboxVars.ShopsAndTraders.ShopsUseCash >= 2 then return false,"IGUI_NOTRADE_NOCASH" end
+            if SandboxVars.ShopsAndTraders.ShopsUseCash > 2 then return false,"IGUI_NOTRADE_NOCASH" end
             return itemType
         end
 
@@ -1189,6 +1188,9 @@ function storeWindow:getOrderTotal()
             if reason then invalidOrder = true end
             if type(v.item) ~= "string" then
                 if _internal.isMoneyType(itemType) then
+                    if SandboxVars.ShopsAndTraders.ShopsUseCash <= 2 then
+                        itemListedInCart = true
+                    end
                     totalForTransaction = totalForTransaction-(v.item:getModData().value)
                 else
                     ---@type Item
@@ -1883,6 +1885,10 @@ function storeWindow:finalizeDeal()
                 if _internal.isMoneyType(itemType) then
                     local moneyAmount = v.item:getModData().value
 
+                    moneyItemValueUsed = moneyItemValueUsed+moneyAmount
+                    removeItem = true
+                    isMoney = true
+                    --[[
                     if purchaseTotal > 0 then
                         local remainder = math.max(0, moneyAmount-purchaseTotal)
                         local moneyNeeded = math.min(purchaseTotal, moneyAmount)
@@ -1897,6 +1903,7 @@ function storeWindow:finalizeDeal()
                             generateMoneyValue(v.item, remainder, true)
                         end
                     end
+                    --]]
                 else
                     removeItem = true
                     local fields = itemFields.gatherFields(v.item, true)

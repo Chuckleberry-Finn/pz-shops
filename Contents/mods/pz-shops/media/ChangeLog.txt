@@ -35,16 +35,15 @@ Credit to EasyPeasyViking:
 - Change language regarding manage mode.
 [ ------ ]
 
-[ 10/27/24]
-- Removed three inputs for stock/price/buyback
-- Added manage-mode list of fields
-- Now supports listing items of the same type with specialized names (furniture and evolved-recipes.)
-- Fixed issue with failed trades/exchanges
-- Lowered minimum for Money weight to 0.00
-- Refactored wallet withdraw to handle cash spawn on network
-[ ------]
+[ BETA - 11/24/24 ]
+- New: Manage Mode Field Editor.
+-- Removed three inputs for stock/price/buyback.
+-- Fields can now be viewed/modified by owners/admin.
+-- Allows for listing items of the same type with specialized names.
+--- Example: furniture and evolved-recipes for food.
 
-[ 11/2/24 ]
-- Fixed sandbox name/tooltip
-- Improved listing handling (disables input/stock selection if currently editing listing.)
-[ ------]
+- Refactored wallet-withdraw and transactions to occur entirely on network.
+- Lowered minimum for Money weight to 0.00.
+- Allow money to be used along with store credit.
+
+[ ------ ]
