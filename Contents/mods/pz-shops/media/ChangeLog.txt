@@ -46,5 +46,6 @@ Credit to EasyPeasyViking:
 - Lowered minimum for Money weight to 0.00.
 - Allow money to be used along with store credit.
 
+- Fix: Loads store data when opening context menu.
 - Fix: Loads wallet data when dying.
 [ ------ ]

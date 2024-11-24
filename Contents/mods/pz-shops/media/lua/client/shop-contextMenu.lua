@@ -27,11 +27,11 @@ function CONTEXT_HANDLER.preGenerateContextMenu(playerID, context, worldObjects,
 
             local objStoreID = object:getModData().storeObjID
             if objStoreID then
-                local storeObj = CLIENT_STORES[objStoreID]
-                if not storeObj then
-                    local x, y, z, worldObjName = object:getX(), object:getY(), object:getZ(), _internal.getWorldObjectName(object)
-                    sendClientCommand("shop", "checkMapObject", { storeID=objStoreID, x=x, y=y, z=z, worldObjName=worldObjName })
-                end
+                --local storeObj = CLIENT_STORES[objStoreID]
+                --if not storeObj then
+                local x, y, z, worldObjName = object:getX(), object:getY(), object:getZ(), _internal.getWorldObjectName(object)
+                sendClientCommand("shop", "checkMapObject", { storeID=objStoreID, x=x, y=y, z=z, worldObjName=worldObjName })
+                --end
             end
         end
     end
