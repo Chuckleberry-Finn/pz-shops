@@ -134,6 +134,7 @@ local function onPlayerDeath(playerObj)
     if not playerModData.wallet_UUID then print("- No Player wallet_UUID.") return end
 
     local wallet, walletBalance = getWallet(playerObj), 0
+    if not wallet then wallet = getOrSetWalletID(playerObj) and getWallet(playerObj) end
     if wallet then walletBalance = wallet.amount end
     local transferAmount = _internal.floorCurrency(walletBalance*(SandboxVars.ShopsAndTraders.PercentageDropOnDeath/100))
 
@@ -148,7 +149,7 @@ local function onPlayerDeath(playerObj)
         else print("ERROR: Split/Withdraw Wallet: No money object created. \<"..type.."\>") end
     end
 
-    if SandboxVars.ShopsAndTraders.PlayerWalletsLostOnDeath then
+    if SandboxVars.ShopsAndTraders.PlayerWalletsLostOnDeath == true then
         CLIENT_WALLETS[playerModData.wallet_UUID] = nil
         sendClientCommand("shop", "scrubWallet", {playerID=playerModData.wallet_UUID})
     end
