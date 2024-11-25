@@ -41,11 +41,10 @@ Credit to EasyPeasyViking:
 -- Fields can now be viewed/modified by owners/admin.
 -- Allows for listing items of the same type with specialized names.
 --- Example: furniture and evolved-recipes for food.
-
-- Refactored wallet-withdraw and transactions to occur entirely on network.
 - Lowered minimum for Money weight to 0.00.
-- Allow money to be used along with store credit.
 
+- Refactored wallet/cash transactions to occur entirely on network.
+- Allow money to be used along with store credit.
 - Fix: Loads store data when opening context menu.
 - Fix: Loads wallet data when dying.
 [ ------ ]
