@@ -54,4 +54,6 @@ This mod is still only for B41.
 - Fix: Loads wallet data when dying.
 
 - HOTFIX: Properly handle moveables/furniture.
+- HOTFIX 2: Fix issue with moveable typings when listing + icon display.
+- HOTFIX 3: Fix issue with listing literature.
 [ ------ ]

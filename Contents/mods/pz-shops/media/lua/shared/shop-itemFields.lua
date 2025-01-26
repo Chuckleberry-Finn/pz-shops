@@ -522,7 +522,7 @@ function itemFields.gatherFields(i, purgeHidden)
     if instanceof(item, "Literature") then
         fields.numberOfPages = item:getNumberOfPages()
         fields.alreadyReadPages = item:getAlreadyReadPages()
-        fields.canBeWrite = item:CanBeWrite() ---???
+        fields.canBeWrite = item:canBeWrite() ---???
         ---hashmap
         --fields.customPages = hashmap < int, string >
         fields.lockedBy = item:getLockedBy()
@@ -721,7 +721,7 @@ function itemFields.getFieldAssociatedFunctions(item)
     if literature then
         fields.numberOfPages = "setNumberOfPages"
         fields.alreadyReadPages = "setAlreadyReadPages"
-        fields.canBeWrite ="setCanBeWrite"
+        fields.canBeWrite = "setCanBeWrite"
         fields.lockedBy = "setLockedBy"
     end
 
