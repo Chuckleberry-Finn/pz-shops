@@ -109,8 +109,9 @@ function storeWindow:onStoreItemDoubleClick()
     end
 end
 
-function storeWindow:addItemToYourStock(itemType, store, x, y, z, worldObjName, item, worldObject)
+function storeWindow:addItemToYourStock(store, x, y, z, worldObjName, item, worldObject)
 
+    local itemType = item:getFullType()
     local fields = itemFields.gatherFields(item, true)
 
     sendClientCommand("shop", "listNewItem",
@@ -133,7 +134,6 @@ function storeWindow:addItemToYourStock(itemType, store, x, y, z, worldObjName, 
 end
 
 
-
 function storeWindow:yourStockingMouseUp(x, y)
     local store = self.parent.storeObj
     if (not self.parent:isBeingManaged()) or (not _internal.canManageStore(store,self.parent.player)) then return end
@@ -148,19 +148,13 @@ function storeWindow:yourStockingMouseUp(x, y)
 
             counta = 1
             if instanceof(v, "InventoryItem") then
-                ---@type InventoryItem
-                local item = v
-                local itemType = item:getFullType()
-                self.parent:addItemToYourStock(itemType, store, woX, woY, woZ, worldObjName, v, worldObject)
-
+                self.parent:addItemToYourStock(store, woX, woY, woZ, worldObjName, v, worldObject)
             else
                 if v.invPanel.collapsed[v.name] then
                     counta = 1
                     for i2,v2 in ipairs(v.items) do
                         if counta > 1 then
-                            local item = v2
-                            local itemType = item:getFullType()
-                            self.parent:addItemToYourStock(itemType, store, woX, woY, woZ, worldObjName, v2, worldObject)
+                            self.parent:addItemToYourStock(store, woX, woY, woZ, worldObjName, v2, worldObject)
                         end
                         counta = counta + 1
                     end
@@ -1737,6 +1731,8 @@ function storeWindow:onClick(button)
         local matches, matchesToType = findMatchesFromItemDictionary(newEntry, self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected))
         if not matches then return end
 
+        print("A - NEW ENTRY: ", newEntry)
+
         if isValidItemDictionaryCategory(newEntry) then
             newEntry = "category:"..newEntry
         else
@@ -1744,7 +1740,9 @@ function storeWindow:onClick(button)
             if not scriptType then return end
 
             local script = getScriptManager():getItem(scriptType)
+            print("ADDING STOCK: ", scriptType)
             newEntry = script:getFullName()
+            print("NEW ENTRY: ", newEntry)
         end
 
         self.listingInputEntered(self.listingInput)
@@ -2055,6 +2053,4 @@ end
 
 
 if getActivatedMods():contains("ChuckleberryFinnAlertSystem") then
-    local modCountSystem = require "chuckleberryFinnModding_modCountSystem"
-    if modCountSystem then modCountSystem.pullAndAddModID() end
 else print("WARNING: Highly recommended to install `ChuckleberryFinnAlertSystem` (Workshop ID: `3077900375`) for latest news and updates.") end

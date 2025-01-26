@@ -331,8 +331,11 @@ function STORE_HANDLER.validateItemType(storeID,itemType)
     local listing = storeObj.listings[itemType]
     if not listing then print("ERROR: \'"..itemType.."\' not listed for \'"..storeObj.name.."\'") return end
 
-    local validItem = getScriptManager():getItem(listing.item)
-    if not validItem then print("ERROR: no script found for \'"..listing.item.."\'") return end
+    local scriptToValidate = listing.item
+    scriptToValidate = string.find(scriptToValidate, "Moveables.") and "Moveables.Moveable" or scriptToValidate
+
+    local validItem = getScriptManager():getItem(scriptToValidate)
+    if not validItem then print("ERROR: no script found for \'"..scriptToValidate.."\'") return end
 
     local displayCat = validItem:getDisplayCategory()
 

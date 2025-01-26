@@ -553,7 +553,6 @@ function itemFields.gatherFields(i, purgeHidden)
     local movable = instanceof(item, "Moveable") and item
     if movable then
         fields.worldSprite = movable:getWorldSprite()
-
         if movable:isLight() then
             fields.usesBattery = movable:isLightUseBattery()
             fields.hasBattery = movable:isLightHasBattery()
@@ -687,7 +686,7 @@ function itemFields.getFieldAssociatedFunctions(item)
     ---@type Moveable
     local movable = instanceof(item, "Moveable") and item
     if movable then
-        fields.worldSprite = "setWorldSprite"
+        fields.worldSprite = "ReadFromWorldSprite"
         fields.isLight = "setLight"
         fields.usesBattery = "setLightUseBattery"
         fields.hasBattery = "setLightHasBattery"

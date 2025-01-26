@@ -11,6 +11,8 @@ function itemTransmit.doIt(itemsToTransmit, playerObj)
         local itemType = data.item
         local fields = data.fields
 
+        itemType = string.find(itemType, "Moveables.") and "Moveables.Moveable" or itemType
+
         local item = InventoryItemFactory.CreateItem(itemType)
 
         if fields then

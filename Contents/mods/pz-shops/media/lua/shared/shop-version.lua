@@ -1,1 +1,1 @@
-Events.OnGameBoot.Add(function() print("Shops and Traders: JAN-5-24") end)
+Events.OnGameBoot.Add(function() print("Shops and Traders: JAN-25-25") end)
