@@ -114,6 +114,9 @@ function storeWindow:addItemToYourStock(store, x, y, z, worldObjName, item, worl
     local itemType = item:getFullType()
     local fields = itemFields.gatherFields(item, true)
 
+    local movable = string.find(itemType, "Moveables.") and "Moveables.Moveable"
+    if movable then itemType = movable end
+
     sendClientCommand("shop", "listNewItem",
             { isBeingManaged=store.isBeingManaged, alwaysShow = false,
               item=itemType, fields=fields, price=0, stock=0, buybackRate=0, reselling=false,
@@ -1502,13 +1505,18 @@ function storeWindow:validateAddStockEntry()
     local entryText = tostring(self.addStockEntry:getInternalText())
     if not entryText or entryText=="" then return false end
 
-    local matches, matchesToType = findMatchesFromItemDictionary(entryText, self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected))
-    if not matches then return false end
+    local movable = string.find(entryText, "Moveables.")
+    if movable then return true end
 
-    --print("matches: #:"..#matches.."   "..tostring(matches))
-    --for k,v in pairs(matches) do print("<"..k.."><"..v..">") end
-    --print("---")
-    --for k,v in pairs(matchesToType) do print("<"..k.."><"..v..">") end
+    local matches, matchesToType = findMatchesFromItemDictionary(entryText, self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected))
+    if not matches or #matches <= 0 then return false end
+
+    --[[
+    print("matches: #:"..#matches.."   "..tostring(matches))
+    for k,v in pairs(matches) do print("<"..k.."><"..v..">") end
+    print("---")
+    for k,v in pairs(matchesToType) do print("<"..k.."><"..v..">") end
+    --]]
 
     local script = matchesToType[entryText]
     if script and getScriptManager():getItem(script) then return true end
@@ -1728,21 +1736,19 @@ function storeWindow:onClick(button)
         local newEntry = self.addStockEntry:getInternalText()
         if not newEntry or newEntry=="" then return end
 
+        local movable = string.find(newEntry, "Moveables.")
+
         local matches, matchesToType = findMatchesFromItemDictionary(newEntry, self.addStockSearchPartition:getOptionData(self.addStockSearchPartition.selected))
         if not matches then return end
-
-        print("A - NEW ENTRY: ", newEntry)
 
         if isValidItemDictionaryCategory(newEntry) then
             newEntry = "category:"..newEntry
         else
             local scriptType = matchesToType[newEntry]
-            if not scriptType then return end
+            if (not movable) and (not scriptType) then return end
 
-            local script = getScriptManager():getItem(scriptType)
-            print("ADDING STOCK: ", scriptType)
-            newEntry = script:getFullName()
-            print("NEW ENTRY: ", newEntry)
+            local script = scriptType and getScriptManager():getItem(scriptType)
+            if script then newEntry = script:getFullName() end
         end
 
         self.listingInputEntered(self.listingInput)
