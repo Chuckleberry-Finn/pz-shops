@@ -878,12 +878,22 @@ end
 function storeWindow:drawCart(y, item, alt)
     local texture
 
+    local storeObj = self.parent.storeObj
+    local listingID = item.item
+
     local checkThis = (type(item.item) ~= "string" and item.item) or item.itemType
     local itemType, reason, itemCat = self.parent:rtrnTypeIfValid(checkThis)
 
     if type(item.item) == "string" then
-        local script = getScriptManager():getItem(item.itemType)
-        texture = script and script:getNormalTexture()
+        local listingItem = storeObj.listings[item.item]
+        local movableSprite = listingItem and listingItem.fields and listingItem.fields.worldSprite
+
+        if movableSprite then
+            texture = getTexture(movableSprite)
+        else
+            local script = getScriptManager():getItem(item.itemType)
+            texture = script and script:getNormalTexture()
+        end
 
     else texture = item.item:getTex() end
 
@@ -916,10 +926,8 @@ function storeWindow:drawCart(y, item, alt)
 
     local balanceDiff = 0
 
-    local storeObj = self.parent.storeObj
     if storeObj and (not noList) then
 
-        local listingID = item.item
         if type(item.item) ~= "string" then
             local _item = item.item:getFullType()
             local script = item.item:getScriptItem()
@@ -965,24 +973,27 @@ function storeWindow:drawStock(y, entry, alt)
     local item = entry.item
     local listingID = entry.listingID
 
-    local texture, script, validCategory = nil, nil, nil
-    if type(item) == "string" then
-        script = getScriptManager():getItem(item)
-        if script then
-            texture = script:getNormalTexture()
-        else
-            validCategory = isValidItemDictionaryCategory(item:gsub("category:",""))
-        end
-    else
-        texture = item:getTex()
-    end
-
-    local color = {r=1, g=1, b=1, a=0.9}
-
     local storeObj = self.parent.storeObj
     if storeObj then
         local listing = storeObj.listings[listingID]
         if listing then
+
+            local texture, script, validCategory = nil, nil, nil
+            if type(item) == "string" then
+
+                local movableSprite = listing and listing.fields and listing.fields.worldSprite
+
+                script = getScriptManager():getItem(item)
+                if script then
+                    texture = movableSprite and getTexture(movableSprite) or script:getNormalTexture()
+                else
+                    validCategory = isValidItemDictionaryCategory(item:gsub("category:",""))
+                end
+            else
+                texture = item:getTex()
+            end
+
+            local color = {r=1, g=1, b=1, a=0.9}
 
             local availableStock = self.parent:getAvailableStock(listing)
             local validItem = (texture or validCategory)
