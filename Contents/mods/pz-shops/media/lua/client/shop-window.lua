@@ -771,7 +771,7 @@ function storeWindow:initialise()
     self.importLoadButton:instantiate()
     self:addChild(self.importLoadButton)
 
-    self.importCancel = ISButton:new(self.aBtnDel.x, self.aBtnDel.y, self.aBtnDel.width, 25, getText("UI_Exit"), self, storeWindow.onClick)
+    self.importCancel = ISButton:new(self.aBtnDel.x, self.aBtnDel.y, self.aBtnDel.width, 25, getText("IGUI_EXIT"), self, storeWindow.onClick)
     self.importCancel.font = UIFont.NewSmall
     self.importCancel.internal = "IMPORT_EXPORT_CANCEL"
     self.importCancel.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
