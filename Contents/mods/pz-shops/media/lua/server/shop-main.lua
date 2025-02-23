@@ -322,22 +322,24 @@ function STORE_HANDLER.removeListing(storeObj,item)
 end
 
 
-function STORE_HANDLER.validateItemType(storeID,itemType)
+function STORE_HANDLER.validateItemType(storeID,itemType,itemName)
     if not itemType then print("ERROR: validatePurchases: itemType = nil") return end
     if not storeID then print("ERROR: validatePurchases: No storeID") return end
     local storeObj = STORE_HANDLER.getStoreByID(storeID)
     if not storeObj then print("ERROR: validatePurchases: No storeObj") return end
 
-    local listing = storeObj.listings[itemType]
-    if not listing then print("ERROR: \'"..itemType.."\' not listed for \'"..storeObj.name.."\'") return end
+    local listingID = itemType .. (itemName and itemName or "")
 
-    local scriptToValidate = listing.item
+    local listing = storeObj.listings[listingID]
+    --if not listing then print("ERROR: \'"..itemType.."\' not listed for \'"..storeObj.name.."\'") return end
+
+    local scriptToValidate = listing and listing.item or itemType
     scriptToValidate = string.find(scriptToValidate, "Moveables.") and "Moveables.Moveable" or scriptToValidate
 
     local validItem = getScriptManager():getItem(scriptToValidate)
-    if not validItem then print("ERROR: no script found for \'"..scriptToValidate.."\'") return end
+    --if not validItem then print("ERROR: no script found for \'"..scriptToValidate.."\'") return end
 
-    local displayCat = validItem:getDisplayCategory()
+    local displayCat = validItem and validItem:getDisplayCategory()
 
     if not listing and displayCat then listing = storeObj.listings["category:"..displayCat] end
     if not listing then print("ERROR: \'"..itemType.."\' (or category \'"..displayCat.."\') not listed for \'"..storeObj.name.."\'") return end
@@ -359,9 +361,8 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
     for _,data in pairs(selling) do
 
         local fieldName = data.fields and data.fields.name and "_"..data.fields.name or ""
-        local listingID = data.itemType..fieldName
 
-        local listing = STORE_HANDLER.validateItemType(storeID,listingID)
+        local listing = STORE_HANDLER.validateItemType(storeID, data.itemType, fieldName)
         if listing then
 
             local adjustedPrice = listing.price*(listing.buybackRate/100)
@@ -393,8 +394,8 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
 
     local itemsToTransmit = {}
 
-    for _,itemType in pairs(buying) do
-        local listing = STORE_HANDLER.validateItemType(storeID,itemType)
+    for _,listingID in pairs(buying) do
+        local listing = STORE_HANDLER.validateItemType(storeID,listingID)
         if listing then
 
             local credit = playerWallet and playerWallet.credit and playerWallet.credit[storeID] or 0

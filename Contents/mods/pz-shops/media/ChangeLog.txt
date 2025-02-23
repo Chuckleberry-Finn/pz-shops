@@ -57,3 +57,8 @@ This mod is still only for B41.
 - HOTFIX 2: Fix issue with moveable typings when listing + icon display.
 - HOTFIX 3: Fix issue with listing literature.
 [ ------ ]
+
+[ 2/22/25 ]
+- Fix for import UI text.
+- Fix for issues with category listings.
+[ ------ ]
