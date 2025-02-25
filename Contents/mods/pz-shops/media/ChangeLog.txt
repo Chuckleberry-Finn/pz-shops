@@ -61,6 +61,7 @@ This mod is still only for B41.
 [ 2/22/25 ]
 - Fix for import UI text.
 - Fix for issues with category listings.
+- Added additional transmit of manage mode.
 - Fix for item stack split (etomarat).
 - RU translation (etomarat).
 [ ------ ]

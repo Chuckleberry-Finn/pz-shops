@@ -1732,6 +1732,7 @@ function storeWindow:onClick(button)
                 self.manageStoreName:setText(store.name)
                 store.isBeingManaged = true
             end
+            if self.worldObject then self.worldObject:transmitModData() end
             sendClientCommand("shop", "setStoreIsBeingManaged", {isBeingManaged=store.isBeingManaged, storeID=store.ID, storeName=newName, restockHrs=restockHrs})
 
             if self.storeObj and self.storeObj.ownerID and self.storeObj.cash then self.restockHours:setText(tostring(self.storeObj.cash)) end
