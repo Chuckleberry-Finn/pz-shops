@@ -58,7 +58,7 @@ This mod is still only for B41.
 - HOTFIX 3: Fix issue with listing literature.
 [ ------ ]
 
-[ 2/22/25 ]
+[ 2/24/25 ]
 - Fix for import UI text.
 - Fix for issues with category listings.
 - Added additional transmit of manage mode.
