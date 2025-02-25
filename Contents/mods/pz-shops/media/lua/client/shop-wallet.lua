@@ -184,13 +184,8 @@ function ISSliderBox:initialise()
     self.slider = ISSliderPanel:new(self.entry.x, self.entry.y, w-margin, 20, self, ISSliderBox.onValueChange)
 
     self.slider.render = function()
-        local maxVal = 0
-        local wallet = getWallet(self.playerObj)
-        if wallet then maxVal = wallet.amount end
-        self.slider.maxValue = maxVal
-
-        if self.slider:getCurrentValue() > maxVal then self.slider:setCurrentValue(maxVal) end
-
+        self.slider.maxValue = maxValue
+        if self.slider:getCurrentValue() > self.slider.maxValue then self.slider:setCurrentValue(self.slider.maxValue) end
         ISSliderPanel.render(self.slider)
     end
 
@@ -240,10 +235,9 @@ function ISSliderBox:onClick(button, playerObj, item)
         if canManipulateMoney(item, playerObj) then
 
             local wallet = getWallet(playerObj)
-            local walletValue = wallet and wallet.amount
-
-            if  button.parent.slider:getCurrentValue() > walletValue then
-                button.parent.slider:setCurrentValue(walletValue)
+            local currentValue = (item and item:getModData().value) or (wallet and wallet.amount)
+            if  button.parent.slider:getCurrentValue() > currentValue then
+                button.parent.slider:setCurrentValue(currentValue)
             end
 
             local transferValue = button.parent.slider:getCurrentValue()
