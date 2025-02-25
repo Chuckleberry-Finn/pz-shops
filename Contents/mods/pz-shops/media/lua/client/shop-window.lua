@@ -1779,7 +1779,7 @@ function storeWindow:onClick(button)
         local stock = listingSelected and listingSelected.stock or 0
         local buybackRate = listingSelected and listingSelected.buybackRate or 0
         local alwaysShow = listingSelected and (listingSelected.alwaysShow ~= nil and listingSelected.alwaysShow) or false
-        local reselling = listingSelected and (listingSelected.reselling ~= nil and listingSelected.reselling) or true
+        local reselling = listingSelected and (listingSelected.reselling ~= nil and listingSelected.reselling) or false
         local fields = listingSelected and listingSelected.fields or itemFields.gatherFields(newEntry, true)
 
         sendClientCommand("shop", "listNewItem", {

@@ -64,4 +64,6 @@ This mod is still only for B41.
 - Added additional transmit of manage mode.
 - Fix for item stack split (etomarat).
 - RU translation (etomarat).
+
+- Hotfix #1: Issue with reselling stuck on true fixed.
 [ ------ ]
