@@ -1,54 +1,54 @@
 Sandbox_RU = {
 	Sandbox_ShopsAndTraders = "Shops and Traders",
-  Sandbox_ShopsAndTraders_PercentageDropOnDeath = "РџСЂРѕС†РµРЅС‚ РїРѕС‚РµСЂРё РґРµРЅРµРі РїСЂРё СЃРјРµСЂС‚Рё",
-  Sandbox_ShopsAndTraders_PercentageDropOnDeath_tooltip = "РџСЂРѕС†РµРЅС‚ РґРµРЅРµРі, РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ СѓС‚РµСЂСЏРЅ РїСЂРё СЃРјРµСЂС‚Рё РёРіСЂРѕРєР°.\nР•СЃР»Рё РєРѕС€РµР»СЊРєРё РёРіСЂРѕРєРѕРІ РѕС‚РєР»СЋС‡РµРЅС‹, Р’РЎР• РґРµРЅСЊРіРё Р±СѓРґСѓС‚ РїРѕС‚РµСЂСЏРЅС‹.\nР’РќРРњРђРќРР•: РћСЃС‚Р°С‚РѕРє РєРѕС€РµР»СЊРєР° СѓРЅРёС‡С‚РѕР¶Р°РµС‚СЃСЏ РїСЂРё СЃРјРµСЂС‚Рё.",
+  Sandbox_ShopsAndTraders_PercentageDropOnDeath = "Процент потери денег при смерти",
+  Sandbox_ShopsAndTraders_PercentageDropOnDeath_tooltip = "Процент денег, который будет утерян при смерти игрока.\nЕсли кошельки игроков отключены, ВСЕ деньги будут потеряны.\nВНИМАНИЕ: Остаток кошелька уничтожается при смерти.",
 
-  Sandbox_ShopsAndTraders_PlayerWallets = "РљРѕС€РµР»СЊРєРё РёРіСЂРѕРєРѕРІ",
-  Sandbox_ShopsAndTraders_PlayerWallets_tooltip = "Р•СЃР»Рё РѕС‚РєР»СЋС‡РµРЅРѕ, РёРіСЂРѕРєРё Р±СѓРґСѓС‚ РІС‹РЅСѓР¶РґРµРЅС‹ РЅРѕСЃРёС‚СЊ РґРµРЅСЊРіРё СЃ СЃРѕР±РѕР№.",
+  Sandbox_ShopsAndTraders_PlayerWallets = "Кошельки игроков",
+  Sandbox_ShopsAndTraders_PlayerWallets_tooltip = "Если отключено, игроки будут вынуждены носить деньги с собой.",
 
-  Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath = "РљРѕС€РµР»СЊРєРё СѓРЅРёС‡С‚РѕР¶Р°СЋС‚СЃСЏ РїСЂРё СЃРјРµСЂС‚Рё",
-  Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath_tooltip = "РџСЂРё СЃРјРµСЂС‚Рё РёРіСЂРѕРєР° РµРіРѕ С‚РµРєСѓС‰РёР№ РєРѕС€РµР»РµРє СѓРґР°Р»СЏРµС‚СЃСЏ РїРѕСЃР»Рµ РІС‹С‡РµС‚Р° РїСЂРѕС†РµРЅС‚Р° РїРѕС‚РµСЂРё.",
+  Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath = "Кошельки уничтожаются при смерти",
+  Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath_tooltip = "При смерти игрока его текущий кошелек удаляется после вычета процента потери.",
 
-  Sandbox_ShopsAndTraders_CanWithdraw = "РњРѕР¶РЅРѕ СЃРЅРёРјР°С‚СЊ РЅР°Р»РёС‡РЅС‹Рµ",
-  Sandbox_ShopsAndTraders_CanWithdraw_tooltip = "Р Р°Р·СЂРµС€Р°РµС‚ РёРіСЂРѕРєР°Рј СЃРЅРёРјР°С‚СЊ РґРµРЅСЊРіРё РёР· РєРѕС€РµР»СЊРєРѕРІ. РўСЂРµР±СѓРµС‚, С‡С‚РѕР±С‹ 'РљРѕС€РµР»СЊРєРё РёРіСЂРѕРєРѕРІ' Р±С‹Р»Рё РІРєР»СЋС‡РµРЅС‹.",
+  Sandbox_ShopsAndTraders_CanWithdraw = "Можно снимать наличные",
+  Sandbox_ShopsAndTraders_CanWithdraw_tooltip = "Разрешает игрокам снимать деньги из кошельков. Требует, чтобы 'Кошельки игроков' были включены.",
 
-  Sandbox_ShopsAndTraders_ShopsUseCash = "РџРѕР»РёС‚РёРєР° СЃРґР°С‡Рё РІ РјР°РіР°Р·РёРЅР°С…",
-  Sandbox_ShopsAndTraders_ShopsUseCash_tooltip = "РЎРґР°С‡Р°: РњР°РіР°Р·РёРЅС‹ РІРѕР·РІСЂР°С‰Р°СЋС‚ СЃРґР°С‡Сѓ РЅР°Р»РёС‡РЅС‹РјРё.\nРљСЂРµРґРёС‚: РњР°РіР°Р·РёРЅС‹ Р·Р°РїРёСЃС‹РІР°СЋС‚ СЂР°Р·РЅРёС†Сѓ РєР°Рє РєСЂРµРґРёС‚.\nРќРёС‡РµРіРѕ: РњР°РіР°Р·РёРЅС‹ РЅРµ РІРѕР·РІСЂР°С‰Р°СЋС‚ СЃРґР°С‡Сѓ.",
+  Sandbox_ShopsAndTraders_ShopsUseCash = "Политика сдачи в магазинах",
+  Sandbox_ShopsAndTraders_ShopsUseCash_tooltip = "Сдача: Магазины возвращают сдачу наличными.\nКредит: Магазины записывают разницу как кредит.\nНичего: Магазины не возвращают сдачу.",
 
-  Sandbox_ShopsAndTraders_CashPolicy_option1 = "РњР°РіР°Р·РёРЅС‹ РґР°СЋС‚ СЃРґР°С‡Сѓ",
-  Sandbox_ShopsAndTraders_CashPolicy_option2 = "РњР°РіР°Р·РёРЅС‹ РёСЃРїРѕР»СЊР·СѓСЋС‚ РєСЂРµРґРёС‚",
-  Sandbox_ShopsAndTraders_CashPolicy_option3 = "РњР°РіР°Р·РёРЅС‹ РЅРµ РґР°СЋС‚ СЃРґР°С‡Сѓ",
+  Sandbox_ShopsAndTraders_CashPolicy_option1 = "Магазины дают сдачу",
+  Sandbox_ShopsAndTraders_CashPolicy_option2 = "Магазины используют кредит",
+  Sandbox_ShopsAndTraders_CashPolicy_option3 = "Магазины не дают сдачу",
 
-  Sandbox_ShopsAndTraders_MoneySpawnMin = "РњРёРЅРёРјР°Р»СЊРЅР°СЏ СЃСѓРјРјР° РґРµРЅРµРі РїСЂРё СЃРїР°РІРЅРµ",
-  Sandbox_ShopsAndTraders_MoneySpawnMin_tooltip = "РњРёРЅРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ, СЃ РєРѕС‚РѕСЂС‹Рј РјРѕРіСѓС‚ РїРѕСЏРІР»СЏС‚СЊСЃСЏ РґРµРЅСЊРіРё.",
+  Sandbox_ShopsAndTraders_MoneySpawnMin = "Минимальная сумма денег при спавне",
+  Sandbox_ShopsAndTraders_MoneySpawnMin_tooltip = "Минимальное значение, с которым могут появляться деньги.",
 
-  Sandbox_ShopsAndTraders_MoneySpawnMax = "РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ СЃСѓРјРјР° РґРµРЅРµРі РїСЂРё СЃРїР°РІРЅРµ",
-  Sandbox_ShopsAndTraders_MoneySpawnMax_tooltip = "РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ, СЃ РєРѕС‚РѕСЂС‹Рј РјРѕРіСѓС‚ РїРѕСЏРІР»СЏС‚СЊСЃСЏ РґРµРЅСЊРіРё.",
+  Sandbox_ShopsAndTraders_MoneySpawnMax = "Максимальная сумма денег при спавне",
+  Sandbox_ShopsAndTraders_MoneySpawnMax_tooltip = "Максимальное значение, с которым могут появляться деньги.",
 
-  Sandbox_ShopsAndTraders_StartingWallet = "РЎС‚Р°СЂС‚РѕРІР°СЏ СЃСѓРјРјР° РґРµРЅРµРі",
-  Sandbox_ShopsAndTraders_StartingWallet_tooltip = "РЎРєРѕР»СЊРєРѕ РґРµРЅРµРі РёРіСЂРѕРєРё РїРѕР»СѓС‡Р°СЋС‚ РїСЂРё СЃС‚Р°СЂС‚Рµ.",
+  Sandbox_ShopsAndTraders_StartingWallet = "Стартовая сумма денег",
+  Sandbox_ShopsAndTraders_StartingWallet_tooltip = "Сколько денег игроки получают при старте.",
 
-  Sandbox_ShopsAndTraders_MoneyWeight = "Р’РµСЃ РґРµРЅРµРі",
-  Sandbox_ShopsAndTraders_MoneyWeight_tooltip = "Р’РµСЃ РѕРґРЅРѕР№ РґРµРЅРµР¶РЅРѕР№ РµРґРёРЅРёС†С‹.",
+  Sandbox_ShopsAndTraders_MoneyWeight = "Вес денег",
+  Sandbox_ShopsAndTraders_MoneyWeight_tooltip = "Вес одной денежной единицы.",
 
-  Sandbox_ShopsAndTraders_TradersResellItems = "РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ С‚РѕСЂРіРѕРІС†С‹ РїРµСЂРµРїСЂРѕРґР°СЋС‚ С‚РѕРІР°СЂС‹",
-  Sandbox_ShopsAndTraders_TradersResellItems_tooltip = "Р­С‚Р° РЅР°СЃС‚СЂРѕР№РєР° РёР·РјРµРЅСЏРµС‚ РїРѕРІРµРґРµРЅРёРµ СЃРїРёСЃРєР° С‚РѕРІР°СЂРѕРІ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ.\nР•СЃР»Рё РІРєР»СЋС‡РµРЅРѕ, С‚РѕСЂРіРѕРІС†С‹ Р±СѓРґСѓС‚ С…СЂР°РЅРёС‚СЊ Рё РїРµСЂРµРїСЂРѕРґР°РІР°С‚СЊ РїСЂРѕРґР°РЅРЅС‹Рµ РёРј РІРµС‰Рё.",
+  Sandbox_ShopsAndTraders_TradersResellItems = "По умолчанию торговцы перепродают товары",
+  Sandbox_ShopsAndTraders_TradersResellItems_tooltip = "Эта настройка изменяет поведение списка товаров по умолчанию.\nЕсли включено, торговцы будут хранить и перепродавать проданные им вещи.",
 
-  Sandbox_ShopsAndTraders_TradersResetStock = "РџРѕРїРѕР»РЅРµРЅРёРµ РїРѕР»РЅРѕСЃС‚СЊСЋ РѕР±РЅРѕРІР»СЏРµС‚ Р·Р°РїР°СЃС‹ РјР°РіР°Р·РёРЅР°",
-  Sandbox_ShopsAndTraders_TradersResetStock_tooltip = "РџСЂРё РїРѕРїРѕР»РЅРµРЅРёРё Р·Р°РїР°СЃРѕРІ РјР°РіР°Р·РёРЅР° РІСЃРµ РїРµСЂРµРїСЂРѕРґР°РІР°РµРјС‹Рµ С‚РѕРІР°СЂС‹ (РїСЂРѕРґР°РЅРЅС‹Рµ РёРіСЂРѕРєР°РјРё) Р±СѓРґСѓС‚ СѓРґР°Р»РµРЅС‹.",
+  Sandbox_ShopsAndTraders_TradersResetStock = "Пополнение полностью обновляет запасы магазина",
+  Sandbox_ShopsAndTraders_TradersResetStock_tooltip = "При пополнении запасов магазина все перепродаваемые товары (проданные игроками) будут удалены.",
 
-  Sandbox_ShopsAndTraders_DeedRecipe = "Р РµС†РµРїС‚ РґРѕРєСѓРјРµРЅС‚Р° РЅР° РјР°РіР°Р·РёРЅ",
-  Sandbox_ShopsAndTraders_DeedRecipe_tooltip = "РЎРёРЅС‚Р°РєСЃРёСЃ:\nРљР°Р¶РґС‹Р№ РїСЂРµРґРјРµС‚ СЂР°Р·РґРµР»СЏРµС‚СЃСЏ СЃРёРјРІРѕР»РѕРј '|'.\nР”Р»СЏ РґРµРЅРµР¶РЅС‹С… Р·РЅР°С‡РµРЅРёР№: '$n' РѕР·РЅР°С‡Р°РµС‚ n РґРµРЅРµРі.\n'destroy n' вЂ“ СѓРґР°Р»СЏРµС‚ РїСЂРµРґРјРµС‚ РїСЂРё РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРё.\n'keep n' вЂ“ СЃРѕС…СЂР°РЅСЏРµС‚ РїСЂРµРґРјРµС‚ РїРѕСЃР»Рµ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ.\n'n = 5' вЂ“ С‚СЂРµР±СѓРµС‚ 5 РµРґРёРЅРёС† РїСЂРµРґРјРµС‚Р°.\n'n;5' вЂ“ С‚СЂРµР±СѓРµС‚ 5 'РµРґРёРЅРёС†' РїСЂРµРґРјРµС‚Р°, РµСЃР»Рё РѕРЅ СЂР°СЃС…РѕРґСѓРµРјС‹Р№.\n[function] вЂ“ РІС‹Р·С‹РІР°РµС‚ СЃРїРµС†РёР°Р»СЊРЅСѓСЋ С„СѓРЅРєС†РёСЋ РґР»СЏ СЂРµС†РµРїС‚Р°.\n\nРСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ СЃС‚Р°РЅРґР°СЂС‚РЅС‹Р№ СЃРёРЅС‚Р°РєСЃРёСЃ СЂРµС†РµРїС‚РѕРІ Project Zomboid.",
+  Sandbox_ShopsAndTraders_DeedRecipe = "Рецепт документа на магазин",
+  Sandbox_ShopsAndTraders_DeedRecipe_tooltip = "Синтаксис:\nКаждый предмет разделяется символом '|'.\nДля денежных значений: '$n' означает n денег.\n'destroy n' – удаляет предмет при использовании.\n'keep n' – сохраняет предмет после использования.\n'n = 5' – требует 5 единиц предмета.\n'n;5' – требует 5 'единиц' предмета, если он расходуемый.\n[function] – вызывает специальную функцию для рецепта.\n\nИспользуется стандартный синтаксис рецептов Project Zomboid.",
 
-  Sandbox_ShopsAndTraders_MaxUsers = "РњР°РєСЃРёРјР°Р»СЊРЅРѕРµ С‡РёСЃР»Рѕ РїРѕРєСѓРїР°С‚РµР»РµР№",
-  Sandbox_ShopsAndTraders_MaxUsers_tooltip = "РЈСЃС‚Р°РЅРѕРІРёС‚Рµ 0 РґР»СЏ РѕС‚РєР»СЋС‡РµРЅРёСЏ.",
+  Sandbox_ShopsAndTraders_MaxUsers = "Максимальное число покупателей",
+  Sandbox_ShopsAndTraders_MaxUsers_tooltip = "Установите 0 для отключения.",
 
-  Sandbox_ShopsAndTraders_ActivityTimeOut = "РўР°Р№РјРµСЂ Р°РєС‚РёРІРЅРѕСЃС‚Рё РїРѕРєСѓРїРѕРє",
-  Sandbox_ShopsAndTraders_ActivityTimeOut_tooltip = "РЈСЃС‚Р°РЅРѕРІРёС‚Рµ 0 РґР»СЏ РѕС‚РєР»СЋС‡РµРЅРёСЏ. Р’СЂРµРјСЏ СѓРєР°Р·Р°РЅРѕ РІ СЃРµРєСѓРЅРґР°С….",
+  Sandbox_ShopsAndTraders_ActivityTimeOut = "Таймер активности покупок",
+  Sandbox_ShopsAndTraders_ActivityTimeOut_tooltip = "Установите 0 для отключения. Время указано в секундах.",
 
-  Sandbox_ShopsAndTraders_ShopItemPriceLimit = "Р›РёРјРёС‚ С†РµРЅС‹ С‚РѕРІР°СЂРѕРІ РІ РјР°РіР°Р·РёРЅР°С…",
-  Sandbox_ShopsAndTraders_ShopItemPriceLimit_tooltip = "РњР°РєСЃРёРјР°Р»СЊРЅР°СЏ С†РµРЅР° С‚РѕРІР°СЂР° РІ РјР°РіР°Р·РёРЅРµ.\nР—РЅР°С‡РµРЅРёРµ 0.00 РѕС‚РєР»СЋС‡Р°РµС‚ РѕРіСЂР°РЅРёС‡РµРЅРёРµ.",
+  Sandbox_ShopsAndTraders_ShopItemPriceLimit = "Лимит цены товаров в магазинах",
+  Sandbox_ShopsAndTraders_ShopItemPriceLimit_tooltip = "Максимальная цена товара в магазине.\nЗначение 0.00 отключает ограничение.",
 
-  Sandbox_ShopsAndTraders_ShopContainers = "РљРѕРЅС‚РµР№РЅРµСЂС‹, РёСЃРїРѕР»СЊР·СѓРµРјС‹Рµ РєР°Рє РјР°РіР°Р·РёРЅС‹",
-  Sandbox_ShopsAndTraders_ShopContainers_tooltip = "РЎРїРёСЃРѕРє РєРѕРЅС‚РµР№РЅРµСЂРѕРІ, РєРѕС‚РѕСЂС‹Рµ РјРѕРіСѓС‚ Р±С‹С‚СЊ РјР°РіР°Р·РёРЅР°РјРё (РЅР°РїСЂРёРјРµСЂ, Crate,Military Crate). Р Р°Р·РґРµР»СЏР№С‚Рµ Р·Р°РїСЏС‚С‹РјРё.\nРџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ, РµСЃР»Рё РѕСЃС‚Р°РІРёС‚СЊ РїСѓСЃС‚С‹Рј, РјР°РіР°Р·РёРЅР°РјРё РјРѕРіСѓС‚ Р±С‹С‚СЊ РІСЃРµ РєРѕРЅС‚РµР№РЅРµСЂС‹.",
+  Sandbox_ShopsAndTraders_ShopContainers = "Контейнеры, используемые как магазины",
+  Sandbox_ShopsAndTraders_ShopContainers_tooltip = "Список контейнеров, которые могут быть магазинами (например, Crate,Military Crate). Разделяйте запятыми.\nПо умолчанию, если оставить пустым, магазинами могут быть все контейнеры.",
 }
