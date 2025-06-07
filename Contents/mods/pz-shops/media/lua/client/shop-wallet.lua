@@ -420,9 +420,20 @@ end
 local function _depositMoney(moneyItem, player)
     if not SandboxVars.ShopsAndTraders.PlayerWallets then return end
     if not player then print("WARN: depositMoney attempt without player.") end
+
+    local wallet = getWallet(player)
+    if not wallet then
+        getOrSetWalletID(player)
+        wallet = getWallet(player)
+    end
+
     local playerModData = player:getModData()
+    
+    local walletID = playerModData.wallet_UUID
+    if not walletID then return end
+
     local value = moneyItem:getModData().value
-    sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=value})
+    sendClientCommand("shop", "transferFunds", {playerWalletID=walletID, amount=value})
     safelyRemoveMoney(moneyItem, player)
 end
 
