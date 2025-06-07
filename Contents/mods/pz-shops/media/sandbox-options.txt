@@ -47,3 +47,6 @@ option ShopsAndTraders.ShopItemPriceLimit
 
 option ShopsAndTraders.ShopContainers
 {type = string, default = , page = ShopsAndTraders, translation = ShopsAndTraders_ShopContainers,}
+
+option ShopsAndTraders.ShopsRequirePower
+{type = boolean, default = false, page = ShopsAndTraders, translation = ShopsAndTraders_ShopsRequirePowers,}
