@@ -53,6 +53,7 @@ IGUI_EN = {
     IGUI_NOTRADE_NOFUNDS = "I don't have the funds to buy this.",
 
     IGUI_CURRENTLY_IN_USE = "This store is currently in use.",
+    IGUI_SHOP_NEEDS_POWER = "This store requires power to operate."
 
     IGUI_IMPORT = "Import",
     IGUI_EDIT = "Edit",

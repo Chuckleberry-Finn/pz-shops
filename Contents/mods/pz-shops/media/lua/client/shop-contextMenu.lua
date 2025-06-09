@@ -91,6 +91,22 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects, te
                 if contextText then
                     local option = currentMenu:addOptionOnTop(contextText, worldObjects, CONTEXT_HANDLER.browseStore, playerObj, worldObject, storeObject, true)
                     if isClient() and option and storeObject then
+
+                        local worldObjSquare = worldObject and worldObject:getSquare()
+                        if (SandboxVars.ShopsAndTraders.ShopsRequirePower == true) and worldObjSquare then
+                            if (not worldObjSquare:haveElectricity()) and (not getWorld():isHydroPowerOn()) then
+
+                                option.notAvailable = true
+                                if _internal.canManageStore(storeObject,playerObj) then option.notAvailable = false end
+
+                                local tooltip = ISWorldObjectContextMenu.addToolTip()
+                                local text = getText("IGUI_SHOP_NEEDS_POWER")
+                                tooltip:setName(text)
+                                tooltip.description = text
+                                option.toolTip = tooltip
+                            end
+                        end
+
                         if not storeWindow.checkMaxShopperCapacity(storeObject, worldObject, playerObj) then
                             option.notAvailable = true
                             local tooltip = ISWorldObjectContextMenu.addToolTip()

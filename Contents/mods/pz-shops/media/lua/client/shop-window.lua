@@ -1640,6 +1640,14 @@ function storeWindow:render()
 
     local purchaseValid = (validIfWallets or validIfNotWallets or validIfCredit) and (not invalidOrder)
 
+    local worldObjSquare = self.worldObject and self.worldObject:getSquare()
+    if (SandboxVars.ShopsAndTraders.ShopsRequirePower == true) and worldObjSquare then
+        if (not worldObjSquare:haveElectricity()) and (not getWorld():isHydroPowerOn()) then
+            purchaseValid = false
+            self:drawText(self.needs_power_message.text, self.width/2 - (self.needs_power_message.x / 2), (self.height - self.needs_power_message.y) - 10, 1,0,0,0.8, UIFont.Medium)
+        end
+    end
+
     self.purchase.enable = (not managed and not blocked and #self.yourCartData.items>0 and purchaseValid)
 
     local gb = 1
@@ -1863,6 +1871,13 @@ function storeWindow:finalizeDeal()
     local itemToPurchase = {}
     local itemsToSell = {}
 
+    local worldObjSquare = self.worldObject and self.worldObject:getSquare()
+    if (SandboxVars.ShopsAndTraders.ShopsRequirePower == true) and worldObjSquare then
+        if (not worldObjSquare:haveElectricity()) and (not getWorld():isHydroPowerOn()) then
+            return
+        end
+    end
+
     local walletID = getOrSetWalletID(self.player)
     if not walletID then print("ERROR: finalizeDeal: No Wallet ID for "..self.player:getUsername()..", aborting.") return end
 
@@ -1971,6 +1986,12 @@ function storeWindow:new(x, y, width, height, player, storeObj, worldObj)
     o.height = height
     o.player = player
 
+    local tm = getTextManager()
+    local needs_power_message = getText("IGUI_SHOP_NEEDS_POWER")
+    local npm_x = tm:MeasureStringX(UIFont.Medium, needs_power_message)
+    local npm_y = tm:MeasureStringY(UIFont.Medium, needs_power_message)
+    o.needs_power_message = {text=needs_power_message, x=npm_x, y=npm_y}
+
     if isClient() and worldObj then
         local worldObjModData = worldObj:getModData()
         worldObjModData.shopsAndTradersShoppers = worldObjModData.shopsAndTradersShoppers or {}
@@ -2048,6 +2069,7 @@ function storeWindow.checkMaxShopperCapacity(storeObj, worldObj, player)
 end
 
 
+---@param worldObj IsoObject
 function storeWindow:onBrowse(storeObj, worldObj, shopper, ignoreCapacityCheck)
     if storeWindow.instance and storeWindow.instance:isVisible() then storeWindow.instance:closeStoreWindow() end
 
