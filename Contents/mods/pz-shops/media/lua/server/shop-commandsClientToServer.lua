@@ -154,6 +154,7 @@ local function onClientCommand(_module, _command, _player, _data)
         if not foundObjToApplyTo then print("ERROR: ".._command..": No foundObjToApplyTo.") return end
 
         if _command == "checkMapObject" then
+            STORE_HANDLER.addLocation(storeID,foundObjToApplyTo)
             if isServer() then sendServerCommand(_player, "shop", "grabShop", {store=GLOBAL_STORES[storeID]}) end
             return
         end

@@ -168,6 +168,7 @@ store.nextRestock = 48
 store.ownerID = nil
 store.managerIDs = {}
 store.cash = 0
+store.locations = {}
 
 function STORE_HANDLER.new(copyThisID)
     local original = store
@@ -184,6 +185,27 @@ function STORE_HANDLER.new(copyThisID)
     GLOBAL_STORES[newStore.ID] = newStore
     return newStore
 end
+
+
+function STORE_HANDLER.addLocation(storeID,worldObj)
+    if not storeID then print("ERROR: validatePurchases: No storeID") return end
+    local storeObj = STORE_HANDLER.getStoreByID(storeID)
+    if not storeObj then return end
+    local objectName = _internal.getWorldObjectDisplayName(worldObj)
+    local x, y, z = worldObj:getX(), worldObj:getY(), worldObj:getZ()
+    store.locations[objectName.."_"..x.."_"..y.."_"..z] = {objName=objectName, x=x,y=y,z=z}
+end
+
+
+function STORE_HANDLER.removeLocation(storeID,worldObj)
+    if not storeID then print("ERROR: validatePurchases: No storeID") return end
+    local storeObj = STORE_HANDLER.getStoreByID(storeID)
+    if not storeObj then return end
+    local objectName = _internal.getWorldObjectDisplayName(worldObj)
+    local x, y, z = worldObj:getX(), worldObj:getY(), worldObj:getZ()
+    store.locations[objectName.."_"..x.."_"..y.."_"..z] = nil
+end
+
 
 function STORE_HANDLER.restocking()
     if not GLOBAL_STORES or type(GLOBAL_STORES)~="table" then print("ERROR: GLOBAL_STORES not present or not table: "..tostring(GLOBAL_STORES)) end
@@ -245,8 +267,8 @@ function STORE_HANDLER.connectStoreByID(isoObj,ID)
     if modData.storeObjID then print("ERROR: Object already has store assigned. obj:"..tostring(isoObj)) return end
     modData.storeObjID = ID
     isoObj:transmitModData()
-
     local storeObj = STORE_HANDLER.getStoreByID(ID)
+    STORE_HANDLER.addLocation(ID,isoObj)
     STORE_HANDLER.updateStore(storeObj,ID)
 end
 
@@ -264,6 +286,7 @@ function STORE_HANDLER.copyStoreOntoObject(isoObj,ID,managed,owner)
         modData.originalIsThumpable = isoObj:isThumpable()
         isoObj:setIsThumpable(false)
     end
+    STORE_HANDLER.addLocation(ID,isoObj)
     isoObj:transmitModData()
     STORE_HANDLER.updateStore(newStore,newStore.ID)
 end
@@ -282,15 +305,19 @@ function STORE_HANDLER.clearStoreFromObject(isoObj, player)
     local storeObj = storeID and STORE_HANDLER.getStoreByID(storeID)
     modData.storeObjID = nil
 
-    if storeObj and storeObj.ownerID then
-        STORE_HANDLER.deleteStore(storeID)
-        if player then
-            local itemsToTransmit = {item="ShopsAndTraders.ShopDeed"}
-            if isServer() then
-                sendServerCommand(player, "shop", "transmitItems", {items=itemsToTransmit})
-            else
-                itemTransmit.doIt(itemsToTransmit, player)
+    if storeObj then
+        if storeObj.ownerID then
+            STORE_HANDLER.deleteStore(storeID)
+            if player then
+                local itemsToTransmit = {item="ShopsAndTraders.ShopDeed"}
+                if isServer() then
+                    sendServerCommand(player, "shop", "transmitItems", {items=itemsToTransmit})
+                else
+                    itemTransmit.doIt(itemsToTransmit, player)
+                end
             end
+        else
+            STORE_HANDLER.removeLocation(storeID,isoObj)
         end
     end
 
