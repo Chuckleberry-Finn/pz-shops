@@ -1644,7 +1644,9 @@ function storeWindow:render()
     if (SandboxVars.ShopsAndTraders.ShopsRequirePower == true) and worldObjSquare then
         if (not worldObjSquare:haveElectricity()) and (not getWorld():isHydroPowerOn()) then
             purchaseValid = false
-            self:drawText(self.needs_power_message.text, self.width/2 - (self.needs_power_message.x / 2), (self.height - self.needs_power_message.y) - 10, 1,0,0,0.8, UIFont.Medium)
+            if not managed and not blocked then
+                self:drawText(self.needs_power_message.text, self.width/2 - (self.needs_power_message.x / 2), (self.height - self.needs_power_message.y) - 10, 1,0,0,0.8, UIFont.Medium)
+            end
         end
     end
 
