@@ -58,7 +58,7 @@ function storeWindow:storeItemRowAt(y)
     local y0 = 0
 
     if not self.storeObj then return -1 end
-    
+
     local listings = self.storeObj.listings
     for i,v in ipairs(self.storeStockData.items) do
         if not v.height then v.height = self.storeStockData.itemheight end
@@ -1161,6 +1161,11 @@ function storeWindow:update()
     end
 
     if not _internal.isAdminHostDebug(self.storeObj,self.player) and not self.storeObj then
+        self:closeStoreWindow()
+        return
+    end
+
+    if not self.storeObj and #self.yourCartData.items>0 then
         self:closeStoreWindow()
         return
     end
