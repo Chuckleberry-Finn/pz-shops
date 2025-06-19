@@ -67,3 +67,23 @@ This mod is still only for B41.
 
 - Hotfix #1: Issue with reselling stuck on true fixed.
 [ ------ ]
+
+[ 6/19/25 ]
+- New Feature: Sandbox option so that Power is required for shops.
+   This should not prevent owners from stocking or managing their stores, only purchases.
+
+- New Feature: [Experimental] Shops now track their assigned locations.
+   This system is to support wipes/resets to speed up the process of setting up shops.
+   The only way to modify the locations is through editing and loading the exported textfile.
+   The way the system works is taking right click on tiles and compares them to the shops list.
+   Tracking occurs whenever a shop is assigned (or visited to support previous setups).
+   If there are performance concerns or drops, visiting the shops once and toggling the sandbox option is fine.
+
+- Fix: Splitting/Place in Wallet now better supports multiple items selected at once.
+   Split only applies to the first item found in the section.
+   Place in Wallet will apply to each item.
+
+- Tweaks/Improvements:
+   Changes to how wallet logic is handled.
+   Changes to how context menus are handled.
+[ ------ ]
