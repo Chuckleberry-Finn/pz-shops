@@ -56,6 +56,9 @@ end
 
 function storeWindow:storeItemRowAt(y)
     local y0 = 0
+
+    if not self.storeObj then return -1 end
+    
     local listings = self.storeObj.listings
     for i,v in ipairs(self.storeStockData.items) do
         if not v.height then v.height = self.storeStockData.itemheight end
@@ -421,8 +424,8 @@ function storeWindow:addListingListMouseUp(x, y)
     local field = self.items[spot]
     if not field then return end
     if self.accessing then return end
-
     if field.fieldID == "categoryListing" then return end
+    if (not self.storeWindow.storeObj) then return end
 
     local listing = self.storeWindow.selectedListing
     if listing then
@@ -879,6 +882,8 @@ function storeWindow:drawCart(y, item, alt)
     local texture
 
     local storeObj = self.parent.storeObj
+    if (not storeObj) then return end
+
     local listingID = item.item
 
     local checkThis = (type(item.item) ~= "string" and item.item) or item.itemType
@@ -1192,7 +1197,7 @@ function storeWindow:getOrderTotal()
     if (not self.storeObj) then
         return totalForTransaction, invalidOrder
     end
-    
+
     for i,v in ipairs(self.yourCartData.items) do
         local itemType, reason, itemCat = self:rtrnTypeIfValid(v.itemType or v.item)
         if itemType then
