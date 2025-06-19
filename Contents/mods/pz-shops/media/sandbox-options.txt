@@ -49,4 +49,7 @@ option ShopsAndTraders.ShopContainers
 {type = string, default = , page = ShopsAndTraders, translation = ShopsAndTraders_ShopContainers,}
 
 option ShopsAndTraders.ShopsRequirePower
-{type = boolean, default = false, page = ShopsAndTraders, translation = ShopsAndTraders_ShopsRequirePowers,}
+{type = boolean, default = false, page = ShopsAndTraders, translation = ShopsAndTraders_ShopsRequirePower,}
+
+option ShopsAndTraders.ShopsLocationTracking
+{type = boolean, default = false, page = ShopsAndTraders, translation = ShopsAndTraders_ShopsLocationTrack,}

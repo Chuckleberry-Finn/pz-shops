@@ -155,10 +155,12 @@ local function onClientCommand(_module, _command, _player, _data)
         if not foundObjToApplyTo then print("ERROR: ".._command..": No foundObjToApplyTo.") return end
 
         if _command == "checkLocation" and foundObjToApplyTo then
-            local CheckFor = worldObjName and worldObjName.."_"..x.."_"..y.."_"..z
-            local foundID = CheckFor and STORE_HANDLER.findStoreFromLocation(CheckFor)
-            if foundID then
-                STORE_HANDLER.connectStoreByID(foundObjToApplyTo,foundID)
+            if SandboxVars.ShopsAndTraders.ShopsLocationTracking == true then
+                local CheckFor = worldObjName and worldObjName.."_"..x.."_"..y.."_"..z
+                local foundID = CheckFor and STORE_HANDLER.findStoreFromLocation(CheckFor)
+                if foundID then
+                    STORE_HANDLER.connectStoreByID(foundObjToApplyTo,foundID)
+                end
             end
         end
 
