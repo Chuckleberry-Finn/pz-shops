@@ -11,11 +11,18 @@ end
 
 function CONTEXT_HANDLER.preGenerateContextMenu(playerID, context, worldObjects, test)
     local playerObj = getSpecificPlayer(playerID)
+    ---@type IsoGridSquare
     local square
 
     if _internal.isAdminHostDebug() then sendClientCommand(playerObj,"shop", "ImportStores", {}) end
 
-    for _,v in ipairs(worldObjects) do square = v:getSquare() end
+    local pX, pY = playerObj:getX(), playerObj:getY()
+    for _,v in ipairs(worldObjects) do
+        local vSq = v:getSquare()
+        if (not square) or (pX-square:getX() < pX-vSq:getX()) or (pY-square:getY() < pX-vSq:getY()) then
+            square = v:getSquare()
+        end
+    end
     if not square then return end
 
     if (math.abs(playerObj:getX()-square:getX())>2) or (math.abs(playerObj:getY()-square:getY())>2) then return end
@@ -24,14 +31,13 @@ function CONTEXT_HANDLER.preGenerateContextMenu(playerID, context, worldObjects,
         ---@type IsoObject
         local object = square:getObjects():get(i)
         if object and (not instanceof(object, "IsoWorldInventoryObject")) then
-
             local objStoreID = object:getModData().storeObjID
+            local x, y, z, worldObjName = object:getX(), object:getY(), object:getZ(), _internal.getWorldObjectName(object)
+
             if objStoreID then
-                --local storeObj = CLIENT_STORES[objStoreID]
-                --if not storeObj then
-                local x, y, z, worldObjName = object:getX(), object:getY(), object:getZ(), _internal.getWorldObjectName(object)
                 sendClientCommand("shop", "checkMapObject", { storeID=objStoreID, x=x, y=y, z=z, worldObjName=worldObjName })
-                --end
+            else
+                sendClientCommand("shop", "checkLocation", { x=x, y=y, z=z, worldObjName=worldObjName })
             end
         end
     end
@@ -40,10 +46,17 @@ Events.OnPreFillWorldObjectContextMenu.Add(CONTEXT_HANDLER.preGenerateContextMen
 
 
 function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects, test)
+
     local playerObj = getSpecificPlayer(playerID)
     local square
 
-    for _,v in ipairs(worldObjects) do square = v:getSquare() end
+    local pX, pY = playerObj:getX(), playerObj:getY()
+    for _,v in ipairs(worldObjects) do
+        local vSq = v:getSquare()
+        if (not square) or (pX-square:getX() < pX-vSq:getX()) or (pY-square:getY() < pX-vSq:getY()) then
+            square = v:getSquare()
+        end
+    end
     if not square then return end
 
     if (math.abs(playerObj:getX()-square:getX())>2) or (math.abs(playerObj:getY()-square:getY())>2) then return end

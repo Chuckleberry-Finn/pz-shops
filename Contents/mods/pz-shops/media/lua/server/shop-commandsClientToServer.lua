@@ -120,7 +120,8 @@ local function onClientCommand(_module, _command, _player, _data)
         sendServerCommand(player, "shop", "updateTransferOffer", {amount=amount})
     end
 
-    if _command == "assignStore" or _command == "copyStorePreset" or _command == "connectStorePreset" or _command == "clearStoreFromWorldObj" or _command == "checkMapObject" then
+    if _command == "assignStore" or _command == "copyStorePreset" or _command == "connectStorePreset"
+            or _command == "clearStoreFromWorldObj" or _command == "checkMapObject" or _command == "checkLocation" then
 
         local storeID, x, y, z, worldObjName, owner = _data.storeID, _data.x, _data.y, _data.z, _data.worldObjName, _data.owner
         local sq = getSquare(x, y, z)
@@ -153,9 +154,21 @@ local function onClientCommand(_module, _command, _player, _data)
 
         if not foundObjToApplyTo then print("ERROR: ".._command..": No foundObjToApplyTo.") return end
 
+        if _command == "checkLocation" and foundObjToApplyTo then
+            local CheckFor = worldObjName and worldObjName.."_"..x.."_"..y.."_"..z
+            local foundID = CheckFor and STORE_HANDLER.findStoreFromLocation(CheckFor)
+            if foundID then
+                STORE_HANDLER.connectStoreByID(foundObjToApplyTo,foundID)
+            end
+        end
+
         if _command == "checkMapObject" then
             STORE_HANDLER.addLocation(storeID,foundObjToApplyTo)
-            if isServer() then sendServerCommand(_player, "shop", "grabShop", {store=GLOBAL_STORES[storeID]}) end
+            if isServer() then
+                sendServerCommand(_player, "shop", "grabShop", {store=GLOBAL_STORES[storeID]})
+            else
+                CLIENT_STORES[storeID] = copyTable(GLOBAL_STORES[storeID])
+            end
             return
         end
 
@@ -163,7 +176,7 @@ local function onClientCommand(_module, _command, _player, _data)
             STORE_HANDLER.connectStoreByID(foundObjToApplyTo,storeID)
         elseif _command == "clearStoreFromWorldObj" then
             STORE_HANDLER.clearStoreFromObject(foundObjToApplyTo, _player)
-        else --assign or copy
+        elseif _command == "assignStore" or _command == "copyStorePreset" then
             STORE_HANDLER.copyStoreOntoObject(foundObjToApplyTo,storeID,true, owner)
         end
 

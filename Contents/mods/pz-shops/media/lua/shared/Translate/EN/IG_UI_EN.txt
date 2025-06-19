@@ -55,7 +55,7 @@ IGUI_EN = {
     IGUI_CURRENTLY_IN_USE = "This store is currently in use.",
     IGUI_SHOP_NEEDS_POWER = "This store requires power to operate."
 
-    IGUI_IMPORT = "Import",
+    IGUI_CONFIG = "Config",
     IGUI_EDIT = "Edit",
     IGUI_LOAD = "Load",
     IGUI_EXIT = "EXIT",

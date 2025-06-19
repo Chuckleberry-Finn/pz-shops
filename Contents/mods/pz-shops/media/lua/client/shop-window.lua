@@ -754,16 +754,16 @@ function storeWindow:initialise()
     self.aBtnCopy:instantiate()
     self:addChild(self.aBtnCopy)
 
-    self.importEditToggleButton = ISButton:new(self.aBtnDel.x, acb.y-29, self.aBtnDel.width, 25, getText("IGUI_IMPORT"), self, storeWindow.onClick)
-    self.importEditToggleButton.internal = "IMPORT_EXPORT_STORES"
-    self.importEditToggleButton.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
-    self.importEditToggleButton.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
-    self.importEditToggleButton.toggled = false
-    self.importEditToggleButton:initialise()
-    self.importEditToggleButton:instantiate()
-    self:addChild(self.importEditToggleButton)
+    self.ConfigButton = ISButton:new(self.aBtnDel.x, acb.y-29, self.aBtnDel.width, 25, getText("IGUI_CONFIG"), self, storeWindow.onClick)
+    self.ConfigButton.internal = "IMPORT_EXPORT_STORES"
+    self.ConfigButton.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
+    self.ConfigButton.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
+    self.ConfigButton.toggled = false
+    self.ConfigButton:initialise()
+    self.ConfigButton:instantiate()
+    self:addChild(self.ConfigButton)
 
-    self.importLoadButton = ISButton:new(self.aBtnDel.x, self.importEditToggleButton.y-29, self.aBtnDel.width, 25, getText("IGUI_LOAD"), self, storeWindow.onClick)
+    self.importLoadButton = ISButton:new(self.aBtnDel.x, self.ConfigButton.y-29, self.aBtnDel.width, 25, getText("IGUI_LOAD"), self, storeWindow.onClick)
     self.importLoadButton.internal = "IMPORT_LOAD_STORES"
     self.importLoadButton.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
     self.importLoadButton.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
@@ -781,7 +781,7 @@ function storeWindow:initialise()
     self:addChild(self.importCancel)
 
     local iTMargin = 4
-    local importTextX = self.importEditToggleButton.x+self.importEditToggleButton.width+iTMargin
+    local importTextX = self.ConfigButton.x+self.ConfigButton.width+iTMargin
     self.importText = ISTextEntryBox:new("", importTextX, iTMargin, self:getWidth() - importTextX-iTMargin, self:getHeight()-(iTMargin*2))
     self.importText.backgroundColor = {r=0, g=0, b=0, a=0.8}
     self.importText:initialise()
@@ -1476,21 +1476,21 @@ function storeWindow:updateButtons()
     self.aBtnCopy.enable = false
     self.aBtnConnect.enable = false
     self.aBtnConnect.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.7 }
-    self.importEditToggleButton.enable = false
-    self.importEditToggleButton.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.7 }
+    self.ConfigButton.enable = false
+    self.ConfigButton.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.7 }
     self.aBtnDel.enable = false
     self.aBtnDel.borderColor = { r = 0.3, g = 0.3, b = 0.3, a = 0.7 }
 
     if not self.storeObj then
-        if self.importEditToggleButton.toggled==true then
+        if self.ConfigButton.toggled==true then
             self.importText.enabled = true
             self.importCancel.enable = true
             self.importLoadButton.enable = true
         end
         self.assignComboBox.enable = true
         self.aBtnCopy.enable = true
-        self.importEditToggleButton.enable = true
-        self.importEditToggleButton.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
+        self.ConfigButton.enable = true
+        self.ConfigButton.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
         if self.assignComboBox.selected~=1 then
             self.aBtnConnect.enable = true
             self.aBtnConnect.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
@@ -1589,14 +1589,14 @@ function storeWindow:render()
     self.assignComboBox:setVisible(shouldSeeStorePresetOptions)
     self.aBtnConnect:setVisible(shouldSeeStorePresetOptions)
     self.aBtnDel:setVisible(shouldSeeStorePresetOptions)
-    self.importEditToggleButton:setVisible(shouldSeeStorePresetOptions)
+    self.ConfigButton:setVisible(shouldSeeStorePresetOptions)
     self.aBtnCopy:setVisible(shouldSeeStorePresetOptions)
 
-    self.importText:setVisible(shouldSeeStorePresetOptions and self.importEditToggleButton.toggled)
-    self.importCancel:setVisible(shouldSeeStorePresetOptions and self.importEditToggleButton.toggled)
-    self.importLoadButton:setVisible(shouldSeeStorePresetOptions and self.importEditToggleButton.toggled)
+    self.importText:setVisible(shouldSeeStorePresetOptions and self.ConfigButton.toggled)
+    self.importCancel:setVisible(shouldSeeStorePresetOptions and self.ConfigButton.toggled)
+    self.importLoadButton:setVisible(shouldSeeStorePresetOptions and self.ConfigButton.toggled)
 
-    if not (shouldSeeStorePresetOptions and self.importEditToggleButton.toggled) then self:displayOrderTotal() end
+    if not (shouldSeeStorePresetOptions and self.ConfigButton.toggled) then self:displayOrderTotal() end
 
     self.addListingList:setVisible(managed and not blocked)
     self.addStockBtn:setVisible(managed and not blocked)
@@ -1681,7 +1681,7 @@ function storeWindow:render()
     if blocked and (not self.importText:isVisible()) then
         local blockingMessage = getText("IGUI_STOREBEINGMANAGED")
         self.blocker:drawText(blockingMessage, self.width/2 - (getTextManager():MeasureStringX(UIFont.Medium, blockingMessage) / 2), (self.height / 3) - 5, 1,1,1,1, UIFont.Medium)
-        local uiButtons = {self.no, self.assignComboBox, self.aBtnConnect, self.aBtnDel, self.aBtnCopy, self.importEditToggleButton, self.importCancel, self.importLoadButton, self.importText}
+        local uiButtons = {self.no, self.assignComboBox, self.aBtnConnect, self.aBtnDel, self.aBtnCopy, self.ConfigButton, self.importCancel, self.importLoadButton, self.importText}
         for _,btn in pairs(uiButtons) do btn:bringToTop() end
     end
 
@@ -1817,9 +1817,9 @@ function storeWindow:onClick(button)
 
 
     if button.internal == "IMPORT_EXPORT_CANCEL" then
-        self.importEditToggleButton:setTitle(getText("IGUI_IMPORT"))
-        self.importEditToggleButton.internal = "IMPORT_EXPORT_STORES"
-        self.importEditToggleButton.toggled = false
+        self.ConfigButton:setTitle(getText("IGUI_CONFIG"))
+        self.ConfigButton.internal = "IMPORT_EXPORT_STORES"
+        self.ConfigButton.toggled = false
     end
 
     if button.internal == "IMPORT_EDIT_STORES" then
@@ -1834,6 +1834,11 @@ function storeWindow:onClick(button)
 
     if button.internal == "IMPORT_LOAD_STORES" then
         local reader = getFileReader("exportedShops.txt", false)
+
+        if not reader then
+            self.importText:setText("ERROR: `exportedShops.txt` not found in Lua cache.")
+            return
+        end
 
         local lines = {}
         local line = reader:readLine()
@@ -1852,16 +1857,16 @@ function storeWindow:onClick(button)
             return
         end
         sendClientCommand(self.player,"shop", "ImportStores", {stores=tbl, close=true})
-        self.importText:setText("")
+        self.importText:setText("Shops Loaded")
         self:populateComboList()
     end
 
     if button.internal == "IMPORT_EXPORT_STORES" then
-        if self.importEditToggleButton.toggled~=true then
+        if self.ConfigButton.toggled~=true then
             sendClientCommand(self.player,"shop", "ImportStores", {close=true})
-            self.importEditToggleButton:setTitle(getText("IGUI_EDIT"))
-            self.importEditToggleButton.internal = "IMPORT_EDIT_STORES"
-            self.importEditToggleButton.toggled = true
+            self.ConfigButton:setTitle(getText("IGUI_EDIT"))
+            self.ConfigButton.internal = "IMPORT_EDIT_STORES"
+            self.ConfigButton.toggled = true
             self:populateComboList()
         end
     end

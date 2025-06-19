@@ -187,13 +187,30 @@ function STORE_HANDLER.new(copyThisID)
 end
 
 
+function STORE_HANDLER.findStoreFromLocation(CheckFor)
+
+    if not GLOBAL_STORES or type(GLOBAL_STORES)~="table" then print("ERROR: GLOBAL_STORES not present or not table: "..tostring(GLOBAL_STORES)) end
+    if not CheckFor then print("ERROR: findStoreFromLocation: No CheckFor ") return end
+
+    for ID,storeObj in pairs(GLOBAL_STORES) do
+        if storeObj.locations then
+            local loc = storeObj.locations[CheckFor]
+            if loc then
+                return ID
+            end
+        end
+    end
+end
+
+
 function STORE_HANDLER.addLocation(storeID,worldObj)
-    if not storeID then print("ERROR: validatePurchases: No storeID") return end
+    if not storeID then return end
     local storeObj = STORE_HANDLER.getStoreByID(storeID)
     if not storeObj then return end
     local objectName = _internal.getWorldObjectDisplayName(worldObj)
     local x, y, z = worldObj:getX(), worldObj:getY(), worldObj:getZ()
-    store.locations[objectName.."_"..x.."_"..y.."_"..z] = {objName=objectName, x=x,y=y,z=z}
+    storeObj.locations = storeObj.locations or {}
+    storeObj.locations[objectName.."_"..x.."_"..y.."_"..z] = {objName=objectName, x=x,y=y,z=z}
 end
 
 
@@ -203,7 +220,7 @@ function STORE_HANDLER.removeLocation(storeID,worldObj)
     if not storeObj then return end
     local objectName = _internal.getWorldObjectDisplayName(worldObj)
     local x, y, z = worldObj:getX(), worldObj:getY(), worldObj:getZ()
-    store.locations[objectName.."_"..x.."_"..y.."_"..z] = nil
+    storeObj.locations[objectName.."_"..x.."_"..y.."_"..z] = nil
 end
 
 
