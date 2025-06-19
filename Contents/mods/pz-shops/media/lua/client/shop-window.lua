@@ -1189,6 +1189,10 @@ function storeWindow:getOrderTotal()
     local invalidOrder = false
     local itemListedInCart = false
 
+    if (not self.storeObj) then
+        return totalForTransaction, invalidOrder
+    end
+    
     for i,v in ipairs(self.yourCartData.items) do
         local itemType, reason, itemCat = self:rtrnTypeIfValid(v.itemType or v.item)
         if itemType then
