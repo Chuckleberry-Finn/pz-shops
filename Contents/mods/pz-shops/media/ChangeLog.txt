@@ -80,7 +80,7 @@ This mod is still only for B41.
    If there are performance concerns or drops, visiting the shops once and toggling the sandbox option is fine.
 
 - Fix: Splitting/Place in Wallet now better supports multiple items selected at once.
-   Split only applies to the first item found in the section.
+   Split only applies to the first item found in the selection.
    Place in Wallet will apply to each item.
 
 - Tweaks/Improvements:
