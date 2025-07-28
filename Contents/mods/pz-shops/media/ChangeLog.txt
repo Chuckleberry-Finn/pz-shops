@@ -87,3 +87,7 @@ This mod is still only for B41.
    Changes to how wallet logic is handled.
    Changes to how context menus are handled.
 [ ------ ]
+
+[ 7/27/25 ]
+- Added single-player support for utilizing shops. (Without Debug on)
+[ ------ ]

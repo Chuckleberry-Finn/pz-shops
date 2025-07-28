@@ -62,6 +62,7 @@ end
 
 
 function _internal.isAdminHostDebug()
+    if (not isClient()) and (not isServer()) then return true end
     if (isAdmin() or isCoopHost() or getDebug()) then return true end
     return false
 end
