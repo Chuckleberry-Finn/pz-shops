@@ -572,3 +572,14 @@ function ISCharacterScreen:render()
         end
     end
 end
+
+
+local walletOnPlayerCreateCheck = 2
+local function shopsAndTradersOnCreate(playerObj)
+    walletOnPlayerCreateCheck = walletOnPlayerCreateCheck - 1
+    if walletOnPlayerCreateCheck <= 0 then
+        local wallet = getWallet(playerObj) or getOrSetWalletID(playerObj)
+        Events.OnPlayerUpdate.Remove(shopsAndTradersOnCreate)
+    end
+end
+Events.OnPlayerUpdate.Add(shopsAndTradersOnCreate)

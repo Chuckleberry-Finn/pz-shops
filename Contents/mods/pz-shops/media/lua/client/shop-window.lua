@@ -1864,15 +1864,21 @@ function storeWindow:onClick(button)
 
         local totalStr = table.concat(lines, "\n")
 
-        local tbl = _internal.stringToTable(totalStr)
-        if (not tbl) or (type(tbl)~="table") then
-            print("ERROR: STORES MASS IMPORT FAILED.")
-            self.importText:setText("ERROR: STORES MASS IMPORT FAILED.")
+        local tbl, err = _internal.stringToTable(totalStr)
+        if err or (not tbl) or (type(tbl)~="table") then
+            print("ERROR: STORES MASS IMPORT FAILED.", (err or ""), "-", type(tbl))
+            self.importText:setText("ERROR: STORES MASS IMPORT FAILED.\n\n"..(err or ""))
             return
         end
+
         sendClientCommand(self.player,"shop", "ImportStores", {stores=tbl, close=true})
-        self.importText:setText("Shops Loaded")
-        self:populateComboList()
+
+        local shopNames = "\n\n"
+        for id,data in pairs(tbl) do shopNames = shopNames..data.name.."\n" end
+
+        self.importText:setText("Shops Loaded"..shopNames)
+        --self:populateComboList()
+        self.repop = 2
     end
 
     if button.internal == "IMPORT_EXPORT_STORES" then
@@ -1881,7 +1887,7 @@ function storeWindow:onClick(button)
             self.ConfigButton:setTitle(getText("IGUI_EDIT"))
             self.ConfigButton.internal = "IMPORT_EDIT_STORES"
             self.ConfigButton.toggled = true
-            self:populateComboList()
+            --self:populateComboList()
         end
     end
 end

@@ -123,7 +123,7 @@ end
 local function shopStore(container, player)
     if not _internal.isValidContainer(container) or not player then return end
     local object = container:getParent()
-    local objStoreID = object:getModData().storeObjID
+    local objStoreID = object and object:getModData().storeObjID
     if objStoreID then
         local storeObj = CLIENT_STORES[objStoreID]
         if not storeObj then

@@ -91,3 +91,10 @@ This mod is still only for B41.
 [ 7/27/25 ]
 - Added single-player support for utilizing shops. (Without Debug on)
 [ ------ ]
+
+[ 8/4/25 ]
+- Tweak: Added protection to shop import/export to avoid trying to process broken tables.
+- Tweak: Refactored the way shop import/export interacts with the UI, added more information to the display.
+- Tweak: Added additional on-create check for wallet balance. (Helpful for mp-logins)
+- Fix: Added sanity checks for container names.
+[ ------ ]

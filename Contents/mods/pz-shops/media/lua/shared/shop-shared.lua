@@ -43,21 +43,26 @@ end
 
 
 function _internal.getWorldObjectName(obj)
-    if not obj then return nil end
-    if not obj:getSprite() then return nil end
+    if not obj then return "No-Object-Error" end
+    if not obj:getSprite() then
+        return obj:getObjectName()
+    end
     local props = obj:getSprite():getProperties()
     if props:Is("CustomName") then
         local name = props:Val("CustomName")
         if props:Is("GroupName") then name = props:Val("GroupName") .. " " .. name end
         return name
     end
-    return nil
+    return "IsoObject"
 end
 
 
 function _internal.getWorldObjectDisplayName(obj)
     local nameFound = _internal.getWorldObjectName(obj)
-    if nameFound then return Translator.getMoveableDisplayName(nameFound) end
+    if nameFound then
+        local translatedName = Translator.getMoveableDisplayName(nameFound)
+        return translatedName
+    end
 end
 
 
@@ -100,8 +105,18 @@ end
 
 
 function _internal.stringToTable(inputstr)
-    local tblTbl = loadstring("return "..inputstr)()
-    return tblTbl
+
+    local tblTbl, err = loadstring("return "..inputstr)
+    if not tblTbl then
+        return false, err
+    end
+
+    local ok, data = pcall(tblTbl)
+    if not ok then
+        return false, data
+    end
+
+    return data
 end
 
 ---@param container ItemContainer
