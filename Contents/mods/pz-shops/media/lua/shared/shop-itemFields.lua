@@ -260,12 +260,6 @@ function itemFields.gatherFields(i, purgeHidden)
             hidden_fields.age = true
         end
 
-        local lastAged = item:getLastAged() or 0
-        fields.lastAged = lastAged
-        if lastAged <= 0 then
-            hidden_fields.lastAged = true
-        end
-
         fields.calories = item:getCalories()
         fields.proteins = item:getProteins()
         fields.lipids = item:getLipids()
@@ -745,7 +739,6 @@ function itemFields.getFieldAssociatedFunctions(item)
     local food = instanceof(item, "Food") and item
     if food then
         fields.age = "setAge"
-        fields.lastAged = "setLastAged"
         fields.calories = "setCalories"
         fields.proteins = "setProteins"
         fields.lipids = "setLipids"
