@@ -97,4 +97,6 @@ This mod is still only for B41.
 - Tweak: Refactored the way shop import/export interacts with the UI, added more information to the display.
 - Tweak: Added additional on-create check for wallet balance. (Helpful for mp-logins)
 - Fix: Added sanity checks for container names.
+
+- NOTE: For those having issues with Food items being stale/rotten, set the age to 0, and lastAge to -1.
 [ ------ ]
