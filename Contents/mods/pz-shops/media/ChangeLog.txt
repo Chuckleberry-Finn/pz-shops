@@ -99,3 +99,7 @@ This mod is still only for B41.
 - Fix: Added sanity checks for container names.
 - Removed: 'LastAged' field for listings - caused food to instant-age (as if just found) when purchased.
 [ ------ ]
+
+[ 8/5/25 ]
+- Added sanity check for splitting $0.01 to $0.
+[ ------ ]

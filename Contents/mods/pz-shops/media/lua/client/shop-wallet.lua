@@ -242,7 +242,7 @@ function ISSliderBox:onClick(button, playerObj, item)
 
             local transferValue = button.parent.slider:getCurrentValue()
 
-            if item and _internal.isMoneyType(item:getFullType()) and item:getModData() and item:getModData().value > 0 then
+            if item and _internal.isMoneyType(item:getFullType()) and item:getModData() and item:getModData().value > 0.01 then
                 local newValue = item:getModData().value-transferValue
                 generateMoneyValue(item, newValue, true)
 
@@ -272,8 +272,13 @@ local function onSplitStack(item, player, x, y)
         ISSliderBox.instance:bringToTop()
         return
     end
+
+    local value = item and item:getModData().value
+    if item and value <= 0.01 then return end
+
     x = x or getMouseX()
     y = y or getMouseY()
+
     local slider = ISSliderBox:new(x, y, 280, 100, "", ISSliderBox.onClick, player, item)
     slider:initialise()
     slider:addToUIManager()
@@ -467,7 +472,11 @@ local function addContext(playerID, context, items)
     end
 
     if #money > 0 then
-        context:addOption(getText("IGUI_SPLIT"), money[1], onSplitStack, playerObj)
+        local moneyGood = money[1]:getModData().value > 0.01
+        if moneyGood then
+            context:addOption(getText("IGUI_SPLIT"), money[1], onSplitStack, playerObj)
+        end
+
         if SandboxVars.ShopsAndTraders.PlayerWallets then
             context:addOption(getText("IGUI_PLACEINWALLET"), money, _depositMoney, playerObj)
         end
