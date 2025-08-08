@@ -1,0 +1,5 @@
+ContextMenu_PT = {
+    ContextMenu_STORES = "Lojas",
+    ContextMenu_ASSIGN_STORE = "Atribuir Loja",
+    ContextMenu_SHOP_AT = "Comprar em",
+}

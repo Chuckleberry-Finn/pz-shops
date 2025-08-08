@@ -103,3 +103,7 @@ This mod is still only for B41.
 [ 8/5/25 ]
 - Added sanity check for splitting $0.01 to $0.
 [ ------ ]
+
+[ - ]
+- Added PTBR/PT translations. Credit: Seeker.
+[ ------ ]
