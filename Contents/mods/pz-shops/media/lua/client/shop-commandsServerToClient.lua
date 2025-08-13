@@ -1,6 +1,8 @@
 local _internal = require "shop-shared"
 local itemTransmit = require "shop-itemTransmit"
 
+local shopMarkerSystem = require "shop-markers.lua"
+
 local shopCommandsServerToClient = {}
 
 function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
@@ -9,10 +11,12 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
 
     if _command == "grabShop" then
         if _data.store and _data.store.ID then CLIENT_STORES[_data.store.ID] = _data.store end
+        shopMarkerSystem.needDefine = true
     end
 
     if _command == "removeStore" then
         if _data.storeID then CLIENT_STORES[_data.storeID] = nil end
+        shopMarkerSystem.needDefine = true
     end
 
     if _command == "incomingImport" then
@@ -20,6 +24,7 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
         if _data.close and storeWindow.instance and storeWindow.instance:isVisible() and (not _internal.isAdminHostDebug()) then
             storeWindow.instance:closeStoreWindow()
         end
+        shopMarkerSystem.needDefine = true
     end
     
     if _command == "tryShopUpdateToAll" then
@@ -31,6 +36,7 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
                     window.storeObj = CLIENT_STORES[_data.store.ID]
                 end
             end
+            shopMarkerSystem.needDefine = true
         end
     end
 

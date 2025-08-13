@@ -4,7 +4,6 @@ require "shop-commandsServerToClient"
 CLIENT_STORES = {}
 CLIENT_WALLETS = {}
 
-
 local function initGlobalModData(isNewGame)
 
     if not isClient() then

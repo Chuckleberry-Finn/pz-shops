@@ -25,7 +25,6 @@ function _internal.generateMoneyValue_clientWorkAround(item, value, force)
 end
 
 
-
 function _internal.floorCurrency(n)
     return Math.round(n*100)/100
 end

@@ -25,7 +25,7 @@ function CONTEXT_HANDLER.preGenerateContextMenu(playerID, context, worldObjects,
     end
     if not square then return end
 
-    if (math.abs(playerObj:getX()-square:getX())>2) or (math.abs(playerObj:getY()-square:getY())>2) then return end
+    if (playerObj:getSquare():isBlockedTo(square)) or (math.abs(playerObj:getX()-square:getX())>2) or (math.abs(playerObj:getY()-square:getY())>2) then return end
 
     for i=0,square:getObjects():size()-1 do
         ---@type IsoObject
@@ -59,7 +59,7 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects, te
     end
     if not square then return end
 
-    if (math.abs(playerObj:getX()-square:getX())>2) or (math.abs(playerObj:getY()-square:getY())>2) then return end
+    if (playerObj:getSquare():isBlockedTo(square)) or (math.abs(playerObj:getX()-square:getX())>2) or (math.abs(playerObj:getY()-square:getY())>2) then return end
 
     local validObjects = {}
     local validObjectCount = 0
@@ -69,7 +69,7 @@ function CONTEXT_HANDLER.generateContextMenu(playerID, context, worldObjects, te
         local object = square:getObjects():get(i)
         if object and (not instanceof(object, "IsoWorldInventoryObject")) then
 
-            if object:getModData().storeObjID or (_internal.isAdminHostDebug()) then
+            if (object:getModData().storeObjID or (_internal.isAdminHostDebug())) and object:getContainer() then
                 validObjects[object] = CLIENT_STORES[object:getModData().storeObjID] and object:getModData().storeObjID or false
                 validObjectCount = validObjectCount+1
             end

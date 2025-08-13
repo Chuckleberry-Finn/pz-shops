@@ -15,7 +15,13 @@ function clickHandler.canInteract(worldObject)
             local storeObj = GLOBAL_STORES[storeObjID]
             canView = false
 
-            if storeObj and _internal.canManageStore(storeObj,getSpecificPlayer(0)) then canView = true end
+            if storeObj then
+                if _internal.canManageStore(storeObj,getSpecificPlayer(0)) then
+                    canView = true
+                end
+
+                storeWindow:onBrowse(storeObj, worldObject, getPlayer(), true)
+            end
         end
     end
 

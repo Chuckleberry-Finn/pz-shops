@@ -104,6 +104,13 @@ This mod is still only for B41.
 - Added sanity check for splitting $0.01 to $0.
 [ ------ ]
 
-[ - ]
+[ 8/13/25 ]
 - Added PTBR/PT translations. Credit: Seeker.
+- Tweak: Clicking containers browses the store.
+- Fix: Store-Assignment requires the object to be a valid container.
+[ ------ ]
+
+[ 8/13/25 - hotfix 1 ]
+- Tweak: Selecting shops follow vanilla 'isBlocked' check logic.
+- Shops now show markers (system developed from Last Stand Together).
 [ ------ ]

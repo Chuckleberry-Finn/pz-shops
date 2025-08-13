@@ -1,6 +1,7 @@
 require "shop-globalModDataServer"
 local _internal = require "shop-shared"
 local itemTransmit = require "shop-itemTransmit"
+local shopMarkerSystem = require "shop-markers.lua"
 
 WALLET_HANDLER = {}
 STORE_HANDLER = {}
@@ -208,9 +209,11 @@ function STORE_HANDLER.addLocation(storeID,worldObj)
     local storeObj = STORE_HANDLER.getStoreByID(storeID)
     if not storeObj then return end
     local objectName = _internal.getWorldObjectDisplayName(worldObj)
+    local tabelTop = worldObj:isTableTopObject()
     local x, y, z = worldObj:getX(), worldObj:getY(), worldObj:getZ()
     storeObj.locations = storeObj.locations or {}
-    storeObj.locations[objectName.."_"..x.."_"..y.."_"..z] = {objName=objectName, x=x,y=y,z=z}
+    storeObj.locations[objectName.."_"..x.."_"..y.."_"..z] = {objName=objectName, x=x,y=y,z=z, tabelTop=tabelTop}
+    shopMarkerSystem.needDefine = true
 end
 
 
@@ -221,6 +224,7 @@ function STORE_HANDLER.removeLocation(storeID,worldObj)
     local objectName = _internal.getWorldObjectDisplayName(worldObj)
     local x, y, z = worldObj:getX(), worldObj:getY(), worldObj:getZ()
     storeObj.locations[objectName.."_"..x.."_"..y.."_"..z] = nil
+    shopMarkerSystem.needDefine = true
 end
 
 
@@ -250,11 +254,12 @@ Events.EveryHours.Add(STORE_HANDLER.restocking)
 
 
 function STORE_HANDLER.updateStore(storeObj,ID)
+    GLOBAL_STORES[ID] = storeObj
     if isServer() then
         sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
     else
-        GLOBAL_STORES[ID] = storeObj
         CLIENT_STORES[ID] = storeObj
+        shopMarkerSystem.needDefine = true
     end
 end
 
@@ -273,6 +278,7 @@ function STORE_HANDLER.deleteStore(thisID)
         sendServerCommand("shop", "removeStore", {storeID=thisID})
     else
         CLIENT_STORES[thisID] = nil
+        shopMarkerSystem.needDefine = true
     end
 end
 
