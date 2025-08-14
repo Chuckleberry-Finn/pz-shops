@@ -12,7 +12,7 @@ function clickHandler.canInteract(worldObject)
     if worldObjectModData then
         local storeObjID = worldObjectModData.storeObjID
         if storeObjID then
-            local storeObj = GLOBAL_STORES[storeObjID]
+            local storeObj = GLOBAL_STORES[storeObjID] or CLIENT_STORES[storeObjID]
             canView = false
 
             if storeObj then
@@ -30,7 +30,13 @@ end
 
 local ISObjectClickHandler_doClick = ISObjectClickHandler.doClick
 function ISObjectClickHandler.doClick(object, x, y)
-    if clickHandler.canInteract(object) then ISObjectClickHandler_doClick(object, x, y) end
+
+    local sq = object:getSquare()
+    if not sq:isSeen(0) then return end
+
+    if object:getContainer() and (not getPlayer():isAiming()) and clickHandler.canInteract(object) then
+        ISObjectClickHandler_doClick(object, x, y)
+    end
 end
 
 return clickHandler
