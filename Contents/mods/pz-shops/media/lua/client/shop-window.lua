@@ -2013,17 +2013,6 @@ function storeWindow:new(x, y, width, height, player, storeObj, worldObj)
     o.height = height
     o.player = player
 
-    if worldObj then
-        worldObj:setHighlighted(true)
-        worldObj:setOutlineHighlight(true)
-        worldObj:setOutlineHlAttached(true)
-        worldObj:setOutlineHighlightCol(
-                getCore():getObjectHighlitedColor():getR(),
-                getCore():getObjectHighlitedColor():getG(),
-                getCore():getObjectHighlitedColor():getB(),
-                1)
-    end
-
     local tm = getTextManager()
     local needs_power_message = getText("IGUI_SHOP_NEEDS_POWER")
     local npm_x = tm:MeasureStringX(UIFont.Medium, needs_power_message)
@@ -2043,6 +2032,7 @@ function storeWindow:new(x, y, width, height, player, storeObj, worldObj)
     o.selectedItem = nil
     o.pendingRequest = false
     storeWindow.instance = o
+
     return o
 end
 
@@ -2065,12 +2055,6 @@ function storeWindow:closeStoreWindow()
         local worldObjModData = self.worldObject:getModData()
         worldObjModData.shopsAndTradersShoppers = worldObjModData.shopsAndTradersShoppers or {}
 
-        if self.worldObj then
-            self.worldObj:setHighlighted(self.player, false)
-            self.worldObj:setOutlineHighlight(self.player, false)
-            self.worldObj:setOutlineHlAttached(self.player, false)
-        end
-
         local needUpdate = false
         local pU = self.player:getUsername()
         for n,username in pairs(worldObjModData.shopsAndTradersShoppers) do
@@ -2081,7 +2065,6 @@ function storeWindow:closeStoreWindow()
         end
         if needUpdate then self.worldObject:transmitModData() end
     end
-
 
     self.addListingList:setVisible(false)
     self.addListingList:removeFromUIManager()

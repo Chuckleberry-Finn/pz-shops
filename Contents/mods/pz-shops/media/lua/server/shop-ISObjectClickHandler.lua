@@ -12,6 +12,9 @@ function clickHandler.canInteract(worldObject)
     if worldObjectModData then
         local storeObjID = worldObjectModData.storeObjID
         if storeObjID then
+
+            _internal.checkObjectForShop(worldObject)
+
             local storeObj = GLOBAL_STORES[storeObjID] or CLIENT_STORES[storeObjID]
             canView = false
 

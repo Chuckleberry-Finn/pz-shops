@@ -11,14 +11,31 @@ function _internal.validateMoneyTypes()
     end
 end
 
+
+function _internal.checkObjectForShop(object)
+    if object and (not instanceof(object, "IsoWorldInventoryObject")) then
+        local objStoreID = object:getModData().storeObjID
+        local x, y, z, worldObjName = object:getX(), object:getY(), object:getZ(), _internal.getWorldObjectName(object)
+
+        if objStoreID then
+            sendClientCommand("shop", "checkMapObject", { storeID=objStoreID, x=x, y=y, z=z, worldObjName=worldObjName })
+        else
+            sendClientCommand("shop", "checkLocation", { x=x, y=y, z=z, worldObjName=worldObjName })
+        end
+    end
+end
+
+
 function _internal.getMoneyTypes()
     _internal.validateMoneyTypes()
     return moneyTypes
 end
+
 function _internal.isMoneyType(itemType)
     _internal.validateMoneyTypes()
     return _moneyTypes[itemType]
 end
+
 
 function _internal.generateMoneyValue_clientWorkAround(item, value, force)
     generateMoneyValue(item, value, force)

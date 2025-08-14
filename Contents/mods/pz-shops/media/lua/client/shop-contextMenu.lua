@@ -30,16 +30,7 @@ function CONTEXT_HANDLER.preGenerateContextMenu(playerID, context, worldObjects,
     for i=0,square:getObjects():size()-1 do
         ---@type IsoObject
         local object = square:getObjects():get(i)
-        if object and (not instanceof(object, "IsoWorldInventoryObject")) then
-            local objStoreID = object:getModData().storeObjID
-            local x, y, z, worldObjName = object:getX(), object:getY(), object:getZ(), _internal.getWorldObjectName(object)
-
-            if objStoreID then
-                sendClientCommand("shop", "checkMapObject", { storeID=objStoreID, x=x, y=y, z=z, worldObjName=worldObjName })
-            else
-                sendClientCommand("shop", "checkLocation", { x=x, y=y, z=z, worldObjName=worldObjName })
-            end
-        end
+        _internal.checkObjectForShop(object)
     end
 end
 Events.OnPreFillWorldObjectContextMenu.Add(CONTEXT_HANDLER.preGenerateContextMenu)
