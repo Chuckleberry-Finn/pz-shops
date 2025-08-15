@@ -110,7 +110,8 @@ This mod is still only for B41.
 - Fix: Store-Assignment requires the object to be a valid container.
 [ ------ ]
 
-[ 8/13/25 - hotfix 1 ]
+[ 8/15/25 ]
 - Tweak: Selecting shops follow vanilla 'isBlocked' check logic.
+- Click on container to browse shop fixed.
 - Shops now show markers (system developed from Last Stand Together).
 [ ------ ]
