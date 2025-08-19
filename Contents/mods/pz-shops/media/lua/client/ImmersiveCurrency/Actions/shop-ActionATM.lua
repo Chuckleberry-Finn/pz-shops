@@ -1,6 +1,9 @@
+if not ActionATM then return end
+
 require "Actions/ActionATM.lua"
 local _internal = require "shop-shared"
 require "shop-wallet.lua"
+
 
 function ActionATM:perform()
 	if self.sound then self.character:getEmitter():stopSound(self.sound) end

@@ -115,3 +115,7 @@ This mod is still only for B41.
 - Click on container to browse shop fixed.
 - Shops now show markers (system developed from Last Stand Together).
 [ ------ ]
+
+[ 8/19/25 ]
+- Added support for Immersive Currency.
+[ ------ ]

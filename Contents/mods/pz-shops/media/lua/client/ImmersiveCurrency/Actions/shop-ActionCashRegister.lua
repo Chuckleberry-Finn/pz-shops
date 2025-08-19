@@ -1,6 +1,9 @@
+if not ActionCashRegister then return end
+
 require "Actions/ActionCashRegister.lua"
 local _internal = require "shop-shared"
 require "shop-wallet.lua"
+
 
 function ActionCashRegister:perform()
 	if SandboxVars.ICurrency.MaxMoneyPerRegister ~=0 then

@@ -1,6 +1,9 @@
+if not ActionSafe then return end
+
 require "Actions/ActionSafe.lua"
 local _internal = require "shop-shared"
 require "shop-wallet.lua"
+
 
 function ActionSafe:perform()
 	if self.sound then self.character:getEmitter():stopSound(self.sound) end

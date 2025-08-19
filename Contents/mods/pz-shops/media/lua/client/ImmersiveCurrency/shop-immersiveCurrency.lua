@@ -1,3 +1,5 @@
+if not IC then return end
+
 require "ICClient.lua"
 require "ICRecipes.lua"
 
