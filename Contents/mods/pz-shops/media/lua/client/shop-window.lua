@@ -82,7 +82,7 @@ function storeWindow:storeItemRowAt(y)
         local availableItem = (availableStock ~= 0)
         local itemReselling = (listing.stock ~= 0 or listing.reselling==true)
 
-        local showListing = itemReselling and availableItem and validItem
+        local showListing = script and itemReselling and availableItem and validItem
 
         if listing.alwaysShow==true then showListing = true end
         local managing = (self:isBeingManaged() and _internal.canManageStore(self.storeObj,self.player))
@@ -235,10 +235,12 @@ function storeWindow:onStoreItemSelected()
 
     if self.storeObj and ((availableStock >= inCart+1) or (availableStock == -1)) then
         local script = getScriptManager():getItem(listing.item)
-        local listingName = listing.fields and listing.fields.name
-        local scriptName = listingName or script:getDisplayName()
-        local cartItem = self.yourCartData:addItem(scriptName, listingID)
-        cartItem.itemType = item
+        if script then
+            local listingName = listing.fields and listing.fields.name
+            local scriptName = listingName or script:getDisplayName()
+            local cartItem = self.yourCartData:addItem(scriptName, listingID)
+            cartItem.itemType = item
+        end
     end
 end
 
@@ -1013,7 +1015,7 @@ function storeWindow:drawStock(y, entry, alt)
             if listing.alwaysShow==true then showListing = true end
             local managing = (self.parent:isBeingManaged() and _internal.canManageStore(storeObj,self.parent.player))
 
-            if showListing or managing then
+            if (showListing and script) or managing then
 
                 if not string.match(item, "category:") then
                     local inCart = 0
@@ -1086,13 +1088,13 @@ function storeWindow:displayStoreStock()
             price = _internal.numToCurrency(price)
         end
 
-        if string.match(itemDisplayName, "category:") then
+        if itemDisplayName and string.match(itemDisplayName, "category:") then
             itemDisplayName = itemDisplayName:gsub("category:","")
             itemDisplayName = getTextOrNull("IGUI_ItemCat_"..itemDisplayName) or itemDisplayName
             if managed then itemDisplayName = "category: "..itemDisplayName end
         end
 
-        local label = price.."  "..itemDisplayName..stockText
+        local label = price.."  "..(itemDisplayName or "!")..stockText
         local listedItem = self.storeStockData:addItem(label, listing.item)
         listedItem.listingID = listingID
 

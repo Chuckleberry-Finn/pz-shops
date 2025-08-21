@@ -119,3 +119,7 @@ This mod is still only for B41.
 [ 8/19/25 ]
 - Added support for Immersive Currency.
 [ ------ ]
+
+[ 8/21/25 ]
+- Missing Items (from removed mods) won't appear in stores, can still be managed.
+[ ------ ]
