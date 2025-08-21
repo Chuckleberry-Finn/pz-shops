@@ -546,10 +546,20 @@ function ISCharacterScreen:handleWithdrawButton()
     end
 end
 
+
+ISCharacterScreen.checkedModsForShops = {}
+local function checkModsForShops()
+    if getActivatedMods():contains("SpnCharCustom") then
+        ISCharacterScreen.checkedModsForShops.SpnCharCustom = true
+    end
+end
+
+
 local ISCharacterScreen_initialise = ISCharacterScreen.initialise
 function ISCharacterScreen:initialise()
     ISCharacterScreen_initialise(self)
     self:handleWithdrawButton()
+    checkModsForShops()
 end
 
 
@@ -570,12 +580,21 @@ function ISCharacterScreen:render()
         end
 
         if wallet then
-            self.withdrawButton:setX(self.avatarX+self.avatarWidth+25)
-            self.withdrawButton:setY(self.literatureButton.y+52)
-            self.withdrawButton:setWidthToTitle(55)
+            local x,y = self.avatarX+self.avatarWidth+25, self.literatureButton.y+52
+
+            if ISCharacterScreen.checkedModsForShops.SpnCharCustom and self.literatureButton then
+                x = self.literatureButton.x+self.literatureButton.width+10
+                y = self.literatureButton.y
+            end
+
+            self.withdrawButton:setX(x)
+            self.withdrawButton:setY(y)
+
             self.withdrawButton.enable = (not self.withdrawButton.busy) and (walletBalance > 0)
+            self.withdrawButton:setWidthToTitle(55)
             local walletBalanceLine = getText("IGUI_WALLETBALANCE")..": ".._internal.numToCurrency(walletBalance)
             self:drawText(walletBalanceLine, self.withdrawButton.x, self.literatureButton.y+32, 1, 1, 1, 1, UIFont.Small)
+
         else
             getOrSetWalletID(self.char)
         end
