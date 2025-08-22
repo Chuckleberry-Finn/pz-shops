@@ -123,3 +123,7 @@ This mod is still only for B41.
 [ 8/21/25 ]
 - Missing Items (from removed mods) won't appear in stores, can still be managed.
 [ ------ ]
+
+[ 8/22/25 ]
+- Support for SpnCharCustom UI changes - which pushes the wallet button down with too many traits.
+[ ------ ]
