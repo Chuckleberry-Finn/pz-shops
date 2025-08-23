@@ -127,3 +127,7 @@ This mod is still only for B41.
 [ 8/22/25 ]
 - Support for SpnCharCustom UI changes - which pushes the wallet button down with too many traits.
 [ ------ ]
+
+[ 8/23/25 ]
+- Fixes rounding error when stacking money using Immersive-Currency.
+[ ------ ]

@@ -126,7 +126,7 @@ function recipe_MakeMoneyStack(items, result, player)
         player:getInventory():AddItems("ICurrency.MoneyStack", stacks)
     end
 
-    if remainder > 0 then
+    if remainder > 0.001 then
         local newMoney = InventoryItemFactory.CreateItem(money:getFullType())
         generateMoneyValue(newMoney, remainder, true)
         player:getInventory():AddItem(newMoney)

@@ -2068,8 +2068,10 @@ function storeWindow:closeStoreWindow()
         if needUpdate then self.worldObject:transmitModData() end
     end
 
-    self.addListingList:setVisible(false)
-    self.addListingList:removeFromUIManager()
+    if self.addListingList then
+        self.addListingList:setVisible(false)
+        self.addListingList:removeFromUIManager()
+    end
 
     self:setVisible(false)
     self:removeFromUIManager()
