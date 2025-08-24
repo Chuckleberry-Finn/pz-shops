@@ -537,7 +537,7 @@ function storeWindow:initialise()
     local listHeight = (self.height*0.6)
 
     local storeName = "new store"
-    if self.storeObj then storeName = self.storeObj.name end
+    if self.storeObj and self.storeObj.name then storeName = self.storeObj.name end
 
     self.manageStoreName = ISTextEntryBox:new(storeName, 10, 12, self.width-20, btnHgt)
     self.manageStoreName.font = UIFont.Medium
@@ -1398,7 +1398,7 @@ function storeWindow:prerender()
     else
 
         local storeName = "No Name Set"
-        if self.storeObj then storeName = self.storeObj.name end
+        if self.storeObj and self.storeObj.name then storeName = self.storeObj.name end
         local lengthStoreName = (getTextManager():MeasureStringX(UIFont.Medium, storeName)/2)
         self:drawText(storeName, (self.width/2)-lengthStoreName, topPadding-2, 1,1,1,1, UIFont.Medium)
 
@@ -1748,7 +1748,7 @@ function storeWindow:onClick(button)
         if store then
             if self:isBeingManaged() then
                 store.isBeingManaged = false
-                newName = self.manageStoreName:getInternalText()
+                newName = self.manageStoreName:getInternalText() or "no name set"
                 if not self.storeObj.ownerID then
                     restockHrs = tonumber(self.restockHours:getInternalText()) or 1
                     restockHrs = math.max(1,restockHrs)

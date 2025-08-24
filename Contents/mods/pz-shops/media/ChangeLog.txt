@@ -131,3 +131,7 @@ This mod is still only for B41.
 [ 8/23/25 ]
 - Fixes rounding error when stacking money using Immersive-Currency.
 [ ------ ]
+
+[ 8/24/25 ]
+- Fixes edge-case with shop names breaking.
+[ ------ ]
