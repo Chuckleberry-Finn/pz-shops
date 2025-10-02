@@ -135,3 +135,8 @@ This mod is still only for B41.
 [ 8/24/25 ]
 - Fixes edge-case with shop names breaking.
 [ ------ ]
+
+[ 10/1/25 ]
+- Prevented wallet-drag-deposit from outside player inventory to match behavior to context menu.
+-- Avoids desync issues resulting in duplication.
+[ ------ ]

@@ -410,8 +410,20 @@ function ISCharacterScreen:moneyMouseOver(x, y)
     local money = false
     if ISMouseDrag.dragging then
         for i,v in ipairs(ISMouseDrag.dragging) do
-            if instanceof(v, "InventoryItem") and _internal.isMoneyType(v:getFullType()) then money = true break
-            else if v.invPanel.collapsed[v.name] then for i2,v2 in ipairs(v.items) do if _internal.isMoneyType(v2:getFullType()) then money = true break end end end
+            if instanceof(v, "InventoryItem") then
+                if _internal.isMoneyType(v:getFullType()) and v:isInPlayerInventory() then
+                    money = true
+                    break
+                end
+            else
+                if v.invPanel.collapsed[v.name] then
+                    for i2,v2 in ipairs(v.items) do
+                        if _internal.isMoneyType(v2:getFullType()) and v2:isInPlayerInventory() then
+                            money = true
+                            break
+                        end
+                    end
+                end
             end
         end
         if money then self.withdrawButton:setTitle(string.lower(getText("IGUI_DEPOSIT"))) end
@@ -437,9 +449,21 @@ local function _depositMoney(money, player)
     if not walletID then return end
 
     local value = 0
-    for _,moneyItem in pairs(money) do value = value + moneyItem:getModData().value end
+    local monies = {}
+
+    for _,moneyItem in pairs(money) do
+        if moneyItem:isInPlayerInventory() then
+            table.insert(monies, moneyItem)
+        end
+    end
+
+    for _,moneyItem in pairs(monies) do
+        value = value + moneyItem:getModData().value
+    end
     sendClientCommand("shop", "transferFunds", {playerWalletID=walletID, amount=value})
-    for _,moneyItem in pairs(money) do safelyRemoveMoney(moneyItem, player) end
+    for _,moneyItem in pairs(monies) do
+        safelyRemoveMoney(moneyItem, player)
+    end
 end
 
 
@@ -451,7 +475,7 @@ local function addContext(playerID, context, items)
 
         if not instanceof(v, "InventoryItem") then
             for i,item in pairs(v.items) do
-                if i>1 and _internal.isMoneyType(item:getFullType()) then
+                if i>1 and _internal.isMoneyType(item:getFullType()) and item:isInPlayerInventory() then
                     local itemValue = item:getModData().value
                     if not itemValue then generateMoneyValue(item) end
                     if itemValue and itemValue>0 and canManipulateMoney(item, playerObj) then
@@ -461,7 +485,7 @@ local function addContext(playerID, context, items)
             end
         else
             local item = v
-            if _internal.isMoneyType(item:getFullType()) then
+            if _internal.isMoneyType(item:getFullType()) and item:isInPlayerInventory() then
                 local itemValue = item:getModData().value
                 if not itemValue then generateMoneyValue(item) end
                 if itemValue and itemValue>0 and canManipulateMoney(item, playerObj) then
@@ -504,12 +528,14 @@ function ISCharacterScreen:depositOnMouseUp(x, y)
         local money = {}
 
         for i,v in ipairs(ISMouseDrag.dragging) do
-            if instanceof(v, "InventoryItem") and _internal.isMoneyType(v:getFullType()) then
-                table.insert(money, v)
+            if instanceof(v, "InventoryItem") then
+                if _internal.isMoneyType(v:getFullType()) and v:isInPlayerInventory() then
+                    table.insert(money, v)
+                end
             else
                 if v.invPanel.collapsed[v.name] then
                     for i2,v2 in ipairs(v.items) do
-                        if i2 > 1 and _internal.isMoneyType(v2:getFullType()) then
+                        if i2 > 1 and _internal.isMoneyType(v2:getFullType()) and v2:isInPlayerInventory() then
                             table.insert(money, v2)
                         end
                     end
