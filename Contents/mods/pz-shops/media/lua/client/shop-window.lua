@@ -2000,10 +2000,17 @@ end
 function storeWindow:RestoreLayout(name, layout) ISLayoutManager.DefaultRestoreWindow(self, layout) end
 function storeWindow:SaveLayout(name, layout) ISLayoutManager.DefaultSaveWindow(self, layout) end
 
-function storeWindow:new(x, y, width, height, player, storeObj, worldObj)
+function storeWindow:new(player, storeObj, worldObj)
     local o = {}
-    x = getCore():getScreenWidth() / 2 - (width / 2)
-    y = getCore():getScreenHeight() / 2 - (height / 2)
+
+    local sW = getCore():getScreenWidth()
+    local sH = getCore():getScreenHeight()
+
+    local width = sW * 0.3
+    local height = sH * 0.5
+
+    local x = sW / 2 - (width / 2)
+    local y = sH / 2 - (height / 2)
     o = ISPanelJoypad:new(x, y, width, height)
     setmetatable(o, self)
     self.__index = self
@@ -2116,7 +2123,7 @@ function storeWindow:onBrowse(storeObj, worldObj, shopper, ignoreCapacityCheck)
     local itemDictionary = getItemDictionary()
     itemDictionary.assemble()
 
-    local ui = storeWindow:new(50,50,555,555, shopper, storeObj, worldObj)
+    local ui = storeWindow:new(shopper, storeObj, worldObj)
     ui:initialise()
     ui:addToUIManager()
 
