@@ -138,14 +138,16 @@ local function onClientCommand(_module, _command, _player, _data)
             if object and (not instanceof(object, "IsoWorldInventoryObject")) and _internal.getWorldObjectName(object)==worldObjName then
 
                 local objMD = object:getModData()
-                if objMD and objMD.storeObjID and not GLOBAL_STORES[objMD.storeObjID] then
+                local stores = isServer() and GLOBAL_STORES or CLIENT_STORES
+
+                if objMD and objMD.storeObjID and not stores[objMD.storeObjID] then
                     objMD.storeObjID = nil
                     print("WARNING: Clearing object with invalid storeID: "..worldObjName)
                     object:transmitModData()
                 end
 
                 if _command ~= "clearStoreFromWorldObj" and _command ~= "checkMapObject" and objMD and objMD.storeObjID and objMD.storeObjID~=storeID then
-                    print("WARNING: ".._command.." failed: Matching object ID: ("..GLOBAL_STORES[object:getModData().storeObjID].name.."); bypassed.")
+                    print("WARNING: ".._command.." failed: Matching object ID: ("..stores[object:getModData().storeObjID].name.."); bypassed.")
                 else
                     foundObjToApplyTo = object
                 end

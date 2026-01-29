@@ -140,3 +140,11 @@ This mod is still only for B41.
 - Prevented wallet-drag-deposit from outside player inventory to match behavior to context menu.
 -- Avoids desync issues resulting in duplication.
 [ ------ ]
+
+[ 1/2/26 ]
+Probably the last update before B42 conversion - wish me luck! :)
+- Fixed oversights and adjusted networking internals client-to-server / server-to-client.
+- Added a shop-marker sanity-check for left-over locations in the shop configuration.
+   Shop locations that don't have objects tied to them should not display.
+   Locations are left in the configuration in the case they're needed.
+[ ------ ]

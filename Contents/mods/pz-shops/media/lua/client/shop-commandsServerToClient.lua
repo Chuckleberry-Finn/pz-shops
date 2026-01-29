@@ -36,8 +36,8 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
                     window.storeObj = CLIENT_STORES[_data.store.ID]
                 end
             end
-            shopMarkerSystem.needDefine = true
         end
+        shopMarkerSystem.needDefine = true
     end
 
     if _command == "transmitItems" then
