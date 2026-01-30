@@ -1,0 +1,30 @@
+module ShopsAndTraders
+{
+	    imports { Base }
+
+		item ShopDeed
+	{
+		DisplayCategory = Tool,
+		Weight = 0.1,
+		Type = Normal,
+		DisplayName = Shop Deed,
+		WorldStaticModel = SheetOfPaper,
+		Tooltip = Tooltip_shopDeed,
+		Icon = ShopDeed,
+	}
+
+
+        recipe Activate Deed
+    {
+        keep ShopsAndTraders.ShopDeed,
+        Result:ShopsAndTraders.ShopDeed,
+        RemoveResultItem:true,
+        Time:30.0,
+        Category:Shops,
+        CanBeDoneFromFloor:true,
+        OnCreate:shopsAndTradersRecipe.onActivateDeed,
+        OnCanPerform:shopsAndTradersRecipe.checkDeedValid,
+        Tooltip:Tooltip_shopDeed,
+    }
+
+}

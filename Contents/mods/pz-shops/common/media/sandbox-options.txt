@@ -1,0 +1,55 @@
+VERSION = 1,
+
+option ShopsAndTraders.PercentageDropOnDeath
+{type = integer, min = 0, max = 100, default = 50, page = ShopsAndTraders, translation = ShopsAndTraders_PercentageDropOnDeath,}
+
+option ShopsAndTraders.PlayerWalletsLostOnDeath
+{type = boolean, default = false, page = ShopsAndTraders, translation = ShopsAndTraders_PlayerWalletsLostOnDeath,}
+
+option ShopsAndTraders.PlayerWallets
+{type = boolean, default = true, page = ShopsAndTraders, translation = ShopsAndTraders_PlayerWallets,}
+
+option ShopsAndTraders.CanWithdraw
+{type = boolean, default = true, page = ShopsAndTraders, translation = ShopsAndTraders_CanWithdraw,}
+
+option ShopsAndTraders.ShopsUseCash
+{type = enum, numValues = 3, default = 1, page = ShopsAndTraders, translation = ShopsAndTraders_ShopsUseCash, valueTranslation = ShopsAndTraders_CashPolicy,}
+
+option ShopsAndTraders.StartingWallet
+{type = double, min = 0.00, max = 1000000, default = 25, page = ShopsAndTraders, translation = ShopsAndTraders_StartingWallet,}
+
+option ShopsAndTraders.MoneyWeight
+{type = double, min = 0.00, max = 1000, default = 0.001, page = ShopsAndTraders, translation = ShopsAndTraders_MoneyWeight,}
+
+option ShopsAndTraders.MoneySpawnMin
+{type = double, min = 0.01, max = 1000000, default = 1.50, page = ShopsAndTraders, translation = ShopsAndTraders_MoneySpawnMin,}
+
+option ShopsAndTraders.MoneySpawnMax
+{type = double, min = 0.01, max = 1000000, default = 25.00, page = ShopsAndTraders, translation = ShopsAndTraders_MoneySpawnMax,}
+
+option ShopsAndTraders.TradersResellItems
+{type = boolean, default = true, page = ShopsAndTraders, translation = ShopsAndTraders_TradersResellItems,}
+
+option ShopsAndTraders.TradersResetStock
+{type = boolean, default = false, page = ShopsAndTraders, translation = ShopsAndTraders_TradersResetStock,}
+
+option ShopsAndTraders.PlayerOwnedShopDeeds
+{type = string, default = $1000|SheetPaper2, page = ShopsAndTraders, translation = ShopsAndTraders_DeedRecipe,}
+
+option ShopsAndTraders.MaxUsers
+{type = integer, min = 0, max = 10, default = 0, page = ShopsAndTraders, translation = ShopsAndTraders_MaxUsers,}
+
+option ShopsAndTraders.ActivityTimeOut
+{type = integer, min = 0, max = 3600, default = 0, page = ShopsAndTraders, translation = ShopsAndTraders_ActivityTimeOut,}
+
+option ShopsAndTraders.ShopItemPriceLimit
+{type = double, min = 0.00, max = 999999999, default = 0.00, page = ShopsAndTraders, translation = ShopsAndTraders_ShopItemPriceLimit,}
+
+option ShopsAndTraders.ShopContainers
+{type = string, default = , page = ShopsAndTraders, translation = ShopsAndTraders_ShopContainers,}
+
+option ShopsAndTraders.ShopsRequirePower
+{type = boolean, default = false, page = ShopsAndTraders, translation = ShopsAndTraders_ShopsRequirePower,}
+
+option ShopsAndTraders.ShopsLocationTracking
+{type = boolean, default = false, page = ShopsAndTraders, translation = ShopsAndTraders_ShopsLocationTrack,}
