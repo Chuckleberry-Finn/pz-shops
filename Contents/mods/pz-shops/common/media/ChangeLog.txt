@@ -152,3 +152,30 @@ Probably the last update before B42 conversion - wish me luck! :)
 [ 1/28/26 ]
 - Made the UI scalable
 [ ------ ]
+
+[ 3/27/26 ]
+B42 Update and Overhaul:
+ - Various fixes and changes needed for B42.
+ - Various UI tweaks.
+ - Json Translation
+ - Save Data is now a Json stored per-save/server
+  - Found in cache/Lua/GAMEMODE/SAVENAME/
+
+ - Buy Conditions
+    Listings can require an item to meet specific conditions before the shop will accept it.
+    (e.g. condition above 75%, not frozen, specific sharpness)
+
+ - Multiple Listings per Item
+    The same item can now have multiple shop listings, each with different prices, conditions, or buy requirements.
+
+ - Shop data now saves to a JSON file (shopsAndTradersData.json) instead of using GlobalModData.
+    Easier to back up, share, and edit; existing saves migrate automatically on first load.
+
+ - Category Tabs let you filter listings by item category.
+
+ - Manage Mode improvements:
+  - Switching between listings saves your changes automatically.
+  - Listing sections (Item Fields, ModData, Buy Conditions) can collapse (collapsed by default).
+  - You can re-order listings by dragging them (only in 'All' view).
+  - Removing a listing is now done by first selecting that listing, then clicking X.
+[ ------ ]

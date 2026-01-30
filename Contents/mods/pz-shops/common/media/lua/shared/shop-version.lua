@@ -1,0 +1,1 @@
+Events.OnGameBoot.Add(function() print("Shops and Traders: AUG-13-25") end)

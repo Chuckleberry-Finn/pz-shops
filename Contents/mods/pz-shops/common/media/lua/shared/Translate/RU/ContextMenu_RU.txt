@@ -1,0 +1,5 @@
+ContextMenu_RU = {
+    ContextMenu_STORES = "Магазины",
+    ContextMenu_ASSIGN_STORE = "Назначить магазин",
+    ContextMenu_SHOP_AT = "Совершить покупку",
+}

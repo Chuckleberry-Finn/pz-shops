@@ -1,0 +1,3 @@
+Tooltip_EN = {
+    Tooltip_shopDeed = "Activate this in a valid container to convert it into a shop.",
+}

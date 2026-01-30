@@ -1,0 +1,12 @@
+module Base
+{
+    item ShopDeed
+	{
+		DisplayCategory = Shops,
+		Weight = 0.1,
+		ItemType = base:normal,
+		WorldStaticModel = SheetOfPaper,
+		Tooltip = Tooltip_shopDeed,
+		Icon = ShopDeed,
+	}
+}
