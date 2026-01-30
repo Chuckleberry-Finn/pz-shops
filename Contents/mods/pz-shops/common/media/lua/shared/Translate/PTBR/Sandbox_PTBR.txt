@@ -1,0 +1,60 @@
+Sandbox_PTBR = {
+	Sandbox_ShopsAndTraders = "Lojas e Comerciantes",
+	Sandbox_ShopsAndTraders_PercentageDropOnDeath = "Porcentagem de Dinheiro Derrubado",
+	Sandbox_ShopsAndTraders_PercentageDropOnDeath_tooltip = "Essa porcentagem será a quantidade de dinheiro deixada cair quando um jogador morrer.\nSe as carteiras dos jogadores estiverem desativadas, TODO o dinheiro será derrubado.\nAVISO: A morte resulta na destruição do restante da carteira.",
+
+    Sandbox_ShopsAndTraders_PlayerWallets = "Carteiras dos Jogadores",
+    Sandbox_ShopsAndTraders_PlayerWallets_tooltip = "Desativar isso forçará os jogadores a carregarem sempre o dinheiro com eles.",
+
+    Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath = "Carteiras Perdidas na Morte",
+    Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath_tooltip = "Quando o jogador morre, sua carteira atual é deletada, após a dedução da porcentagem de queda.",
+
+    Sandbox_ShopsAndTraders_CanWithdraw = "Pode Sacar Dinheiro",
+    Sandbox_ShopsAndTraders_CanWithdraw_tooltip = "Define se os jogadores podem sacar itens de dinheiro de suas carteiras. Requer que 'Carteiras dos Jogadores' esteja ativado para ter efeito.",
+
+    Sandbox_ShopsAndTraders_ShopsUseCash = "Política de Troco das Lojas",
+    Sandbox_ShopsAndTraders_ShopsUseCash_tooltip = "Troco: As lojas retornarão o troco de uma transação em dinheiro.\nCrédito: A loja armazenará um valor de crédito devido a você se a transação não for exata.\nNenhum: As lojas não retornarão nada em transações a favor delas.",
+
+    Sandbox_ShopsAndTraders_CashPolicy_option1 = "Lojas Dão Troco",
+    Sandbox_ShopsAndTraders_CashPolicy_option2 = "Lojas Usam Crédito",
+    Sandbox_ShopsAndTraders_CashPolicy_option3 = "Lojas Não Dão Troco",
+
+    Sandbox_ShopsAndTraders_MoneySpawnMin = "Valor Mínimo para Item de Dinheiro",
+    Sandbox_ShopsAndTraders_MoneySpawnMin_tooltip = "O valor mínimo com que os itens de dinheiro podem aparecer.",
+
+    Sandbox_ShopsAndTraders_MoneySpawnMax = "Valor Máximo para Item de Dinheiro",
+    Sandbox_ShopsAndTraders_MoneySpawnMax_tooltip = "O valor máximo com que os itens de dinheiro podem aparecer.",
+
+    Sandbox_ShopsAndTraders_StartingWallet = "Valor Inicial em Dinheiro",
+    Sandbox_ShopsAndTraders_StartingWallet_tooltip = "Quanto de dinheiro os jogadores começam.",
+
+	Sandbox_ShopsAndTraders_MoneyWeight = "Peso do Dinheiro",
+	Sandbox_ShopsAndTraders_MoneyWeight_tooltip = "Quanto cada 'unidade' de moeda pesa.",
+
+    Sandbox_ShopsAndTraders_TradersResellItems = "Padrão: Comerciantes Revendem Itens",
+    Sandbox_ShopsAndTraders_TradersResellItems_tooltip = "Essa configuração muda o comportamento padrão ao criar listagens.\nSe ativada, os comerciantes estocarão itens vendidos a eles.",
+
+    Sandbox_ShopsAndTraders_TradersResetStock = "Reposição Zera Estoque da Loja",
+    Sandbox_ShopsAndTraders_TradersResetStock_tooltip = "Quando os comerciantes reabastecem, quaisquer itens revendidos (originalmente vendidos por jogadores) serão removidos.",
+
+    Sandbox_ShopsAndTraders_DeedRecipe = "Receita de Escritura para Loja de Jogador",
+    Sandbox_ShopsAndTraders_DeedRecipe_tooltip = "A sintaxe é a seguinte:\nCada item é separado por '|'.\nEspecífico para valores em dinheiro: use '$n' para n unidades de moeda.\nIncluir 'destroy n' onde n é um tipo de item irá consumi-lo.\nIncluir 'keep n' onde n é um tipo de item irá preservá-lo.\nUsar 'n = 5' exigirá 5 daquele item.\nUsar 'n;5' exigirá 5 'unidades' daquele item no caso de ingredientes drenáveis.\nUsar [function] utilizará funções especiais de receita.\n\nTudo isso faz parte da sintaxe padrão de receitas.\nQualquer coisa não listada aqui ainda funcionará como em um script de receita normal.",
+
+	Sandbox_ShopsAndTraders_MaxUsers = "Número Máximo de Clientes",
+	Sandbox_ShopsAndTraders_MaxUsers_tooltip = "Defina como 0 para desativar.",
+
+	Sandbox_ShopsAndTraders_ActivityTimeOut = "Tempo de Inatividade na Loja",
+    Sandbox_ShopsAndTraders_ActivityTimeOut_tooltip = "Defina como 0 para desativar. O tempo é contado em segundos.",
+
+    Sandbox_ShopsAndTraders_ShopItemPriceLimit = "Limite de Preço para Itens da Loja",
+    Sandbox_ShopsAndTraders_ShopItemPriceLimit_tooltip = "O preço máximo que um item de loja pode ter.\nPadrão: 0.00 — itens não terão limite de preço.",
+
+    Sandbox_ShopsAndTraders_ShopContainers = "Contêineres que Podem Ser Lojas",
+    Sandbox_ShopsAndTraders_ShopContainers_tooltip = "Uma lista separada por vírgulas com os nomes dos contêineres que podem ser usados como lojas (ex: Caixa, Caixa Militar).\nSe deixado em branco, todos os contêineres poderão ser usados como lojas.",
+
+    ShopsAndTraders_ShopsRequirePower = "Lojas Requerem Energia",
+    ShopsAndTraders_ShopsRequirePower_tooltip = "As lojas precisam de energia para funcionar.",
+
+    ShopsAndTraders_ShopsLocationTrack = "Lojas Rastreiam Suas Localizações",
+    ShopsAndTraders_ShopsLocationTrack_tooltip = "[Experimental] Deve ser compatível com versões anteriores e pode ser desativado com segurança após todas as lojas terem sido visitadas ao menos uma vez.\nÚtil para reinícios, pois as lojas rastrearão seus locais atribuídos.\nSe um jogador clicar com o botão direito em um azulejo que corresponde a um local rastreado, o sistema tentará carregar e conectar à loja apropriada.\nNota: o rastreamento de localização ainda se aplica normalmente, mas esta opção desativa o recurso 'clicar com o botão direito para localizar'.",
+}

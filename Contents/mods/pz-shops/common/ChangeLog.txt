@@ -1,3 +1,9 @@
+[ ALERT_CONFIG ]
+link1 = Chuck's Kofi = https://steamcommunity.com/linkfilter/?u=https://ko-fi.com/chuckleberryfinn,
+link2 = Workshop = https://steamcommunity.com/id/Chuckleberry_Finn/myworkshopfiles/?appid=108600,
+link3 = Github = https://steamcommunity.com/linkfilter/?u=https://github.com/Chuckleberry-Finn,
+[ ------ ]
+
 [ 1/6/24 ]
 - Under the hood tweaks/refactors.
 - Fix: Edge cases with depositing cash with context sometimes not saving the money.
@@ -151,4 +157,34 @@ Probably the last update before B42 conversion - wish me luck! :)
 
 [ 1/28/26 ]
 - Made the UI scalable
+[ ------ ]
+
+[ 3/27/26 ]
+B42 Update and Overhaul:
+ - Various fixes and changes needed for B42.
+ - Various UI tweaks.
+ - Json Translation
+ - Save Data is now a Json stored per-save/server
+  - Found in cache/Lua/GAMEMODE/SAVENAME/
+
+ - Wallets are now tied to steamID+username (where applicable)
+  - SinglePlayer uses a shared wallet (applies to co-op)
+
+ - Buy Conditions
+    Listings can require an item to meet specific conditions before the shop will accept it.
+    (e.g. condition above 75%, not frozen, specific sharpness)
+
+ - Multiple Listings per Item
+    The same item can now have multiple shop listings, each with different prices, conditions, or buy requirements.
+
+ - Shop data now saves to a JSON file (shopsAndTradersData.json) instead of using GlobalModData.
+    Easier to back up, share, and edit; existing saves migrate automatically on first load.
+
+ - Category Tabs let you filter listings by item category.
+
+ - Manage Mode improvements:
+  - Switching between listings saves your changes automatically.
+  - Listing sections (Item Fields, ModData, Buy Conditions) can collapse (collapsed by default).
+  - You can re-order listings by dragging them (only in 'All' view).
+  - Removing a listing is now done by first selecting that listing, then clicking X.
 [ ------ ]

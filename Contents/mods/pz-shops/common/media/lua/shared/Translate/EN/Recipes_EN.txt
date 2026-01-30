@@ -1,0 +1,4 @@
+Recipe_EN = {
+    Recipe_CraftDeed = "Craft Deed",
+    Recipe_ActivateDeed = "Activate Deed",
+}

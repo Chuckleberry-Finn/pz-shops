@@ -1,0 +1,8 @@
+name=Shops and Traders
+id=pz-shops-and-traders
+description=In-game configurable admin or player shops.
+poster=poster.png
+author=Chuckleberry Finn
+icon=icon.png
+versionMin=42.15
+require=\ChuckleberryFinnAlertSystem,\errorMagnifier,
