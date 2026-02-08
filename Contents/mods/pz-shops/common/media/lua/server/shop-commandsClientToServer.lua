@@ -76,6 +76,48 @@ local function onClientCommand(_module, _command, _player, _data)
         end
     end
 
+    if _command == "splitMoney" then
+        local originalValue = _data.originalValue
+        local splitValue = _data.splitValue
+        local containerType = _data.containerType
+        
+        if originalValue and splitValue and splitValue > 0 and splitValue < originalValue then
+            local moneyTypes = _internal.getMoneyTypes()
+            local type = moneyTypes[ZombRand(#moneyTypes)+1]
+            local money = instanceItem(type)
+            
+            if money then
+                money:getModData().value = splitValue
+                money:setName(_internal.numToCurrency(splitValue))
+                money:setActualWeight((SandboxVars.ShopsAndTraders.MoneyWeight or 0.001) * splitValue)
+                
+                _player:getInventory():AddItem(money)
+                syncItemModData(_player, money)
+                sendAddItemToContainer(_player:getInventory(), money)
+            end
+        end
+    end
+
+    if _command == "createMoneyOnDeath" then
+        local playerWalletID = _data.playerWalletID
+        local amount = _data.amount
+        
+        if playerWalletID and amount and amount > 0 then
+            local moneyTypes = _internal.getMoneyTypes()
+            local type = moneyTypes[ZombRand(#moneyTypes)+1]
+            local money = instanceItem(type)
+            
+            if money then
+                money:getModData().value = amount
+                money:setName(_internal.numToCurrency(amount))
+                money:setActualWeight((SandboxVars.ShopsAndTraders.MoneyWeight or 0.001) * amount)
+                
+                _player:getInventory():AddItem(money)
+                syncItemModData(_player, money)
+                sendAddItemToContainer(_player:getInventory(), money)
+            end
+        end
+    end
 
     if _command == "exchangeFunds" then
 

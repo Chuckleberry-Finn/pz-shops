@@ -1,0 +1,44 @@
+module Base
+{
+    craftRecipe ActivateDeed
+    {
+        timedAction = Making,
+        time = 30,
+        OnCreate = shopsAndTradersRecipe.onActivateDeed,
+        OnTest = shopsAndTradersRecipe.checkDeedValid,
+        Tags = CanBeDoneFromFloor;RemoveResultItems,
+        category = Shops,
+
+        Tooltip = Tooltip_shopDeed,
+
+		inputs
+		{
+		    item 1 [Base.ShopDeed] flags[Prop1] mode:destroy,
+		}
+		outputs
+		{
+		    item 1 Base.ShopDeed,
+		}
+    }
+
+   	craftRecipe CraftDeed
+	{
+        timedAction = Making,
+		time = 150,
+        Tags = InHandCraft,
+        category = Shops,
+		OnCreate = shopsAndTradersRecipe.onCreate,
+		OnTest = shopsAndTradersRecipe.onCanPerform,
+
+		inputs
+		{
+
+		}
+
+		outputs
+		{
+		    item 1 Base.ShopDeed,
+		}
+	}
+
+}

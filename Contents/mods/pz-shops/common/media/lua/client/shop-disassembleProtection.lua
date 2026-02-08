@@ -1,6 +1,6 @@
 require "Moveables/ISMoveableSpriteProps"
 
-if getActivatedMods():contains("ScrapWeapons(new version)") then require "SW_nothingishardcoded" end
+--if getActivatedMods():contains("ScrapWeapons(new version)") then require "SW_nothingishardcoded" end
 
 local function testCanScrap(object, playerObj)
     if not object then return false end

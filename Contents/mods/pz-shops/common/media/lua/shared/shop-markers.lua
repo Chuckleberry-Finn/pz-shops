@@ -32,11 +32,14 @@ function shopMarkerSystem.defineMarkers()
 end
 
 
-function shopMarkerSystem.render()
-    local player = getPlayer()
+function shopMarkerSystem.render(playerIndex)
+    playerIndex = playerIndex or 0
+    local player = getSpecificPlayer(playerIndex)
+    if not player then return end
+    
     shopMarkerSystem.defineMarkers()
     local pX, pY, pZ = player:getX(), player:getY(), player:getZ()
-    local zoom = getCore():getZoom(0)/2
+    local zoom = getCore():getZoom(playerIndex)/2
     for shopID,locations in pairs(shopMarkerSystem.markers) do
         for locID, coord in pairs(locations) do
             local shopX, shopY, shopZ, shopZOffset = coord.x, coord.y, math.floor(coord.z), (coord.z % 1)

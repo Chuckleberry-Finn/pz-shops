@@ -55,17 +55,24 @@ function WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,amount,forc
         playerWallet.amount = _internal.floorCurrency(newValue)
         WALLET_HANDLER.updateWallet(playerObj, playerWallet)
     else
-        if amount>0 then
+        if amount > 0 then
             amount = _internal.floorCurrency(amount)
-
-            if isServer() then
-                sendServerCommand(playerObj, "shop", "sendMoneyItem", {value=amount})
-            else
-                local moneyTypes = _internal.getMoneyTypes()
-                local type = moneyTypes[ZombRand(#moneyTypes)+1]
-                local money = InventoryItemFactory.CreateItem(type)
-                _internal.generateMoneyValue_clientWorkAround(money, amount, true)
+            
+            local moneyTypes = _internal.getMoneyTypes()
+            local type = moneyTypes[ZombRand(#moneyTypes)+1]
+            local money = instanceItem(type)
+            
+            if money then
+                money:getModData().value = amount
+                money:setName(_internal.numToCurrency(amount))
+                money:setActualWeight((SandboxVars.ShopsAndTraders.MoneyWeight or 0.001) * amount)
+                
                 playerObj:getInventory():AddItem(money)
+
+                syncItemModData(playerObj, money)
+                sendAddItemToContainer(playerObj:getInventory(), money)
+            else
+                print("[Shop] ERROR: Failed to create money item of type: " .. tostring(type))
             end
         end
     end
@@ -332,12 +339,8 @@ function STORE_HANDLER.clearStoreFromObject(isoObj, player)
         if storeObj.ownerID then
             STORE_HANDLER.deleteStore(storeID)
             if player then
-                local itemsToTransmit = {item="ShopsAndTraders.ShopDeed"}
-                if isServer() then
-                    sendServerCommand(player, "shop", "transmitItems", {items=itemsToTransmit})
-                else
-                    itemTransmit.doIt(itemsToTransmit, player)
-                end
+                local itemsToTransmit = {{item="Base.ShopDeed"}}
+                itemTransmit.doIt(itemsToTransmit, player)
             end
         else
             STORE_HANDLER.removeLocation(storeID,isoObj)

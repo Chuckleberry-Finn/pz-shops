@@ -93,6 +93,9 @@ function safelyRemoveMoney(moneyItem, player)
             container:removeItemOnServer(moneyItem)
         end
         container:DoRemoveItem(moneyItem)
+        if isServer() or not isClient() then
+            sendRemoveItemFromContainer(container, moneyItem)
+        end
     end
 
     if player then
@@ -103,26 +106,6 @@ function safelyRemoveMoney(moneyItem, player)
         local loot = playerNum and getPlayerLoot(playerNum)
         if loot then loot:refreshBackpacks() end
     end
-end
-
-
-local valuedMoney = {}
----@param item InventoryItem
-function generateMoneyValue(item, value, force)
-    if item ~= nil and _internal.isMoneyType(item:getFullType()) and (not valuedMoney[item] or force) then
-
-        if (not item:getModData().value) or force then
-
-            local min = (SandboxVars.ShopsAndTraders.MoneySpawnMin or 1.5)*100
-            local max = (SandboxVars.ShopsAndTraders.MoneySpawnMax or 25)*100
-
-            value = value or ((ZombRand(min,max)/100)*100)/100
-            item:getModData().value = value
-            item:setName(_internal.numToCurrency(value))
-        end
-        item:setActualWeight(SandboxVars.ShopsAndTraders.MoneyWeight*item:getModData().value)
-    end
-    valuedMoney[item] = true
 end
 
 
@@ -139,14 +122,8 @@ local function onPlayerDeath(playerObj)
     local transferAmount = _internal.floorCurrency(walletBalance*(SandboxVars.ShopsAndTraders.PercentageDropOnDeath/100))
 
     if transferAmount > 0 then
-        local moneyTypes = _internal.getMoneyTypes()
-        local type = moneyTypes[ZombRand(#moneyTypes)+1]
-        local money = InventoryItemFactory.CreateItem(type)
-        if money then
-            sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=(0-transferAmount)})
-            generateMoneyValue(money, transferAmount, true)
-            playerObj:getInventory():AddItem(money)
-        else print("ERROR: Split/Withdraw Wallet: No money object created. \<"..type.."\>") end
+        sendClientCommand("shop", "transferFunds", {playerWalletID=playerModData.wallet_UUID, amount=(0-transferAmount)})
+        sendClientCommand("shop", "createMoneyOnDeath", {playerWalletID=playerModData.wallet_UUID, amount=transferAmount})
     end
 
     if SandboxVars.ShopsAndTraders.PlayerWalletsLostOnDeath == true then
@@ -243,17 +220,16 @@ function ISSliderBox:onClick(button, playerObj, item)
             local transferValue = button.parent.slider:getCurrentValue()
 
             if item and _internal.isMoneyType(item:getFullType()) and item:getModData() and item:getModData().value > 0.01 then
-                local newValue = item:getModData().value-transferValue
-                generateMoneyValue(item, newValue, true)
+                local originalValue = item:getModData().value
+                local newValue = originalValue - transferValue
+                
+                _internal.generateMoneyValue(item, newValue, true)
 
-                local moneyTypes = _internal.getMoneyTypes()
-                local type = moneyTypes[ZombRand(#moneyTypes)+1]
-                local money = InventoryItemFactory.CreateItem(type)
-                if money then
-                    generateMoneyValue(money, transferValue, true)
-                    local container = item and item:getContainer() or playerObj:getInventory()
-                    container:AddItem(money)
-                end
+                sendClientCommand("shop", "splitMoney", {
+                    originalValue = originalValue,
+                    splitValue = transferValue,
+                    containerType = item:getContainer() and item:getContainer():getType() or "inventory"
+                })
             end
 
             if not item then
@@ -289,7 +265,7 @@ function ISInventoryPane:refreshContainer()
     _refreshContainer(self)
     for _, entry in ipairs(self.itemslist) do
         for _,item in pairs(entry.items) do
-            if item ~= nil and _internal.isMoneyType(item:getFullType()) then generateMoneyValue(item) end
+            if item ~= nil and _internal.isMoneyType(item:getFullType()) then _internal.generateMoneyValue(item) end
         end
     end
 end
@@ -302,7 +278,7 @@ local function applyToCashInCont(ItemContainer)
     for iteration=0, items:size()-1 do
         ---@type InventoryItem
         local item = items:get(iteration)
-        if item and _internal.isMoneyType(item:getFullType()) then generateMoneyValue(item) end
+        if item and _internal.isMoneyType(item:getFullType()) then _internal.generateMoneyValue(item) end
     end
 end
 
@@ -379,7 +355,7 @@ function ISInventoryPane:onMouseUp(x, y)
                 consolidatedValue = consolidatedValue+valueFound
                 safelyRemoveMoney(money, getSpecificPlayer(self.player))
             end
-            generateMoneyValue(pushToActual, ptValue+consolidatedValue, true)
+            _internal.generateMoneyValue(pushToActual, ptValue+consolidatedValue, true)
         end
     end
 end
@@ -477,7 +453,7 @@ local function addContext(playerID, context, items)
             for i,item in pairs(v.items) do
                 if i>1 and _internal.isMoneyType(item:getFullType()) and item:isInPlayerInventory() then
                     local itemValue = item:getModData().value
-                    if not itemValue then generateMoneyValue(item) end
+                    if not itemValue then _internal.generateMoneyValue(item) end
                     if itemValue and itemValue>0 and canManipulateMoney(item, playerObj) then
                         table.insert(money, item)
                     end
@@ -487,7 +463,7 @@ local function addContext(playerID, context, items)
             local item = v
             if _internal.isMoneyType(item:getFullType()) and item:isInPlayerInventory() then
                 local itemValue = item:getModData().value
-                if not itemValue then generateMoneyValue(item) end
+                if not itemValue then _internal.generateMoneyValue(item) end
                 if itemValue and itemValue>0 and canManipulateMoney(item, playerObj) then
                     table.insert(money, item)
                 end

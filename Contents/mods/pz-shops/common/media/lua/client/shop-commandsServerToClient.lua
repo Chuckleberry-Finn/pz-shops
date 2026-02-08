@@ -1,5 +1,4 @@
 local _internal = require "shop-shared"
-local itemTransmit = require "shop-itemTransmit"
 
 local shopMarkerSystem = require "shop-markers.lua"
 
@@ -41,7 +40,6 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
     end
 
     if _command == "transmitItems" then
-        itemTransmit.doIt(_data.items, getPlayer())
     end
 
     if _command == "updateWallet" then
@@ -51,11 +49,6 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
     end
 
     if _command == "sendMoneyItem" then
-        local moneyTypes = _internal.getMoneyTypes()
-        local type = moneyTypes[ZombRand(#moneyTypes)+1]
-        local money = InventoryItemFactory.CreateItem(type)
-        generateMoneyValue(money, _data.value, true)
-        getPlayer():getInventory():AddItem(money)
     end
 
     if _command == "updateTransferOffer" then

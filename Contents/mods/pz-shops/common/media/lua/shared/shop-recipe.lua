@@ -8,7 +8,7 @@ local moneyValueForDeedRecipe
 ---Authentic Z
 --recipe Make a Stack of Money { Money, Result:Authentic_MoneyStack, Time:30.0, }
 --recipe Convert into Item { Authentic_MoneyStack, Result:Money, Time:30.0, }
-
+--[[
 function shopsAndTradersRecipe.OnAuthZMoneyStack(items, result, player) return false end
 
 local function recipeOverride()
@@ -17,7 +17,8 @@ local function recipeOverride()
         ---@type Recipe
         local recipe = allRecipes:get(i)
         if recipe then
-            if recipe:getResult():getType()=="Authentic_MoneyStack" then
+            local result = recipe and recipe:getResult()
+            if result and result:getType()=="Authentic_MoneyStack" then
                 recipe:setLuaTest("shopsAndTradersRecipe.OnAuthZMoneyStack")
                 recipe:setIsHidden(true)
             end
@@ -25,6 +26,7 @@ local function recipeOverride()
     end
 end
 Events.OnGameBoot.Add(recipeOverride)
+--]]
 
 ---@param item InventoryItem
 function shopsAndTradersRecipe.checkDeedValid(recipe, playerObj, item) --onCanPerform
@@ -57,7 +59,9 @@ function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
 
     storeWindow:onBrowse(nil, worldObj, player)
 
-    if (not player) or player and not cont:isInCharacterInventory(player) then cont:removeItemOnServer(item) end
+    if isClient() then
+        cont:removeItemOnServer(item)
+    end
     cont:DoRemoveItem(item)
 end
 
@@ -139,7 +143,7 @@ function shopsAndTradersRecipe.onCreate(items, result, playerObj)
                 if mValue-cost <= 0 then
                     safelyRemoveMoney(mItem, playerObj)
                 else
-                    generateMoneyValue(mItem, mValue-cost, true)
+                    _internal.generateMoneyValue(mItem, mValue-cost, true)
                 end
             end
         end
@@ -147,55 +151,47 @@ function shopsAndTradersRecipe.onCreate(items, result, playerObj)
 end
 
 
+
 --Creates Recipe for Shop Deeds
 function shopsAndTradersRecipe.addDeedRecipe()
-    local deedRecipe = SandboxVars.ShopsAndTraders.PlayerOwnedShopDeeds
-    if not deedRecipe or deedRecipe=="" then return end
 
-    local deedScript = {
-        header = "module ShopsAndTraders { imports { Base } recipe Create Shop Deed { ",
-        body = "Result:ShopsAndTraders.ShopDeed, OnCreate:shopsAndTradersRecipe.onCreate, OnCanPerform:shopsAndTradersRecipe.onCanPerform, ",
-        footer = "Time:30.0, Category:Shops,} }",
-    }
+    local defaultRecipe = "item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,"
+    local sandboxRecipe = SandboxVars.ShopsAndTraders.PlayerOwnedShopDeeds
+    if not sandboxRecipe or sandboxRecipe=="NONE" then return end
 
-    local ingredients = ""
-    for str in string.gmatch(deedRecipe, "([^|]+)") do
+    --- Maybe a way to validate the recipe would be possible?
+    --correct old sandbox options
+    local modified_option = sandboxRecipe and string.gsub(sandboxRecipe, "|", ",")
+    --add missing comma that might be default for some older saves
+    if modified_option and modified_option:sub(-1) ~= "," then modified_option = modified_option .. "," end
 
-        local item = str
+    local inputs = (not sandboxRecipe or sandboxRecipe == "") and defaultRecipe or modified_option
 
-        local value, money = string.gsub(item, "%$", "")
-        if money > 0 then
-            moneyValueForDeedRecipe = tonumber(value)
-            item = "keep Base.Money"
-        end
-
-        local extracted = string.match(item, " (*.)") or item
-
-        if not string.match(extracted,"%.") then
-            item = string.gsub(item, extracted, "Base."..extracted)
-        end
-
-        if (item:sub(1, #"keep ")=="keep ") then
-            ingredients = ingredients..item..", "
-        elseif (item:sub(1, #"destroy ")=="destroy ") then
-            ingredients = ingredients..item..", "
-        else
-            ingredients = item..", "..ingredients
-        end
+    --- find "[$X]," and replace X with "Base.Money"
+    --- set `moneyValueForDeedRecipe` to value that was inbetween
+    local value = inputs:match("%[%$(%d+)%]")
+    if value then
+        moneyValueForDeedRecipe = tonumber(value)
+        inputs = inputs:gsub("%[%$(%d+)%]", "[Base.Money]")
     end
+
+    local newScript = "{ inputs { " .. inputs .. " } }"
 
     local tooltip = ""
     if moneyValueForDeedRecipe and moneyValueForDeedRecipe > 0 then
         tooltip = "Tooltip:"..getText("IGUI_requires").." ".._internal.numToCurrency(moneyValueForDeedRecipe)..", "
     end
 
-    --print("SCRIPT:", deedScript.header .. ingredients .. deedScript.body .. tooltip.. deedScript.footer)
-    --print("$VALUE: ", moneyValueForDeedRecipe)
-
-    local scriptManager = getScriptManager()
-    scriptManager:ParseScript(deedScript.header .. ingredients .. deedScript.body .. tooltip.. deedScript.footer)
+    if newScript then
+        local scriptManager = getScriptManager()
+        local recipe = scriptManager:getCraftRecipe("CraftDeed")
+        if recipe then
+            print("Shops and Traders: CraftDeed: Load: ", newScript)
+            recipe:Load("CraftDeed", newScript)
+        else
+            print("ERROR: Could not find CraftRecipe 'CraftDeed'")
+        end
+    end
 end
 
-
-Events.OnLoad.Add(shopsAndTradersRecipe.addDeedRecipe)
-if isServer() then Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe) end
+Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe)

@@ -1960,7 +1960,7 @@ function storeWindow:finalizeDeal()
                             removeItem = true
                             isMoney = true
                         else
-                            generateMoneyValue(v.item, remainder, true)
+                            _internal.generateMoneyValue(v.item, remainder, true)
                         end
                     end
                     --]]
@@ -1985,7 +1985,13 @@ function storeWindow:finalizeDeal()
                             ISTimedActionQueue.add(action)
                         end
                     else
-                        v.item:getContainer():Remove(v.item)
+                        local container = v.item:getContainer()
+                        if container then
+                            if isClient() then
+                                container:removeItemOnServer(v.item)
+                            end
+                            container:DoRemoveItem(v.item)
+                        end
                     end
                 end
 
@@ -2133,5 +2139,5 @@ function storeWindow:onBrowse(storeObj, worldObj, shopper, ignoreCapacityCheck)
 end
 
 
-if getActivatedMods():contains("ChuckleberryFinnAlertSystem") then
+if getActivatedMods():contains("\\ChuckleberryFinnAlertSystem") then
 else print("WARNING: Highly recommended to install `ChuckleberryFinnAlertSystem` (Workshop ID: `3077900375`) for latest news and updates.") end

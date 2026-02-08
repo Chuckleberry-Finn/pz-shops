@@ -1,5 +1,5 @@
 local crossRefMods = {
-    ["BetterSortCC"]="ItemTweaker_Copy_CC",
+    --["\\BetterSortCC"]="ItemTweaker_Copy_CC",
 }
 local loadedModIDs = {};
 local activeModIDs = getActivatedMods()
