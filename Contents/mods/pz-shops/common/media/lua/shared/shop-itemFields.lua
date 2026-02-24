@@ -14,11 +14,11 @@ function itemFields.gatherFields(i, purgeHidden)
         local _category = i:gsub("category:","")
         category = _category and isValidItemDictionaryCategory(_category) and _category
         if not category then
-            item = InventoryItemFactory.CreateItem(i)
+            item = instanceItem(i)
         else
             local dict = getItemDictionary()
             local dictType = dict.categoryExample[category]
-            item = InventoryItemFactory.CreateItem(dictType)
+            item = instanceItem(dictType)
         end
     end
 
@@ -146,12 +146,6 @@ function itemFields.gatherFields(i, purgeHidden)
         hidden_fields.keyId = true
     end
 
-    local taintedWater = item:isTaintedWater()
-    fields.taintedWater = taintedWater
-    if not taintedWater then
-        hidden_fields.taintedWater = true
-    end
-
     local remoteControlID = item:getRemoteControlID()
     local remoteRange = item:getRemoteRange()
     fields.remoteControlID = remoteControlID
@@ -180,11 +174,12 @@ function itemFields.gatherFields(i, purgeHidden)
     end
     --]]
 
-    ---stash mao has no getter
-    --if (this.stashMap != null)
+    local infected = item:isInfected()
+    fields.infected = infected
+    if not infected then hidden_fields.infected = true end
 
-    ---isInfected not used
-    --      if (this.isInfected())
+    ---stash map has no getter
+    --if (this.stashMap != null)
 
     local currentAmmoCount = item:getCurrentAmmoCount()
     fields.currentAmmoCount = currentAmmoCount
@@ -211,6 +206,24 @@ function itemFields.gatherFields(i, purgeHidden)
     --local initialised = item:isInitialised()
     --if initialised then fields.initialised = initialised end
 
+    if item:hasSharpness() then
+        local sharpness = item:getSharpness()
+        fields.sharpness = sharpness
+        if sharpness >= 1.0 then hidden_fields.sharpness = true end
+    end
+
+    if item:hasQuality() then
+        local quality = item:getQuality()
+        fields.quality = quality
+        if quality == 0 then hidden_fields.quality = true end
+    end
+
+    local headCond = item:getHeadCondition()
+    if headCond > 0 then
+        fields.headCondition = headCond
+        if headCond >= item:getHeadConditionMax() then hidden_fields.headCondition = true end
+    end
+
     if instanceof(item, "Clothing") then
 
         local spriteName = item:getSpriteName()
@@ -219,10 +232,10 @@ function itemFields.gatherFields(i, purgeHidden)
             hidden_fields.spriteName = true
         end
 
-        local dirtyness = item:getDirtyness()
-        fields.dirtyness = dirtyness
-        if dirtyness <= 0 then
-            hidden_fields.dirtyness = true
+        local dirtiness = item:getDirtiness()
+        fields.dirtiness = dirtiness
+        if dirtiness <= 0 then
+            hidden_fields.dirtiness = true
         end
 
         local bloodLevel = item:getBloodLevel()
@@ -310,23 +323,28 @@ function itemFields.gatherFields(i, purgeHidden)
             hidden_fields.bDangerousUncooked = true
         end
 
+        local tainted = item:isTainted()
+        fields.tainted = tainted
+        if not tainted then
+            hidden_fields.tainted = true
+        end
+
         local poisonDetectionLevel = item:getPoisonDetectionLevel()
         fields.poisonDetectionLevel = poisonDetectionLevel
         if poisonDetectionLevel == -1 then
             hidden_fields.poisonDetectionLevel = true
         end
 
+        local spicesTable = {}
         local spices = item:getSpices()
-        if spices and spices:size() > 0 then
-            local spicesTable = {}
+        if spices then
             for i=0, spices:size()-1 do
                 local s = spices:get(i)
-                if s then
-                    table.insert(spicesTable, s)
-                end
+                if s then table.insert(spicesTable, s) end
             end
-            fields.spices = spicesTable
         end
+        fields.spices = spicesTable
+        hidden_fields.spices = (#spicesTable == 0)
 
         local PoisonPower = item:getPoisonPower()
         fields.PoisonPower = PoisonPower
@@ -386,7 +404,7 @@ function itemFields.gatherFields(i, purgeHidden)
         end
 
         local isFrozen = item:isFrozen()
-        fields.freezingTime = isFrozen
+        fields.isFrozen = isFrozen
         if isFrozen == false then
             hidden_fields.isFrozen = true
         end
@@ -413,9 +431,8 @@ function itemFields.gatherFields(i, purgeHidden)
 
     if instanceof(item, "HandWeapon") then
 
-
         fields.maxRange = item:getMaxRange()
-        hidden_fields.scopePart = (script:getMaxRange() == fields.maxRange)
+        hidden_fields.maxRange = (script:getMaxRange() == fields.maxRange)
 
         fields.minRangeRanged = item:getMinRangeRanged()
         hidden_fields.minRangeRanged = (fields.minRangeRanged == 0)
@@ -427,7 +444,7 @@ function itemFields.gatherFields(i, purgeHidden)
         hidden_fields.minDamage = (fields.minDamage == 0.4)
 
         fields.maxDamage = item:getMaxDamage()
-        hidden_fields.minDamage = (script:getMaxDamage() == fields.maxDamage)
+        hidden_fields.maxDamage = (script:getMaxDamage() == fields.maxDamage)
 
         fields.RecoilDelay = item:getRecoilDelay()
         hidden_fields.RecoilDelay = (fields.RecoilDelay == 0)
@@ -436,38 +453,24 @@ function itemFields.gatherFields(i, purgeHidden)
         hidden_fields.aimingTime = (fields.aimingTime == 0)
 
         fields.reloadTime = item:getReloadTime()
-        hidden_fields.minDamage = (fields.reloadTime == 0)
+        hidden_fields.reloadTime = (fields.reloadTime == 0)
 
         fields.hitChance = item:getHitChance()
-        hidden_fields.minDamage = (fields.hitChance == 0)
+        hidden_fields.hitChance = (fields.hitChance == 0)
 
         fields.minAngle = item:getMinAngle()
-        hidden_fields.minDamage = (script:getMinAngle() == fields.minAngle)
+        hidden_fields.minAngle = (script:getMinAngle() == fields.minAngle)
 
 
-        local scope = item:getScope() and item:getScope():getFullType()
-        fields.scopePart = scope or ""
-        hidden_fields.scopePart = (not scope)
-
-        local clip = item:getClip() and item:getClip():getFullType()
-        fields.clipPart = clip or ""
-        hidden_fields.clipPart = (not clip)
-
-        local recoilPad = item:getRecoilpad() and item:getRecoilpad():getFullType()
-        fields.recoilPadPart = recoilPad or ""
-        hidden_fields.recoilPadPart = (not recoilPad)
-
-        local sling = item:getSling() and item:getSling():getFullType()
-        fields.slingPart = sling or ""
-        hidden_fields.slingPart = (not sling)
-
-        local stock = item:getStock() and item:getStock():getFullType()
-        fields.stockPart = stock or ""
-        hidden_fields.stockPart = (not stock)
-
-        local canon = item:getCanon() and item:getCanon():getFullType()
-        fields.canonPart = canon or ""
-        hidden_fields.canonPart = (not canon)
+        local partsTable = {}
+        local hasParts = false
+        local weaponParts = item:getAllWeaponParts()
+        for idx=0, weaponParts:size()-1 do
+            local part = weaponParts:get(idx)
+            if part then partsTable[part:getPartType()] = part:getFullType() hasParts = true end
+        end
+        fields.weaponParts = partsTable
+        hidden_fields.weaponParts = not hasParts
 
         local explosionTimer = item:getExplosionTimer()
         fields.explosionTimer = explosionTimer
@@ -559,6 +562,22 @@ function itemFields.gatherFields(i, purgeHidden)
         end
     end
 
+    if item:isFluidContainer() then
+        local fc = item:getFluidContainer()
+        if fc then
+            local amount = fc:getAmount()
+            local cap    = fc:getCapacity()
+            fields.fluidAmount   = amount
+            fields.fluidCapacity = cap
+            local pFluid = fc:getPrimaryFluid()
+            fields.fluidType = pFluid and pFluid:getName() or ""
+
+            if amount == cap then hidden_fields.fluidAmount = true end
+            if fields.fluidType == "" then hidden_fields.fluidType = true end
+            hidden_fields.fluidCapacity = true
+        end
+    end
+
     if purgeHidden then
         local to_remove = {}
 
@@ -600,51 +619,54 @@ function itemFields.specials.setSpiceTable(item, data)
     return true
 end
 
----@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
-function itemFields.specials.setScopeWithType(item, data)
-    if data ~= "" then return end
-    local part = InventoryItemFactory.CreateItem(data)
-    if part then item:setScope(part) end
+---@param item HandWeapon
+---@param parts table
+function itemFields.specials.setWeaponParts(item, parts)
+    if type(parts) ~= "table" then return false end
+    for pType, fullType in pairs(parts) do
+        local part = instanceItem(fullType)
+        if part then
+            item:attachWeaponPart(part, true)
+        else
+            print("[Shop] setWeaponParts: could not spawn '"..tostring(fullType).."' for slot '"..tostring(pType).."'")
+        end
+    end
     return true
 end
 
----@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
-function itemFields.specials.setClipWithType(item, data)
-    if data ~= "" then return end
-    local part = InventoryItemFactory.CreateItem(data)
-    if part then item:setClip(part) end
+
+---@param item InventoryItem
+---@param amount number
+function itemFields.specials.setFluidAmount(item, amount)
+    if not item:isFluidContainer() then return false end
+    local fc = item:getFluidContainer()
+    if not fc then return false end
+    local fluid = fc:getPrimaryFluid()
+    if not fluid then return false end
+    local clamped = math.max(0, math.min(fc:getCapacity(), amount))
+    fc:empty()
+    if clamped > 0 then fc:addFluid(fluid, clamped) end
     return true
 end
 
----@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
-function itemFields.specials.setRecoilPadWithType(item, data)
-    if data ~= "" then return end
-    local part = InventoryItemFactory.CreateItem(data)
-    if part then item:setRecoilpad(part) end
-    return true
-end
 
----@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
-function itemFields.specials.setSlingWithType(item, data)
-    if data ~= "" then return end
-    local part = InventoryItemFactory.CreateItem(data)
-    if part then item:setSling(part) end
-    return true
-end
-
----@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
-function itemFields.specials.setStockWithType(item, data)
-    if data ~= "" then return end
-    local part = InventoryItemFactory.CreateItem(data)
-    if part then item:setStock(part) end
-    return true
-end
-
----@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
-function itemFields.specials.setCanonWithType(item, data)
-    if data ~= "" then return end
-    local part = InventoryItemFactory.CreateItem(data)
-    if part then item:setCanon(part) end
+---@param item InventoryItem
+---@param fluidName string
+function itemFields.specials.setFluidType(item, fluidName)
+    if not item:isFluidContainer() then return false end
+    local fc = item:getFluidContainer()
+    if not fc then return false end
+    local currentAmount = fc:getAmount()
+    fc:empty()
+    if fluidName and fluidName ~= "" then
+        local fluid = Fluid.getFluidByName(fluidName)
+        if fluid then
+            fc:addFluid(fluid, currentAmount)
+        else
+            print("[itemFields] WARN: setFluidType: unknown fluid '"..tostring(fluidName).."' — container emptied.")
+            return false
+        end
+    end
     return true
 end
 
@@ -666,7 +688,7 @@ function itemFields.getFieldAssociatedFunctions(item)
     fields.customName = "setCustomName"
     fields.customWeight = "setCustomWeight"
     fields.keyId = "setKeyId"
-    fields.taintedWater = "setTaintedWater"
+    fields.tainted = "setTainted"
     fields.remoteControlID = "setRemoteControlID"
     fields.remoteRange = "setRemoteRange"
     fields.colorR = "setColorRed"
@@ -676,6 +698,10 @@ function itemFields.getFieldAssociatedFunctions(item)
     fields.currentAmmoCount = "setCurrentAmmoCount"
     fields.maxCapacity = "setMaxCapacity"
     fields.recordedMediaIndex = "setRecordedMediaIndex"
+    fields.infected = "setInfected"
+    fields.sharpness      = "setSharpness"
+    fields.quality        = "setQuality"
+    fields.headCondition  = "setHeadCondition"
 
     ---@type Moveable
     local movable = instanceof(item, "Moveable") and item
@@ -697,7 +723,7 @@ function itemFields.getFieldAssociatedFunctions(item)
     local clothing = instanceof(item, "Clothing") and item
     if clothing then
         fields.spriteName = "setSpriteName"
-        fields.dirtyness = "setDirtyness"
+        fields.dirtiness = "setDirtiness"
         fields.bloodLevel = "setBloodLevel"
         fields.wetness = "setWetness"
     end
@@ -777,7 +803,14 @@ function itemFields.getFieldAssociatedFunctions(item)
     end
 
 
-    ---type Food
+    if item:isFluidContainer() then
+        fields.fluidAmount = "setFluidAmount"
+        fields.fluidType   = "setFluidType"
+        ---fluidCapacity is script-defined, intentionally omitted
+    end
+
+
+    ---type HandWeapon
     local weapon = instanceof(item, "HandWeapon") and item
     if weapon then
 
@@ -792,12 +825,7 @@ function itemFields.getFieldAssociatedFunctions(item)
         fields.hitChance = "setHitChance"
         fields.minAngle = "setMinAngle"
 
-        fields.scopePart = "setScopeWithType"
-        fields.clipPart = "setClipWithType"
-        fields.recoilPadPart = "setRecoilPadWithType"
-        fields.slingPart = "setSlingWithType"
-        fields.stockPart = "setStockWithType"
-        fields.canonPart = "setCanonWithType"
+        fields.weaponParts = "setWeaponParts"
 
         fields.explosionTimer = "setExplosionTimer"
         --fields.maxAngle = "setMaxAngle"
@@ -810,6 +838,54 @@ function itemFields.getFieldAssociatedFunctions(item)
 
 
     return fields
+end
+
+
+---Evaluates a conditional expression stored as a listing field value against an item's
+---actual field value. Non-string exprs are compared by equality (with shallow table
+---support for color etc.). String exprs support:
+---   >N  <N  >=N  <=N  !N  (numeric comparisons)
+---   N~M                    (inclusive range)
+---   bare string            (exact string equality)
+---@param expr    any  The value stored in the listing field (may be a conditional string)
+---@param itemVal any  The value read from the actual item
+---@return boolean
+function itemFields.parseConditional(expr, itemVal)
+
+    if type(expr) ~= "string" then
+        ---Exact match. For tables (e.g. color = {r,g,b,a}) do a shallow compare.
+        if type(expr) == "table" and type(itemVal) == "table" then
+            for k, v in pairs(expr) do
+                if itemVal[k] ~= v then return false end
+            end
+            return true
+        end
+        return expr == itemVal
+    end
+
+    ---Range:  "N~M"
+    local lo, hi = expr:match("^([%d%.%-]+)~([%d%.%-]+)$")
+    if lo and hi then
+        lo, hi = tonumber(lo), tonumber(hi)
+        local v = tonumber(itemVal)
+        return v ~= nil and (v >= lo and v <= hi)
+    end
+
+    ---Operator: >=  <=  >  <  !
+    local op, rhs = expr:match("^([><!][=]?)([%d%.%-]+)$")
+    if op and rhs then
+        rhs = tonumber(rhs)
+        local v = tonumber(itemVal)
+        if not v or not rhs then return false end
+        if op == ">"  then return v >  rhs end
+        if op == "<"  then return v <  rhs end
+        if op == ">=" then return v >= rhs end
+        if op == "<=" then return v <= rhs end
+        if op == "!"  then return v ~= rhs end
+    end
+
+    ---Fall back to string equality
+    return tostring(itemVal) == expr
 end
 
 

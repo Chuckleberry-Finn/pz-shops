@@ -81,10 +81,14 @@ function _internal.getWorldObjectName(obj)
     if not obj:getSprite() then
         return obj:getObjectName()
     end
+
     local props = obj:getSprite():getProperties()
-    if props:Is("CustomName") then
-        local name = props:Val("CustomName")
-        if props:Is("GroupName") then name = props:Val("GroupName") .. " " .. name end
+    if props:get("CustomName") then
+        local name = props:get("CustomName")
+        local groupName = name and props:get("GroupName")
+        if groupName then
+            name = groupName .. " " .. name
+        end
         return name
     end
     return "IsoObject"

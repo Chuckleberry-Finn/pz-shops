@@ -124,8 +124,9 @@ store_listing.available = 0
 store_listing.reselling = true
 store_listing.alwaysShow = false
 store_listing.fields = false
+store_listing.buyConditions = false
 
-function STORE_HANDLER.newListing(storeObj,item,fields,price,stock,buybackRate,reselling,alwaysShow)
+function STORE_HANDLER.newListing(storeObj,item,fields,price,stock,buybackRate,reselling,alwaysShow,buyConditions)
 
     local fieldName = fields and fields.name and "_"..fields.name or ""
     local listingID = item..fieldName
@@ -152,6 +153,7 @@ function STORE_HANDLER.newListing(storeObj,item,fields,price,stock,buybackRate,r
     end
 
     if fields then newListing.fields = fields end
+    if buyConditions then newListing.buyConditions = buyConditions else newListing.buyConditions = false end
 
     if reselling then newListing.reselling = true else newListing.reselling = false end
     if alwaysShow then newListing.alwaysShow = true else newListing.alwaysShow = false end
@@ -245,11 +247,14 @@ function STORE_HANDLER.restocking()
             if storeObj.nextRestock > storeObj.restockHrs then storeObj.nextRestock = storeObj.restockHrs-1 end
             if storeObj.nextRestock < 0 then
                 storeObj.nextRestock = storeObj.restockHrs
-                for type,_ in pairs(storeObj.listings) do
-                    local listing = storeObj.listings[type]
-                    if listing and listing.stock ~= -1 then
-                        if SandboxVars.ShopsAndTraders.TradersResetStock == true then listing.available = listing.stock
-                        else listing.available = math.max(listing.available,listing.stock) end
+
+                if storeObj.listings and type(storeObj.listings) == "table" then
+                    for type,_ in pairs(storeObj.listings) do
+                        local listing = storeObj.listings[type]
+                        if listing and listing.stock ~= -1 then
+                            if SandboxVars.ShopsAndTraders.TradersResetStock == true then listing.available = listing.stock
+                            else listing.available = math.max(listing.available,listing.stock) end
+                        end
                     end
                 end
                 STORE_HANDLER.updateStore(storeObj,ID)
@@ -400,6 +405,37 @@ function STORE_HANDLER.validateItemType(storeID,itemType,itemName)
 end
 
 
+---Checks a table of item field values (as gathered by itemFields.gatherFields) against the
+---listing's buyConditions table using parseConditional. Returns true if all conditions pass
+---or if no buyConditions are set. Missing fields vacuously pass — callers should pass full
+---(non-purged) field tables for reliable results.
+---@param listing table
+---@param itemFieldsTable table  Field values from itemFields.gatherFields(item, false)
+---@return boolean
+function STORE_HANDLER.fieldsMeetBuyConditions(listing, itemFieldsTable)
+    if not listing.buyConditions then return true end
+    local itemFields = require "shop-itemFields"
+    for fieldKey, expr in pairs(listing.buyConditions) do
+        if fieldKey == "modData" and type(expr) == "table" then
+            local md = type(itemFieldsTable.modData) == "table" and itemFieldsTable.modData or {}
+            for mdKey, mdExpr in pairs(expr) do
+                if not itemFields.parseConditional(mdExpr, md[mdKey]) then
+                    return false
+                end
+            end
+        else
+            local actual = itemFieldsTable[fieldKey]
+            if actual ~= nil then
+                if not itemFields.parseConditional(expr, actual) then
+                    return false
+                end
+            end
+        end
+    end
+    return true
+end
+
+
 ---@param playerObj IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
 function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,money)
     if not playerID then print("ERROR: validatePurchases: No playerID") return end
@@ -417,6 +453,10 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
 
         local listing = STORE_HANDLER.validateItemType(storeID, data.itemType, fieldName)
         if listing then
+
+            if not STORE_HANDLER.fieldsMeetBuyConditions(listing, data.buyCheckFields or data.fields or {}) then
+                print("[Shop] Sell rejected: '"..tostring(data.itemType).."' failed buyConditions for '"..tostring(storeID).."'")
+            else
 
             local adjustedPrice = listing.price*(listing.buybackRate/100)
 
@@ -441,6 +481,8 @@ function STORE_HANDLER.validateOrder(playerObj,playerID,storeID,buying,selling,m
                     if not storeObj.ownerID then listing.available = listing.available+1 end
                 end
             end
+
+            end ---fieldsMeetBuyConditions
 
         end
     end

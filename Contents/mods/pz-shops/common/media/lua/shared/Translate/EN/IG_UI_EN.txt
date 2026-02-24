@@ -53,6 +53,7 @@ IGUI_EN = {
     IGUI_NOTRADE_NOCASH = "I don't deal with cash.",
     IGUI_NOTRADE_NOCHANGE = "I don't give change.",
     IGUI_NOTRADE_NOFUNDS = "I don't have the funds to buy this.",
+    IGUI_NOTRADE_CONDITIONS = "Does not meet requirements.",
 
     IGUI_CURRENTLY_IN_USE = "This store is currently in use.",
     IGUI_SHOP_NEEDS_POWER = "This store requires power to operate."

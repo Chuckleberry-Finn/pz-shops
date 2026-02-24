@@ -214,10 +214,62 @@ function storeWindow:setStockInput(listing)
 end
 
 
+function storeWindow:commitActiveListing()
+    if not self.selectedListing then return end
+    if not self:isBeingManaged() then return end
+    if not self.storeObj then return end
+
+    storeWindow.listingInputEntered(self.listingInput)
+
+    local listingSelected = self.selectedListing
+    if not listingSelected then return end
+
+    local fieldName = listingSelected.fields and listingSelected.fields.name and "_"..listingSelected.fields.name or ""
+    local listingID = listingSelected.item..fieldName
+
+    self.dirtyListingIDs = self.dirtyListingIDs or {}
+    self.dirtyListingIDs[listingID] = listingSelected
+
+    self.selectedListing = nil
+    self.addListingList:clear()
+end
+
+
+function storeWindow:flushDirtyListings()
+    if not self.dirtyListingIDs then return end
+    if not self.storeObj then return end
+
+    local x, y, z = self.worldObject:getX(), self.worldObject:getY(), self.worldObject:getZ()
+    local worldObjName = _internal.getWorldObjectName(self.worldObject)
+    local store = self.storeObj
+
+    for listingID, listing in pairs(self.dirtyListingIDs) do
+        local price = listing.price or 0
+        if SandboxVars.ShopsAndTraders.ShopItemPriceLimit and SandboxVars.ShopsAndTraders.ShopItemPriceLimit > 0
+                and price > SandboxVars.ShopsAndTraders.ShopItemPriceLimit then
+            price = SandboxVars.ShopsAndTraders.ShopItemPriceLimit
+        end
+
+        sendClientCommand("shop", "listNewItem", {
+            isBeingManaged = store.isBeingManaged,
+            alwaysShow     = listing.alwaysShow or false,
+            item           = listing.item,
+            price          = price,
+            fields         = listing.fields,
+            buyConditions  = listing.buyConditions or false,
+            stock          = listing.stock or 0,
+            buybackRate    = listing.buybackRate or 0,
+            reselling      = listing.reselling or false,
+            storeID        = store.ID, x=x, y=y, z=z, worldObjName=worldObjName,
+        })
+    end
+
+    self.dirtyListingIDs = {}
+end
+
+
 function storeWindow:onStoreItemSelected()
 
-    if self.selectedListing then return end
-    
     local row = self:storeItemRowAt(self.storeStockData:getMouseY())
     if not self.storeStockData.items[row] then return end
 
@@ -225,7 +277,11 @@ function storeWindow:onStoreItemSelected()
     local listingID = self.storeStockData.items[row].listingID
     local listing = self.storeObj.listings[listingID]
 
-    if self:isBeingManaged() then self:setStockInput(listing) return end
+    if self:isBeingManaged() then
+        self:commitActiveListing()
+        self:setStockInput(listing)
+        return
+    end
 
     if #self.yourCartData.items >= self.MaxItems then return end
     local inCart = 0
@@ -357,23 +413,49 @@ function storeWindow:listingInputEntered()
     local field = listing and storeWindow.addListingList.accessing
 
     if field then
-        if (storeWindow.storeObj and storeWindow.storeObj.ownerID) and (listing[field]==nil) then return end
-        local value = self:getText()
-        value = tonumber(value) or value
+        local rawText = self:getText()
 
-        if value == "false" then value = false end
-        if value == "true" then value = true end
-        if field == "price" then value = math.max(0, value) end
+        local bcKey = field:match("^bc:(.+)$")
+        local mdKey = field:match("^md:(.+)$")
 
-        --[[
-        if listing[field] ~= nil then
-            listing[field] = value
-        elseif listing.fields and listing.fields[field] ~= nil then
-            listing.fields[field] = value
+        if field == "__add_bc__" then
+            local k, v = rawText:match("^([^=]+)=(.+)$")
+            if k and v then
+                k = k:match("^%s*(.-)%s*$")
+                listing.buyConditions = listing.buyConditions or {}
+                listing.buyConditions[k] = v
+                storeWindow:populateListingList(listing)
+            end
+
+        elseif field == "__add_md__" then
+            local k, v = rawText:match("^([^=]+)=(.+)$")
+            if k and v then
+                k = k:match("^%s*(.-)%s*$")
+                v = tonumber(v) or (v == "true" and true) or (v == "false" and false) or v
+                if type(listing.fields) == "table" and type(listing.fields.modData) == "table" then
+                    listing.fields.modData[k] = v
+                    storeWindow:populateListingList(listing)
+                end
+            end
+
+        elseif bcKey then
+            storeWindow:populateListingList(listing, field, rawText ~= "" and rawText or nil)
+
+        elseif mdKey then
+            local v = rawText ~= "" and (tonumber(rawText) or (rawText=="true" and true) or (rawText=="false" and false) or rawText) or nil
+            storeWindow:populateListingList(listing, field, v)
+
+        else
+            if (storeWindow.storeObj and storeWindow.storeObj.ownerID) and (listing[field]==nil) then
+                -- skip; owned-store non-listing fields read-only
+            else
+                local value = tonumber(rawText) or rawText
+                if value == "false" then value = false end
+                if value == "true"  then value = true  end
+                if field == "price" then value = math.max(0, value) end
+                storeWindow:populateListingList(listing, field, value)
+            end
         end
-        --]]
-
-        storeWindow:populateListingList(listing, field, value)
     end
 
     storeWindow.addListingList.accessing = nil
@@ -388,30 +470,119 @@ end
 function storeWindow:drawAddListingList(y, item, alt)
     if not self.storeWindow:isBeingManaged() then return y end
 
-    self.itemAlpha = ((y/self.itemheight) % 2 == 0) and 0.3 or 0.6
+    local sbW   = (self.vscroll and self.vscroll.width or 10)
+    local drawW = self:getWidth() - sbW
+    local ACCENT_W = 0
+    local isSub  = item.fieldID and (item.fieldID:match("^bc:") or item.fieldID:match("^md:")
+                       or item.fieldID == "__add_bc__" or item.fieldID == "__add_md__")
+    local indent = isSub and 14 or 4
+
+    local function clipText(text, maxW, font)
+        local tm = getTextManager()
+        if tm:MeasureStringX(font, text) <= maxW then return text, false end
+        while #text > 1 and tm:MeasureStringX(font, text.."...") > maxW do
+            text = text:sub(1, #text - 1)
+        end
+        return text.."...", true
+    end
+
+    if item.isHeader then
+        self:drawRect(0, y, self:getWidth(), self.itemheight - 1, 0.18, 0.5, 0.5, 0.5)
+        local label = item.label or item.text
+        if item.sectionKey then
+            local collapsed = self.storeWindow.collapsedSections and self.storeWindow.collapsedSections[item.sectionKey]
+            label = (collapsed and "▶ " or "▼ ")..label
+        end
+        label = clipText(label, drawW - 8, self.font)
+        local lW = getTextManager():MeasureStringX(self.font, label)
+        self:drawText(label, (drawW - lW) / 2, y + 2, 0.75, 0.75, 0.75, 0.9, self.font)
+        return y + self.itemheight
+    end
+
+    self.itemAlpha = ((y / self.itemheight) % 2 == 0) and 0.3 or 0.6
 
     if self.accessing and self.accessing == item.fieldID then
-        local input = self.storeWindow.listingInput
-        local scrolledY = y+self:getYScroll()
 
-        if scrolledY < 0 or scrolledY > (self:getHeight()-self.itemheight) then
+        local input     = self.storeWindow.listingInput
+        local scrolledY = y + self:getYScroll()
+
+        if scrolledY < 0 or scrolledY > (self:getHeight() - self.itemheight) then
             input:setVisible(false)
         else
             input:setY(scrolledY)
-            if (not input:isVisible()) then
-                input:setOnlyNumbers((tonumber(item.item) ~= nil))
-                input:setText(tostring(item.item))
+            if not input:isVisible() then
+                local isBcOrMd = item.fieldID:match("^bc:") or item.fieldID:match("^md:")
+                    or item.fieldID == "__add_bc__" or item.fieldID == "__add_md__"
+                input:setOnlyNumbers((not isBcOrMd) and (tonumber(item.item) ~= nil))
+                if item.fieldID == "__add_bc__" or item.fieldID == "__add_md__" then
+                    input:setText("")
+                else
+                    input:setText(tostring(item.item))
+                end
+                input:setWidth(drawW)
                 input:setVisible(true)
                 input:setHeight(self.itemheight)
                 input:focus()
             end
-            input:drawTextRight(item.fieldID, self:getWidth()-8, 2, self.itemTextColor.r, self.itemTextColor.g, self.itemTextColor.b, self.itemTextColor.a*0.66, self.font)
+
+            local hint
+            if item.fieldID == "__add_bc__" then
+                hint = "field=expr  e.g. sharpness=>0.5"
+            elseif item.fieldID == "__add_md__" then
+                hint = "key=value"
+            elseif item.fieldID:match("^bc:") then
+                hint = ">N  <N  N~M  !N"
+            elseif item.fieldID:match("^md:") then
+                hint = item.fieldID:match("^md:(.+)$")
+            else
+                hint = item.fieldID
+            end
+            local hintW = getTextManager():MeasureStringX(self.font, hint)
+            self:drawText(hint, drawW - hintW - 4, y + 2,
+                self.itemTextColor.r, self.itemTextColor.g, self.itemTextColor.b, 0.35, self.font)
         end
 
     else
-        self:drawRect(0, (y), self:getWidth(), self.itemheight-1, self.itemAlpha, 0.4, 0.4, 0.4)
+
+        self:drawRect(0, y, self:getWidth(), self.itemheight - 1, self.itemAlpha, 0.4, 0.4, 0.4)
+
         local alphaShift = item.faded and 0.35 or self.itemTextColor.a
-        self:drawText(item.text, 4, y+2, self.itemTextColor.r, self.itemTextColor.g, self.itemTextColor.b, alphaShift, self.font)
+
+        local labelColor = {
+            r = item.isConditional and 1.0  or self.itemTextColor.r,
+            g = item.isConditional and 0.78 or self.itemTextColor.g,
+            b = item.isConditional and 0.25 or self.itemTextColor.b,
+        }
+
+        local label        = item.label        or item.text
+        local displayValue = item.displayValue or ""
+        local tm           = getTextManager()
+
+        local usable   = drawW - indent - ACCENT_W - 4
+        local labelMax = math.floor(usable * 0.55)
+        local valueMax = usable - labelMax - 8
+
+        local safeLabel, labelClipped = clipText(label,        labelMax, self.font)
+        local safeValue, valueClipped = clipText(displayValue, valueMax, self.font)
+
+        if labelClipped or valueClipped then
+            item.tooltip = (displayValue ~= "") and (label..": "..displayValue) or label
+        else
+            item.tooltip = nil
+        end
+
+        local valueW = tm:MeasureStringX(self.font, safeValue)
+        local labelX = indent + ACCENT_W
+        local valueX = drawW - valueW - 4
+
+        self:drawText(safeLabel, labelX, y + 2,
+            labelColor.r, labelColor.g, labelColor.b, alphaShift, self.font)
+
+        if displayValue ~= "" then
+            local vc = alphaShift * (item.faded and 1 or 0.8)
+            self:drawText(safeValue, valueX, y + 2,
+                self.itemTextColor.r, self.itemTextColor.g, self.itemTextColor.b, vc, self.font)
+        end
     end
 
     return y + self.itemheight
@@ -426,17 +597,33 @@ function storeWindow:addListingListMouseUp(x, y)
     local field = self.items[spot]
     if not field then return end
     if self.accessing then return end
-    if field.fieldID == "categoryListing" then return end
-    if (not self.storeWindow.storeObj) then return end
+
+    if field.isHeader or field.fieldID == "__header__" or field.fieldID == "categoryListing" then
+        if field.sectionKey then
+            local sw = self.storeWindow
+            sw.collapsedSections = sw.collapsedSections or {}
+            sw.collapsedSections[field.sectionKey] = not sw.collapsedSections[field.sectionKey]
+            sw:populateListingList(sw.selectedListing)
+        end
+        return
+    end
+    if not self.storeWindow.storeObj then return end
 
     local listing = self.storeWindow.selectedListing
     if listing then
-        if (self.storeWindow.storeObj and self.storeWindow.storeObj.ownerID) and (listing[field.fieldID]==nil) then return end
+        local isBcField = field.fieldID:match("^bc:(.+)$")
+        local isMdField = field.fieldID:match("^md:(.+)$")
+        local isAddRow  = field.fieldID == "__add_bc__" or field.fieldID == "__add_md__"
 
-        if field.item == true or field.item == false then
-            local newValue = (not field.item)
-            self.storeWindow:populateListingList(listing, field.fieldID, newValue)
-            return
+        if not (isBcField or isMdField or isAddRow) then
+            if (self.storeWindow.storeObj and self.storeWindow.storeObj.ownerID) and (listing[field.fieldID] == nil) then return end
+        end
+
+        if not isBcField and not isMdField and not isAddRow then
+            if field.item == true or field.item == false then
+                self.storeWindow:populateListingList(listing, field.fieldID, not field.item)
+                return
+            end
         end
     end
 
@@ -450,81 +637,164 @@ function storeWindow:populateListingList(listing, changeToField, newValue)
     self.selectedListing = listing
     self.addListingList:clear()
 
-    local _category = string.match(listing.item, "category:")
-    local _catName = listing.item:gsub("category:","")
-    local category = _category and isValidItemDictionaryCategory(_catName)
-    if category then
-        local categoryListing = self.addListingList:addItem("Category Listing: ".._catName, true)
-        categoryListing.fieldID = "categoryListing"
+    local function tag(row, sectionType, label, displayValue)
+        row.sectionType  = sectionType
+        row.label        = label
+        row.displayValue = displayValue or ""
     end
 
-    if changeToField and listing[changeToField] ~= nil then
-        if changeToField == "stock" then
-            listing.available = newValue
-        end
-        listing[changeToField] = newValue
+    local function addHeader(label, tooltipText, sectionKey)
+        local h = self.addListingList:addItem(label, nil)
+        h.isHeader = true
+        h.fieldID = "__header__"
+        h.label = label
+        h.sectionKey = sectionKey
+        if tooltipText then h.tooltip = tooltipText end
+        return h
     end
+
+    self.collapsedSections = self.collapsedSections or {fields=true, moddata=true, conditions=true}
+
+    local _category = string.match(listing.item, "category:")
+    local _catName  = listing.item:gsub("category:", "")
+    local category  = _category and isValidItemDictionaryCategory(_catName)
+    if category then
+        local ch = addHeader("Category: ".._catName)
+        ch.fieldID = "categoryListing"
+    end
+
+    if changeToField then
+        local bcKey = changeToField:match("^bc:(.+)$")
+        local mdKey = changeToField:match("^md:(.+)$")
+
+        if changeToField == "__add_bc__" or changeToField == "__add_md__" then
+
+        elseif bcKey then
+            listing.buyConditions = listing.buyConditions or {}
+            if newValue == nil or newValue == "" then
+                listing.buyConditions[bcKey] = nil
+                if not next(listing.buyConditions) then listing.buyConditions = false end
+            else
+                listing.buyConditions[bcKey] = newValue
+            end
+        elseif mdKey then
+            if type(listing.fields) == "table" and type(listing.fields.modData) == "table" then
+                listing.fields.modData[mdKey] = (newValue ~= "" and newValue ~= nil) and newValue or nil
+            end
+        elseif listing[changeToField] ~= nil then
+            if changeToField == "stock" then listing.available = newValue end
+            listing[changeToField] = newValue
+        end
+    end
+
+    addHeader("[ Listing ]")
 
     local price = self.addListingList:addItem("Price: "..listing.price, listing.price)
     price.fieldID = "price"
+    tag(price, "listing", "Price", tostring(listing.price))
 
     local buyback = self.addListingList:addItem("Buyback Rate: "..listing.buybackRate, listing.buybackRate)
     buyback.fieldID = "buybackRate"
+    tag(buyback, "listing", "Buyback Rate", tostring(listing.buybackRate))
 
     local movable = string.find(listing.item, "Moveables.") and "Moveables.Moveable"
-    local script = getScriptManager():getItem(listing.item)
+    local script  = getScriptManager():getItem(listing.item)
 
-    if not script and not movable then
-    else
-        if self.storeObj and not self.storeObj.ownerID then
-            local stock = self.addListingList:addItem("Stock: "..listing.stock, listing.stock)
-            stock.fieldID = "stock"
-        end
+    if (script or movable) and self.storeObj and not self.storeObj.ownerID then
+        local stock = self.addListingList:addItem("Stock: "..listing.stock, listing.stock)
+        stock.fieldID = "stock"
+        tag(stock, "listing", "Stock", tostring(listing.stock))
     end
 
     local alwaysShow = self.addListingList:addItem("Always Show: "..tostring(listing.alwaysShow), listing.alwaysShow)
     alwaysShow.fieldID = "alwaysShow"
+    tag(alwaysShow, "listing", "Always Show", tostring(listing.alwaysShow))
 
     local reselling = self.addListingList:addItem("Resell: "..tostring(listing.reselling), listing.reselling)
     reselling.fieldID = "reselling"
+    tag(reselling, "listing", "Resell", tostring(listing.reselling))
 
     if listing.fields then
         local total_fields = itemFields.gatherFields(listing.item)
         if total_fields then
 
-            local currentValue = listing.fields[changeToField]
-            local defaultValue = total_fields[changeToField]
-
-            if changeToField and (not listing[changeToField]) then
+            if changeToField and not changeToField:match("^bc:") and not changeToField:match("^md:")
+                    and changeToField ~= "__add_bc__" and changeToField ~= "__add_md__"
+                    and (not listing[changeToField]) then
+                local defaultValue = total_fields[changeToField]
+                local currentValue = listing.fields[changeToField]
                 if defaultValue == newValue then
                     listing.fields[changeToField] = nil
-                elseif currentValue~=newValue then
+                elseif currentValue ~= newValue then
                     listing.fields[changeToField] = newValue
                 end
             end
 
-            --[[
-            if listing[field] ~= nil then
-                listing[field] = value
-            elseif listing.fields and listing.fields[field] ~= nil then
-                listing.fields[field] = value
-            end
-            --]]
+            addHeader("[ Item Fields ]", nil, "fields")
 
-            for field,_value in pairs(total_fields) do
-                local value = listing.fields[field] or _value
-                local addedField = self.addListingList:addItem(field..": "..tostring(value), value)
+            if not self.collapsedSections["fields"] then
+                for field, _value in pairs(total_fields) do
+                    if field ~= "modData" then
+                        local value = listing.fields[field] or _value
+                        local displayValue = type(value) == "table" and "{...}" or tostring(value)
+                        local addedField = self.addListingList:addItem(field..": "..displayValue, value)
 
-                if (not listing.fields[field]) or (self.storeObj and self.storeObj.ownerID) then
-                    addedField.faded = true
+                        if (not listing.fields[field]) or (self.storeObj and self.storeObj.ownerID) then
+                            addedField.faded = true
+                        end
+                        addedField.fieldID = field
+                        addedField.isConditional = type(value) == "string"
+                            and (value:match("^[><!][=]?%-?[%d%.]") or value:match("^%-?[%d%.]+~%-?[%d%.]+$"))
+                        tag(addedField, "fields", field, displayValue)
+                    end
                 end
+            end
 
-                addedField.fieldID = field
+            local md = listing.fields.modData
+            if type(md) == "table" then
+                addHeader("[ ModData ]",
+                    "Mod-specific data stored on the item.\nClick a key to edit its value.\nSet to empty to remove the key.\nAdd new entries below using  key=value  syntax.",
+                    "moddata")
+                if not self.collapsedSections["moddata"] then
+                    for mdKey, mdVal in pairs(md) do
+                        local dv = tostring(mdVal)
+                        local mdRow = self.addListingList:addItem(mdKey..": "..dv, mdVal)
+                        mdRow.fieldID = "md:"..mdKey
+                        mdRow.isConditional = type(mdVal) == "string"
+                            and (mdVal:match("^[><!][=]?%-?[%d%.]") or mdVal:match("^%-?[%d%.]+~%-?[%d%.]+$"))
+                        tag(mdRow, "moddata", mdKey, dv)
+                    end
+                    local addMd = self.addListingList:addItem("+ Add modData", "__add_md__")
+                    addMd.fieldID = "__add_md__"
+                    addMd.faded = true
+                end
             end
         end
     end
 
-    if (not self.addListingList.selected) or (self.addListingList.options and self.addListingList.selected > #self.addListingList.options) then self.addListingList.selected = 1 end
+    addHeader("[ Buy Conditions ]",
+        "Requirements the sold item must meet for this listing to accept it.\nExamples:  condition=>75   sharpness=0.5~1.0   isFrozen=false\nOperators: >N  <N  >=N  <=N  !N  N~M (inclusive range)  exact value\nSet to empty to remove a condition.",
+        "conditions")
+    if not self.collapsedSections["conditions"] then
+        local bc = listing.buyConditions
+        if type(bc) == "table" then
+            for bcKey, bcExpr in pairs(bc) do
+                local dv = tostring(bcExpr)
+                local bcRow = self.addListingList:addItem(bcKey..": "..dv, bcExpr)
+                bcRow.fieldID = "bc:"..bcKey
+                bcRow.isConditional = true
+                tag(bcRow, "conditions", bcKey, dv)
+            end
+        end
+        local addBc = self.addListingList:addItem("+ Add condition...", "__add_bc__")
+        addBc.fieldID = "__add_bc__"
+        addBc.faded = true
+        tag(addBc, "add", "+ Add condition...", "field=expr")
+    end
+
+    if (not self.addListingList.selected) or (self.addListingList.options and self.addListingList.selected > #self.addListingList.options) then
+        self.addListingList.selected = 1
+    end
 end
 
 
@@ -867,6 +1137,15 @@ function storeWindow:rtrnTypeIfValid(item)
             if listing then
 
                 if listing.buybackRate > 0 then
+                    if listing.buyConditions and type(listing.buyConditions) == "table" then
+                        local fullFields = itemFields.gatherFields(item, false)
+                        for condField, expr in pairs(listing.buyConditions) do
+                            local actual = fullFields and fullFields[condField]
+                            if actual ~= nil and not itemFields.parseConditional(expr, actual) then
+                                return false, "IGUI_NOTRADE_CONDITIONS"
+                            end
+                        end
+                    end
                     return itemType, false, itemCat
                 else
                     return itemType, "IGUI_NOTRADE_ONLYSELL"
@@ -1747,6 +2026,8 @@ function storeWindow:onClick(button)
         local store = self.storeObj
         if store then
             if self:isBeingManaged() then
+                self:commitActiveListing()
+                self:flushDirtyListings()
                 store.isBeingManaged = false
                 newName = self.manageStoreName:getInternalText() or "no name set"
                 if not self.storeObj.ownerID then
@@ -1757,6 +2038,7 @@ function storeWindow:onClick(button)
             else
                 self.manageStoreName:setText(store.name)
                 store.isBeingManaged = true
+                self.dirtyListingIDs = {}
             end
             if self.worldObject then self.worldObject:transmitModData() end
             sendClientCommand("shop", "setStoreIsBeingManaged", {isBeingManaged=store.isBeingManaged, storeID=store.ID, storeName=newName, restockHrs=restockHrs})
@@ -1807,6 +2089,7 @@ function storeWindow:onClick(button)
         local alwaysShow = listingSelected and (listingSelected.alwaysShow ~= nil and listingSelected.alwaysShow) or false
         local reselling = listingSelected and (listingSelected.reselling ~= nil and listingSelected.reselling) or false
         local fields = listingSelected and listingSelected.fields or itemFields.gatherFields(newEntry, true)
+        local buyConditions = listingSelected and listingSelected.buyConditions or false
 
         sendClientCommand("shop", "listNewItem", {
             isBeingManaged=store.isBeingManaged,
@@ -1814,6 +2097,7 @@ function storeWindow:onClick(button)
             item=newEntry,
             price=price,
             fields=fields,
+            buyConditions=buyConditions,
             listingID=listingID,
             stock=stock,
             buybackRate=buybackRate,
@@ -1967,7 +2251,8 @@ function storeWindow:finalizeDeal()
                 else
                     removeItem = true
                     local fields = itemFields.gatherFields(v.item, true)
-                    table.insert(itemsToSell, {itemType=itemType,fields=fields})
+                    local buyCheckFields = itemFields.gatherFields(v.item, false)
+                    table.insert(itemsToSell, {itemType=itemType,fields=fields,buyCheckFields=buyCheckFields})
                 end
 
                 ---@type IsoPlayer|IsoGameCharacter|IsoMovingObject|IsoObject
