@@ -1,5 +1,3 @@
-local _internal = require "shop-shared"
-
 local shopMarkerSystem = {}
 
 shopMarkerSystem.textures = {
@@ -32,18 +30,18 @@ function shopMarkerSystem.defineMarkers()
 end
 
 
-function shopMarkerSystem.render(playerIndex)
-    playerIndex = playerIndex or 0
-    local player = getSpecificPlayer(playerIndex)
+function shopMarkerSystem.render(zza)
+    local player = getSpecificPlayer(0)
     if not player then return end
-    
+
     shopMarkerSystem.defineMarkers()
     local pX, pY, pZ = player:getX(), player:getY(), player:getZ()
-    local zoom = getCore():getZoom(playerIndex)/2
+    local zoom = getCore():getZoom(0)/2
     for shopID,locations in pairs(shopMarkerSystem.markers) do
         for locID, coord in pairs(locations) do
             local shopX, shopY, shopZ, shopZOffset = coord.x, coord.y, math.floor(coord.z), (coord.z % 1)
-            local square = getSquare(shopX, shopY, 0)
+
+            local square = getSquare(shopX, shopY, shopZ)
             if square then
 
                 if (not coord.objCheck) then
@@ -71,12 +69,17 @@ function shopMarkerSystem.render(playerIndex)
                     local normalized = math.min(distance / 50, 1)
                     local scale = 1 + (7 - 1) * normalized
                     local size = math.max(24, math.min(96, 48 * zoom * scale))
-                    getRenderer():render(shopMarkerSystem.textures["shop"..zDiff], sx1-(size/2), sy1-(size/2), size, size, 1, 1, 1, 0.2 * scale/2, nil)
+                    local x1, y1 = sx1-(size/2), sy1-(size/2)
+                    local x2, y2 = sx1+(size/2), sy1-(size/2)
+                    local x3, y3 = sx1+(size/2), sy1+(size/2)
+                    local x4, y4 = sx1-(size/2), sy1+(size/2)
+                    getRenderer():render(shopMarkerSystem.textures["shop"..zDiff], x1, y1, x2, y2, x3, y3, x4, y4, 1, 1, 1, 0.75 * scale/2, nil)
                 end
 
             else
                 coord.objCheck = nil
             end
+
         end
     end
 end
