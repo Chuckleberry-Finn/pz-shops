@@ -1,3 +1,0 @@
-Tooltip_PTBR = {
-    Tooltip_shopDeed = "Ative isso em um contêiner válido para convertê-lo em uma loja.",
-}
