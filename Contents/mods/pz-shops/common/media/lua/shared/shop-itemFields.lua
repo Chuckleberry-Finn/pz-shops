@@ -46,7 +46,7 @@ function itemFields.gatherFields(i, purgeHidden)
     end
 
     if item:IsDrainable() then
-        local usedDelta = item:getUsedDelta()
+        local usedDelta = item:getUseDelta()
         fields.usedDelta = usedDelta
         if not (usedDelta < 1) then
             hidden_fields.usedDelta = true
@@ -570,7 +570,7 @@ function itemFields.gatherFields(i, purgeHidden)
             fields.fluidAmount   = amount
             fields.fluidCapacity = cap
             local pFluid = fc:getPrimaryFluid()
-            fields.fluidType = pFluid and pFluid:getName() or ""
+            fields.fluidType = pFluid and pFluid:getFluidTypeString() or ""
 
             if amount == cap then hidden_fields.fluidAmount = true end
             if fields.fluidType == "" then hidden_fields.fluidType = true end
@@ -643,30 +643,28 @@ function itemFields.specials.setFluidAmount(item, amount)
     if not fc then return false end
     local fluid = fc:getPrimaryFluid()
     if not fluid then return false end
+
     local clamped = math.max(0, math.min(fc:getCapacity(), amount))
+
     fc:empty()
     if clamped > 0 then fc:addFluid(fluid, clamped) end
+
     return true
 end
 
 
 ---@param item InventoryItem
----@param fluidName string
-function itemFields.specials.setFluidType(item, fluidName)
+---@param fluidType string
+function itemFields.specials.setFluidType(item, fluidType)
     if not item:isFluidContainer() then return false end
     local fc = item:getFluidContainer()
     if not fc then return false end
-    local currentAmount = fc:getAmount()
     fc:empty()
-    if fluidName and fluidName ~= "" then
-        local fluid = Fluid.getFluidByName(fluidName)
-        if fluid then
-            fc:addFluid(fluid, currentAmount)
-        else
-            print("[itemFields] WARN: setFluidType: unknown fluid '"..tostring(fluidName).."' — container emptied.")
-            return false
-        end
+
+    if fluidType and fluidType ~= "" then
+        fc:addFluid(fluidType, 0)
     end
+
     return true
 end
 
@@ -804,8 +802,8 @@ function itemFields.getFieldAssociatedFunctions(item)
 
 
     if item:isFluidContainer() then
-        fields.fluidAmount = "setFluidAmount"
         fields.fluidType   = "setFluidType"
+        fields.fluidAmount = "setFluidAmount"
         ---fluidCapacity is script-defined, intentionally omitted
     end
 
