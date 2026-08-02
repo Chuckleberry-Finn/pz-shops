@@ -3,7 +3,7 @@
     "Sandbox_ShopsAndTraders_PercentageDropOnDeath": "เปอร์เซ็นต์เงินที่ลดลง",
     "Sandbox_ShopsAndTraders_PercentageDropOnDeath_tooltip": "เปอร์เซ็นต์นี้จะเป็นจำนวนเงินที่ดรอปเมื่อผู้เล่นเสียชีวิต\\nหากกระเป๋าเงินของผู้เล่นถูกปิดใช้งาน เงินทั้งหมดจะถูกดรอป\\nคำเตือน: การตายส่งผลให้กระเป๋าเงินส่วนที่เหลือถูกทำลาย",
     "Sandbox_ShopsAndTraders_PlayerWallets": "กระเป๋าเงินผู้เล่น",
-    "Sandbox_ShopsAndTraders_PlayerWallets_tooltip": "การปิดการใช้งานนี้จะบังคับให้ผู้เล่นต้องพกเงินสดติดตัวอยู่เสมอ",
+    "Sandbox_ShopsAndTraders_PlayerWallets_tooltip": "การปิดใช้งานนี้จะบังคับให้ผู้เล่นต้องพกเงินสดติดตัวอยู่เสมอ",
     "Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath": "กระเป๋าเงินของผู้เล่นสูญหายเมื่อเสียชีวิต",
     "Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath_tooltip": "เมื่อผู้เล่นเสียชีวิต กระเป๋าเงินปัจจุบันจะถูกลบ หลังจากหักเปอร์เซ็นต์การดรอปแล้ว",
     "Sandbox_ShopsAndTraders_CanWithdraw": "สามารถถอนเงินสดได้",
@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "การเติมสต็อกจะรีเซ็ตสต็อกของร้านค้าทั้งหมด",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "เมื่อเทรดเดอร์เติมสต็อกสินค้าใดๆ ที่ถูกขายต่อ (แต่เดิมขายโดยผู้เล่น) จะถูกล้างออกไป",
     "Sandbox_ShopsAndTraders_DeedRecipe": "สูตรโฉนดของผู้เล่น-ร้านค้า",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "เขียน NONE เพื่อทำให้ไม่สามารถประดิษฐ์ได้\\nเว้นว่างไว้เพื่อใช้ค่าเริ่มต้น\\nค่าเริ่มต้น:",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "เว้นว่างไว้เพื่อปิดใช้งานการประดิษฐ์โฉนด\\nตัวอย่าง: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "จำนวนผู้ซื้อสูงสุด",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "ตั้งค่าเป็น 0 เพื่อปิดใช้งาน",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "กิจกรรมช้อปปิ้งหมดเวลา",
@@ -38,5 +38,5 @@
     "ShopsAndTraders_ShopsRequirePower": "ร้านค้าต้องการพลังงาน",
     "ShopsAndTraders_ShopsRequirePower_tooltip": "ร้านค้าต้องใช้พลังงานในการทำงาน",
     "ShopsAndTraders_ShopsLocationTrack": "ร้านค้าติดตามสถานที่ของพวกเขา",
-    "ShopsAndTraders_ShopsLocationTrack_tooltip": "[ทดลอง] ควรเข้ากันได้แบบย้อนหลัง และสามารถปิดได้อย่างปลอดภัยเมื่อร้านค้าทั้งหมดเคยไปมาแล้วครั้งหนึ่ง\\nมีประโยชน์สำหรับการล้างข้อมูล/รีเซ็ต เนื่องจากร้านค้าจะติดตามตำแหน่งที่ได้รับมอบหมาย\\nหากผู้เล่นคลิกขวาที่ไทล์ที่สอดคล้องกับตำแหน่งที่ถูกติดตาม ระบบจะพยายามโหลดและเชื่อมต่อร้านค้าที่เหมาะสม\\nหมายเหตุ: การติดตามตำแหน่งยังคงใช้งานได้ตามปกติ แต่การสลับนี้จะปิดการใช้งานคุณสมบัติ 'คลิกขวาเพื่อค้นหา'"
+    "ShopsAndTraders_ShopsLocationTrack_tooltip": "[ทดลอง] ควรเข้ากันได้แบบย้อนหลัง และสามารถปิดได้อย่างปลอดภัยเมื่อร้านค้าทั้งหมดเคยไปมาแล้วครั้งหนึ่ง\\nมีประโยชน์สำหรับการล้างข้อมูล/รีเซ็ต เนื่องจากร้านค้าจะติดตามตำแหน่งที่ได้รับมอบหมาย\\nหากผู้เล่นคลิกขวาที่ไทล์ที่สอดคล้องกับตำแหน่งที่ติดตาม ระบบจะพยายามโหลดและเชื่อมต่อร้านค้าที่เหมาะสม\\nหมายเหตุ: การติดตามตำแหน่งยังคงใช้งานได้ตามปกติ แต่การสลับนี้จะปิดการใช้งานคุณสมบัติ 'คลิกขวาเพื่อค้นหา'"
 }

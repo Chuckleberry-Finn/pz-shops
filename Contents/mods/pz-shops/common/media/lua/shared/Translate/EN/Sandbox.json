@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Restocking Resets the Store's Stock Entirely",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "When traders restock any items being resold (originally sold by players) will be cleared out.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Player-Shop Deed Recipe",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Write NONE to make it uncraftable.\\nLeave blank to use Default.\\nDefault: ",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Leave blank to disable crafting of deeds. Enter 'default' for default recipe.\\nExample: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Max Number Of Shoppers",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Set to 0 to disable.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Shopping Activity Time Out",

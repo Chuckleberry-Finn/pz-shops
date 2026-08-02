@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Genopfyldning Nulstiller butikkens lager helt",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Når handlende genopbygger varer, der sælges videre (oprindeligt solgt af spillere), vil de blive slettet.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Player-Shop skødeopskrift",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Skriv INGEN for at gøre det umuligt at lave.\\nLad det være tomt for at bruge standard.\\nStandard:",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Lad feltet stå tomt for at deaktivere udformning af skøder.\\nEksempel: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Max antal kunder",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Indstil til 0 for at deaktivere.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Shoppingaktivitet Timeout",

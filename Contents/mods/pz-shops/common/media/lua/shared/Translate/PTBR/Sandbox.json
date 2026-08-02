@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Reabastecimento redefine totalmente o estoque da loja",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Quando os comerciantes reabastecerem, quaisquer itens revendidos (originalmente vendidos pelos jogadores) serão eliminados.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Receita de escritura da Player-Shop",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Escreva NONE para torná-lo impossível de fabricar.\\nDeixe em branco para usar o Padrão.\\nPadrão:",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Deixe em branco para desativar a elaboração de ações.\\nExemplo: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Número máximo de compradores",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Defina como 0 para desativar.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Tempo limite da atividade de compras",

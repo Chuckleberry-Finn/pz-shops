@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Penyetokan Ulang Mereset Stok Toko Sepenuhnya",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Saat pedagang mengisi kembali barang apa pun yang dijual kembali (awalnya dijual oleh pemain) akan habis.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Resep Akta Toko Pemain",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Tulis NONE agar tidak dapat dibuat.\\nBiarkan kosong untuk menggunakan Default.\\nDefault:",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Biarkan kosong untuk menonaktifkan pembuatan akta.\\nContoh: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Jumlah Pembeli Maks",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Setel ke 0 untuk menonaktifkan.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Waktu Habis Aktivitas Belanja",

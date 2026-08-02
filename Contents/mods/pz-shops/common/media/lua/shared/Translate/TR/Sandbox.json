@@ -4,7 +4,7 @@
     "Sandbox_ShopsAndTraders_PercentageDropOnDeath_tooltip": "Bu yüzde, bir oyuncu öldüğünde bırakılan para miktarı olacaktır.\\nOyuncu cüzdanları devre dışı bırakılırsa TÜM para düşürülür.\\nUYARI: Ölüm, cüzdanın geri kalanının yok olmasına neden olur.",
     "Sandbox_ShopsAndTraders_PlayerWallets": "Oyuncu Cüzdanları",
     "Sandbox_ShopsAndTraders_PlayerWallets_tooltip": "Bunu devre dışı bırakmak, oyuncuları her zaman nakitlerini taşımaya zorlar.",
-    "Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath": "Ölüm Halinde Kaybolan Oyuncu Cüzdanları",
+    "Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath": "Oyuncunun Ölüm Halinde Kaybolan Cüzdanları",
     "Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath_tooltip": "Oyuncu öldüğünde, düşme yüzdesi düşüldükten sonra mevcut cüzdanı silinir.",
     "Sandbox_ShopsAndTraders_CanWithdraw": "Nakit Çekilebilir",
     "Sandbox_ShopsAndTraders_CanWithdraw_tooltip": "Oyuncular cüzdanlarından para-öğeleri çekebiliyorsa. Gereklilikler",
@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Yeniden Stoklama Mağazanın Stokunu Tamamen Sıfırlar",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Tüccarlar stoklarını yeniden doldurduğunda, yeniden satılan (başlangıçta oyuncular tarafından satılan) tüm öğeler temizlenecektir.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Oyuncu-Dükkan Tapu Tarifi",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "İşlenemez hale getirmek için NONE yazın.\\nVarsayılan'ı kullanmak için boş bırakın.\\nVarsayılan:",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Eylemlerin işlenmesini devre dışı bırakmak için boş bırakın.\\nÖrnek: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Maksimum Alışveriş Yapan Kişi Sayısı",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Devre dışı bırakmak için 0'a ayarlayın.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Alışveriş Etkinliği Zaman Aşımı",
@@ -38,5 +38,5 @@
     "ShopsAndTraders_ShopsRequirePower": "Mağazalar Güç Gerektirir",
     "ShopsAndTraders_ShopsRequirePower_tooltip": "Mağazaların çalışması için elektriğe ihtiyaç vardır.",
     "ShopsAndTraders_ShopsLocationTrack": "Mağazalar Konumlarını Takip Ediyor",
-    "ShopsAndTraders_ShopsLocationTrack_tooltip": "[Deneysel] Geriye doğru uyumlu olmalı ve tüm mağazalar bir kez ziyaret edildikten sonra güvenli bir şekilde kapatılabilir.\\nMağazalar kendilerine atanan konumları izleyeceğinden silme/sıfırlamalar için kullanışlıdır.\\nBir oyuncu, izlenen bir konuma karşılık gelen bir karoya sağ tıklarsa sistem uygun mağazayı yüklemeye ve bağlamaya çalışır.\\nNot: Konum izleme hala normal şekilde geçerlidir ancak bu geçiş, 'bulmak için sağ tıklama' özelliğini devre dışı bırakır."
+    "ShopsAndTraders_ShopsLocationTrack_tooltip": "[Deneysel] Geriye doğru uyumlu olmalıdır ve tüm mağazalar bir kez ziyaret edildikten sonra güvenli bir şekilde kapatılabilir.\\nMağazalar kendilerine atanan konumları izleyeceğinden silme/sıfırlamalar için kullanışlıdır.\\nBir oyuncu, izlenen konuma karşılık gelen bir karoya sağ tıklarsa sistem uygun mağazayı yüklemeye ve bağlamaya çalışır.\\nNot: Konum izleme hâlâ normal şekilde geçerlidir ancak bu geçiş, 'bulmak için sağ tıklama' özelliğini devre dışı bırakır."
 }

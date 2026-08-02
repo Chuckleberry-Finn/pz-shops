@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "La reposición restablece completamente el stock de la tienda",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Cuando los comerciantes repongan existencias, los artículos revendidos (originalmente vendidos por los jugadores) se eliminarán.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Receta de escritura de tienda de jugadores",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Escribe NINGUNO para que no se pueda crear.\\nDéjalo en blanco para usar Predeterminado.\\nPredeterminado:",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Déjelo en blanco para deshabilitar la elaboración de escrituras.\\nEjemplo: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Número máximo de compradores",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Establezca en 0 para desactivar.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Tiempo de espera para la actividad de compras",

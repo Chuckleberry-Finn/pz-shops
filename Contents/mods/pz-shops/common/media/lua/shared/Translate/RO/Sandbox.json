@@ -15,7 +15,7 @@
     "Sandbox_ShopsAndTraders_CashPolicy_option3": "Magazinele nu folosesc niciunul",
     "Sandbox_ShopsAndTraders_MoneySpawnMin": "Valoare minimă pentru bani-articol",
     "Sandbox_ShopsAndTraders_MoneySpawnMin_tooltip": "Elementele de valoare minimă cu care pot apărea.",
-    "Sandbox_ShopsAndTraders_MoneySpawnMax": "Valoare maximă pentru elementul de bani",
+    "Sandbox_ShopsAndTraders_MoneySpawnMax": "Valoarea maximă pentru element de bani",
     "Sandbox_ShopsAndTraders_MoneySpawnMax_tooltip": "Elementele de valoare maximă cu care pot apărea.",
     "Sandbox_ShopsAndTraders_StartingWallet": "Suma de bani inițială",
     "Sandbox_ShopsAndTraders_StartingWallet_tooltip": "Cu câți bani încep jucătorii.",
@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Reaprovizionarea Resetează în întregime stocul magazinului",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Când comercianții reaprovizionați, orice obiecte revândute (vândute inițial de jucători) vor fi eliminate.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Jucător-Magazin Rețetă de act",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Nu scrieți NIMIC pentru a nu putea fi creat.\\nLăsați necompletat pentru a utiliza Implicit.\\nImplicit:",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Lăsați necompletat pentru a dezactiva crearea de fapte.\\nExemplu: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Numărul maxim de cumpărători",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Setați la 0 pentru a dezactiva.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Activitate de cumpărături Time Out",
@@ -38,5 +38,5 @@
     "ShopsAndTraders_ShopsRequirePower": "Magazinele au nevoie de energie",
     "ShopsAndTraders_ShopsRequirePower_tooltip": "Magazinele au nevoie de energie pentru a funcționa.",
     "ShopsAndTraders_ShopsLocationTrack": "Magazinele își urmăresc locațiile",
-    "ShopsAndTraders_ShopsLocationTrack_tooltip": "[Experimental] Ar trebui să fie compatibil cu versiunea inversă și poate fi dezactivat în siguranță după ce toate magazinele au fost vizitate o singură dată.\\nUtil pentru ștergere/resetare, deoarece magazinele își vor urmări locațiile atribuite.\\nDacă un jucător face clic dreapta pe o piesă care corespunde unei locații urmărite, sistemul va încerca să încarce și să conecteze magazinul corespunzător.\\nNotă: se aplică în mod normal urmărirea locației. funcția „clic dreapta pentru a găsi”."
+    "ShopsAndTraders_ShopsLocationTrack_tooltip": "[Experimental] Ar trebui să fie compatibil cu versiunea inversă și poate fi dezactivat în siguranță după ce toate magazinele au fost vizitate o dată.\\nUtil pentru ștergere/resetare, deoarece magazinele își vor urmări locațiile atribuite.\\nDacă un jucător face clic dreapta pe o piesă care corespunde unei locații urmărite, sistemul va încerca să încarce și să conecteze magazinul corespunzător.\\nNotă: se aplică în mod normal urmărirea locației. funcția „clic dreapta pentru a găsi”."
 }

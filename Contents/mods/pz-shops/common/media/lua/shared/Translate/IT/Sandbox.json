@@ -1,7 +1,7 @@
 {
     "Sandbox_ShopsAndTraders": "Negozi e commercianti",
     "Sandbox_ShopsAndTraders_PercentageDropOnDeath": "Percentuale di perdita di denaro",
-    "Sandbox_ShopsAndTraders_PercentageDropOnDeath_tooltip": "Questa percentuale sarà la quantità di denaro rilasciata quando un giocatore muore.\\nSe i portafogli del giocatore sono disabilitati, TUTTI i soldi verranno rilasciati.\\nATTENZIONE: La morte comporta la distruzione del resto del portafoglio.",
+    "Sandbox_ShopsAndTraders_PercentageDropOnDeath_tooltip": "Questa percentuale sarà la quantità di denaro che viene rilasciato quando un giocatore muore.\\nSe i portafogli dei giocatori vengono disabilitati, TUTTI i soldi verranno rilasciati.\\nATTENZIONE: La morte comporta la distruzione del resto del portafoglio.",
     "Sandbox_ShopsAndTraders_PlayerWallets": "Portafogli dei giocatori",
     "Sandbox_ShopsAndTraders_PlayerWallets_tooltip": "Disabilitare questo costringerebbe i giocatori a portare sempre con sé i propri soldi.",
     "Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath": "Portafogli dei giocatori persi alla morte",
@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Il rifornimento ripristina completamente le scorte del negozio",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Quando i commercianti riforniscono gli oggetti rivenduti (originariamente venduti dai giocatori) verranno eliminati.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Ricetta atto del negozio dei giocatori",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Scrivi NONE per renderlo non realizzabile.\\nLascia vuoto per utilizzare Predefinito.\\nPredefinito:",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Lascia vuoto per disabilitare la creazione di azioni.\\nEsempio: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Numero massimo di acquirenti",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Impostare su 0 per disabilitare.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Timeout dell'attività di acquisto",
@@ -38,5 +38,5 @@
     "ShopsAndTraders_ShopsRequirePower": "I negozi hanno bisogno di energia",
     "ShopsAndTraders_ShopsRequirePower_tooltip": "I negozi hanno bisogno di energia per funzionare.",
     "ShopsAndTraders_ShopsLocationTrack": "I negozi tengono traccia delle loro posizioni",
-    "ShopsAndTraders_ShopsLocationTrack_tooltip": "[Sperimentale] Dovrebbe essere compatibile con le versioni precedenti e può essere disattivato in modo sicuro una volta che tutti i negozi sono stati visitati una volta.\\nUtile per cancellare/ripristinare poiché i negozi terranno traccia delle posizioni assegnate.\\nSe un giocatore fa clic con il pulsante destro del mouse su un riquadro che corrisponde a una posizione monitorata, il sistema tenterà di caricare e connettere il negozio appropriato.\\nNota: il rilevamento della posizione si applica ancora normalmente, ma questa attivazione disabilita la funzione \"clic destro per trovare\"."
+    "ShopsAndTraders_ShopsLocationTrack_tooltip": "[Sperimentale] Dovrebbe essere compatibile con le versioni precedenti e può essere disattivato in modo sicuro una volta che tutti i negozi sono stati visitati una volta.\\nUtile per cancellare/ripristinare poiché i negozi tracceranno le posizioni assegnate.\\nSe un giocatore fa clic con il pulsante destro del mouse su un riquadro che corrisponde a una posizione monitorata, il sistema tenterà di caricare e connettere il negozio appropriato.\\nNota: il rilevamento della posizione si applica ancora normalmente, ma questa attivazione disattiva la funzione \"clic destro per trovare\"."
 }

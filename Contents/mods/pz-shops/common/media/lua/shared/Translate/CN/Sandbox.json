@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "补货会完全重置商店的库存",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "当商人重新进货时，任何转售的物品（最初由玩家出售）都将被清除。",
     "Sandbox_ShopsAndTraders_DeedRecipe": "玩家商店契约配方",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "写入 NONE 使其无法制作。\\n留空以使用默认值。\\n默认值:",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "留空以禁用契约制作。\\n示例：item 1 [$1000] flags[Prop2] mode: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "最大购物人数",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "设置为 0 以禁用。",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "购物活动超时",

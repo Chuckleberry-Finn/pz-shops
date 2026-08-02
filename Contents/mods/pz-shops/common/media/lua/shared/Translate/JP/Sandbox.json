@@ -4,7 +4,7 @@
     "Sandbox_ShopsAndTraders_PercentageDropOnDeath_tooltip": "このパーセンテージは、プレイヤーが死亡したときにドロップされるお金の量になります。\\nプレイヤーのウォレットが無効になっている場合、すべてのお金がドロップされます。\\n警告: 死亡すると、ウォレットの残りが破壊されます。",
     "Sandbox_ShopsAndTraders_PlayerWallets": "プレーヤーのウォレット",
     "Sandbox_ShopsAndTraders_PlayerWallets_tooltip": "これを無効にすると、プレイヤーは常に現金を持ち歩くことになります。",
-    "Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath": "死亡時にプレイヤーのウォレットが失われる",
+    "Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath": "プレイヤーのウォレットが死亡時に失われる",
     "Sandbox_ShopsAndTraders_PlayerWalletsLostOnDeath_tooltip": "プレイヤーが死亡すると、ドロップ率が差し引かれた後、現在のウォレットが削除されます。",
     "Sandbox_ShopsAndTraders_CanWithdraw": "現金を引き出すことができます",
     "Sandbox_ShopsAndTraders_CanWithdraw_tooltip": "プレイヤーが財布からお金アイテムを引き出すことができる場合。必要",
@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "再入荷するとストアの在庫が完全にリセットされます",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "トレーダーが補充すると、再販されているアイテム (元々プレイヤーが販売したもの) はすべて消去されます。",
     "Sandbox_ShopsAndTraders_DeedRecipe": "プレイヤーショップ証書のレシピ",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "作成不可能にするには、NONE と書き込みます。\\nデフォルトを使用するには空白のままにします。\\nデフォルト:",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "証書の作成を無効にするには空白のままにします。\\n例: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "買い物客の最大数",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "無効にするには 0 に設定します。",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "ショッピングアクティビティのタイムアウト",
@@ -38,5 +38,5 @@
     "ShopsAndTraders_ShopsRequirePower": "お店には電力が必要です",
     "ShopsAndTraders_ShopsRequirePower_tooltip": "お店が機能するには電力が必要です。",
     "ShopsAndTraders_ShopsLocationTrack": "ショップは自分の位置を追跡する",
-    "ShopsAndTraders_ShopsLocationTrack_tooltip": "[Experimental] 下位互換性があり、すべてのショップを一度訪れたら安全にオフに切り替えることができます。\\nショップは割り当てられた位置を追跡するため、ワイプ/リセットに役立ちます。\\nプレーヤーが追跡された位置に対応するタイルを右クリックすると、システムは適切な店舗をロードして接続しようとします。\\n注: 位置追跡は通常どおり適用されますが、この切り替えにより「右クリックして検索」機能が無効になります。"
+    "ShopsAndTraders_ShopsLocationTrack_tooltip": "[Experimental] 下位互換性があり、すべてのショップを一度訪れたら安全にオフに切り替えることができます。\\nショップは割り当てられた位置を追跡するため、ワイプ/リセットに役立ちます。\\nプレイヤーが追跡された位置に対応するタイルを右クリックすると、システムは適切な店舗を読み込んで接続しようとします。\\n注: 位置追跡は通常どおり適用されますが、この切り替えにより「右クリックして検索」機能が無効になります。"
 }

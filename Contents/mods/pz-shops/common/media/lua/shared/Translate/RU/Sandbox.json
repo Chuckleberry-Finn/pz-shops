@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Пополнение запасов полностью сбрасывает запасы в магазине.",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Когда торговцы пополняют запасы, любые перепродаваемые предметы (первоначально проданные игроками) будут удалены.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Рецепт купона игрока-магазина",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Напишите NONE, чтобы его невозможно было создать.\\nОставьте пустым, чтобы использовать значение по умолчанию.\\nПо умолчанию:",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Оставьте пустым, чтобы отключить создание дел.\\nПример: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Максимальное количество покупателей",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Установите значение 0, чтобы отключить.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Тайм-аут торговой активности",

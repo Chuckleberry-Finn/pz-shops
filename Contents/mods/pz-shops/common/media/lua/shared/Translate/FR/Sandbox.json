@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Le réapprovisionnement réinitialise entièrement le stock du magasin",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Lorsque les commerçants réapprovisionnent, tous les articles revendus (vendus à l'origine par les joueurs) seront vidés.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Recette d'acte de boutique de joueur",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Écrivez NONE pour le rendre impossible à fabriquer.\\nLaissez vide pour utiliser la valeur par défaut.\\nPar défaut :",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Laissez vide pour désactiver la création d'actes.\\nExemple : item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Nombre maximum d'acheteurs",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Réglez sur 0 pour désactiver.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Temps mort pour les activités de shopping",
