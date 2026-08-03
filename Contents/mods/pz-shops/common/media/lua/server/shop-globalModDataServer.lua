@@ -33,13 +33,13 @@ local function shopsLoadFromFiles()
     local wallets = WALLET_HANDLER.loadFromFile()
     if wallets then
         GLOBAL_WALLETS = wallets
-        print("[Shop] Loaded wallets from shopsAndTradersWallets.json ("..countEntries(GLOBAL_WALLETS).." entries)")
+        print("[Shop] Loaded wallets ("..countEntries(GLOBAL_WALLETS).." entries)")
     end
 
     local stores = STORE_HANDLER.loadFromFile()
     if stores then
         GLOBAL_STORES = stores
-        print("[Shop] Loaded stores from shopsAndTradersData.json ("..countEntries(GLOBAL_STORES).." entries)")
+        print("[Shop] Loaded stores ("..countEntries(GLOBAL_STORES).." entries)")
     end
 
     syncGlobalToClientIfSP()

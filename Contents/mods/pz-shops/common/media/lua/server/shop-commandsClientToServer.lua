@@ -97,7 +97,7 @@ local function onClientCommand(_module, _command, _player, _data)
             local newOriginalValue = _internal.floorCurrency(originalValue - splitValue)
 
             if originalItemID then
-                local originalItem = _player:getInventory():getItemWithID(originalItemID)
+                local originalItem = _internal.getItemByIDRecursive(_player:getInventory(), originalItemID)
                 if originalItem and _internal.isMoneyType(originalItem:getFullType()) then
                     originalItem:getModData().value = newOriginalValue
                     originalItem:setActualWeight((SandboxVars.ShopsAndTraders.MoneyWeight or 0.001) * newOriginalValue)
@@ -115,7 +115,7 @@ local function onClientCommand(_module, _command, _player, _data)
     if _command == "removeMoneyItem" then
         local itemID = _data.itemID
         if itemID then
-            local item = _player:getInventory():getItemWithID(itemID)
+            local item = _internal.getItemByIDRecursive(_player:getInventory(), itemID)
             if item and _internal.isMoneyType(item:getFullType()) then
                 WALLET_HANDLER.serverRemoveMoneyItem(_player, item)
             end
@@ -127,7 +127,7 @@ local function onClientCommand(_module, _command, _player, _data)
         local newValue = _data.newValue
 
         if targetItemID and newValue and newValue > 0 then
-            local targetItem = _player:getInventory():getItemWithID(targetItemID)
+            local targetItem = _internal.getItemByIDRecursive(_player:getInventory(), targetItemID)
             if targetItem and _internal.isMoneyType(targetItem:getFullType()) then
                 local floored = _internal.floorCurrency(newValue)
                 targetItem:getModData().value = floored

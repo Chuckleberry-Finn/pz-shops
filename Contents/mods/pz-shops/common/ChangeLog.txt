@@ -188,3 +188,9 @@ B42 Update and Overhaul:
   - You can re-order listings by dragging them (only in 'All' view).
   - Removing a listing is now done by first selecting that listing, then clicking X.
 [ ------ ]
+
+[ 8/2/2026 ]
+- Save/load now prefers .txt, falls back to legacy .json only if no .txt exists.
+  - This should fix reports of stores not saving - there was one report made about B42.19 not saving, but I believe that person was mistaken.
+- Fixed items/money hidden in bags not being removed on sale (duplication bug).
+[ ------ ]

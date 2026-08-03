@@ -1,4 +1,4 @@
-require "shop-wallet"
+if not isServer() then require "shop-wallet" end
 local _internal = require "shop-shared"
 
 shopsAndTradersRecipe = {}
@@ -28,8 +28,10 @@ end
 Events.OnGameBoot.Add(recipeOverride)
 --]]
 
----@param item InventoryItem
-function shopsAndTradersRecipe.checkDeedValid(recipe, playerObj, item) --onCanPerform
+
+function shopsAndTradersRecipe.checkDeedValid(item, playerObj) --OnTest
+    --local result = craftRecipeData:getAllCreatedItems():get(0)
+    --local item = craftRecipeData:getAllConsumedItems():get(0)
     if not item then return false end
 
     local cont = item:getContainer()
@@ -42,11 +44,11 @@ function shopsAndTradersRecipe.checkDeedValid(recipe, playerObj, item) --onCanPe
     return true
 end
 
----@param items ArrayList
----@param player IsoPlayer|IsoGameCharacter
-function shopsAndTradersRecipe.onActivateDeed(items, result, player) --onCreate
 
-    local item = items:get(0)
+---@param player IsoPlayer|IsoGameCharacter
+function shopsAndTradersRecipe.onActivateDeed(craftRecipeData, player) --onCreate
+    -- local result = craftRecipeData:getAllCreatedItems():get(0)
+    local item = craftRecipeData:getAllConsumedItems():get(0)
     local cont = item:getContainer()
     if not _internal.isValidContainer(cont) then return false end
 
@@ -74,10 +76,11 @@ function shopsAndTradersRecipe.addMoneyTypesToRecipe(scriptItems)
 end
 
 
----@param recipe Recipe
 ---@param playerObj IsoPlayer|IsoGameCharacter
----@param item InventoryItem
-function shopsAndTradersRecipe.onCanPerform(recipe, playerObj, item)
+function shopsAndTradersRecipe.canCraftDeed(craftRecipeData, playerObj) --OnTest
+    -- local result = craftRecipeData:getAllCreatedItems():get(0)
+    --local item = craftRecipeData:getAllConsumedItems():get(0)
+
     if not moneyValueForDeedRecipe then return true end
     local wallet, walletBalance = getWallet(playerObj), 0
     if wallet then walletBalance = wallet.amount end
@@ -103,7 +106,11 @@ function shopsAndTradersRecipe.onCanPerform(recipe, playerObj, item)
 end
 
 
-function shopsAndTradersRecipe.onCreate(items, result, playerObj)
+---@param playerObj IsoPlayer|IsoGameCharacter
+function shopsAndTradersRecipe.onCraftDeed(craftRecipeData, playerObj)
+    -- local item = craftRecipeData:getAllConsumedItems():get(0)
+    -- local result = craftRecipeData:getAllCreatedItems():get(0)
+
     if not moneyValueForDeedRecipe or moneyValueForDeedRecipe==0 then return true end
 
     local costNeeded = moneyValueForDeedRecipe
@@ -156,47 +163,60 @@ function shopsAndTradersRecipe.onCreate(items, result, playerObj)
 end
 
 
-
---Creates Recipe for Shop Deeds
 function shopsAndTradersRecipe.addDeedRecipe()
 
-    local defaultRecipe = "item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,"
     local sandboxRecipe = SandboxVars.ShopsAndTraders.PlayerOwnedShopDeeds
-    if not sandboxRecipe or sandboxRecipe=="NONE" then return end
 
-    --- Maybe a way to validate the recipe would be possible?
-    --correct old sandbox options
-    local modified_option = sandboxRecipe and string.gsub(sandboxRecipe, "|", ",")
-    --add missing comma that might be default for some older saves
-    if modified_option and modified_option:sub(-1) ~= "," then modified_option = modified_option .. "," end
-
-    local inputs = (not sandboxRecipe or sandboxRecipe == "") and defaultRecipe or modified_option
-
-    --- find "[$X]," and replace X with "Base.Money"
-    --- set `moneyValueForDeedRecipe` to value that was inbetween
-    local value = inputs:match("%[%$(%d+)%]")
-    if value then
-        moneyValueForDeedRecipe = tonumber(value)
-        inputs = inputs:gsub("%[%$(%d+)%]", "[Base.Money]")
-    end
-
-    local newScript = "{ inputs { " .. inputs .. " } }"
-
+    local modified_option = ""
     local tooltip = ""
-    if moneyValueForDeedRecipe and moneyValueForDeedRecipe > 0 then
-        tooltip = "Tooltip:"..getText("IGUI_requires").." ".._internal.numToCurrency(moneyValueForDeedRecipe)..", "
+
+    local blockCrafting = (not sandboxRecipe or sandboxRecipe:match("^%s*$") or sandboxRecipe=="NONE")
+    if blockCrafting then
+        print("[ShopsAndTraders] No CraftDeed recipe configured - deeds are not craftable")
+    else
+
+        if string.lower(sandboxRecipe) == "default" then
+            modified_option = "item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,"
+        else
+            modified_option = tostring(sandboxRecipe)
+        end
+
+        modified_option = string.gsub(modified_option, "|", ",")
+        modified_option = modified_option:match("^(.-)%s*$")
+        if modified_option:sub(-1) ~= "," then modified_option = modified_option .. "," end
+
+        local value = modified_option:match("%[%$(%d+)%]")
+        if value then
+            moneyValueForDeedRecipe = tonumber(value)
+            modified_option = modified_option:gsub("%[%$(%d+)%]", "[Base.Money]")
+            if moneyValueForDeedRecipe and moneyValueForDeedRecipe > 0 then
+                tooltip = "Tooltip = "..getText("IGUI_requires").." ".._internal.numToCurrency(moneyValueForDeedRecipe)..", "
+            end
+        end
     end
 
-    if newScript then
-        local scriptManager = getScriptManager()
-        local recipe = scriptManager:getCraftRecipe("CraftDeed")
-        if recipe then
-            print("Shops and Traders: CraftDeed: Load: ", newScript)
-            recipe:Load("CraftDeed", newScript)
-        else
-            print("ERROR: Could not find CraftRecipe 'CraftDeed'")
+    local needToLearn = "NeedToBeLearn = "..tostring(blockCrafting)..", "
+    local newScript = "{ "..tooltip..needToLearn.."inputs { " .. modified_option .. " } }"
+
+    print("[ShopsAndTraders] Final Recipe for CraftDeed: ", newScript)
+
+    local scriptManager = getScriptManager()
+    local recipe = scriptManager:getCraftRecipe("CraftDeed")
+    if recipe then
+        local inputs = recipe:getInputs()
+        local ioLines = recipe:getIoLines()
+        for i = ioLines:size() - 1, 0, -1 do
+            if inputs:contains(ioLines:get(i)) then
+                ioLines:remove(i)
+            end
         end
+        inputs:clear()
+
+        recipe:Load("CraftDeed", newScript)
+        recipe:OnPostWorldDictionaryInit()
+    else
+        print("[ShopsAndTraders] ERROR: Could not find CraftRecipe 'CraftDeed'")
     end
 end
 
-Events.OnGameBoot.Add(shopsAndTradersRecipe.addDeedRecipe)
+Events.OnGameStart.Add(shopsAndTradersRecipe.addDeedRecipe)

@@ -27,8 +27,8 @@ module Base
 		time = 150,
         Tags = InHandCraft,
         category = Shops,
-		OnCreate = shopsAndTradersRecipe.onCreate,
-		OnTest = shopsAndTradersRecipe.onCanPerform,
+		OnCreate = shopsAndTradersRecipe.onCraftDeed,
+		OnTest = shopsAndTradersRecipe.canCraftDeed,
 
 		inputs
 		{

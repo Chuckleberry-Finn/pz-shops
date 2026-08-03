@@ -320,6 +320,28 @@ function _internal.jsonDecode(str)
 end
 
 
+---@param inventory ItemContainer
+---@param itemID integer
+---@return InventoryItem|nil
+function _internal.getItemByIDRecursive(inventory, itemID)
+    if not inventory or not itemID then return nil end
+
+    local direct = inventory:getItemWithID(itemID)
+    if direct then return direct end
+
+    local items = inventory:getItems()
+    for i=0, items:size()-1 do
+        local item = items:get(i)
+        if instanceof(item, "InventoryContainer") then
+            local found = _internal.getItemByIDRecursive(item:getInventory(), itemID)
+            if found then return found end
+        end
+    end
+
+    return nil
+end
+
+
 function _internal.getSavePath(namespace, filename)
     local fullPath = getCurrentSaveName()
     if not fullPath or fullPath == "" then return filename end

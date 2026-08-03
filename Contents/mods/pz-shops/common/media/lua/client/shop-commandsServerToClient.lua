@@ -46,7 +46,7 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
         local itemID, value = _data.itemID, _data.value
         if itemID and value then
             local player = getPlayer()
-            local item = player and player:getInventory():getItemWithID(itemID)
+            local item = player and _internal.getItemByIDRecursive(player:getInventory(), itemID)
             if item and _internal.isMoneyType(item:getFullType()) then
                 _internal.generateMoneyValue(item, value, true)
             end

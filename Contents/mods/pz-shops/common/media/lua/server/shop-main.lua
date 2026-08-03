@@ -6,20 +6,12 @@ local shopMarkerSystem = require "shop-markers.lua"
 WALLET_HANDLER = {}
 STORE_HANDLER = {}
 
-local SHOPS_FILE = "shopsAndTradersData.json"
-local WALLETS_FILE = "shopsAndTradersWallets.json"
+local SHOPS_FILE_JSON = "shopsAndTradersData.json"
+local SHOPS_FILE_TXT = "shopsAndTradersData.txt"
+local WALLETS_FILE_JSON = "shopsAndTradersWallets.json"
+local WALLETS_FILE_TXT = "shopsAndTradersWallets.txt"
 
-function STORE_HANDLER.saveToFile()
-    if isClient() and not isServer() then return end
-    local path = _internal.getSavePath("shopsAndTraders", SHOPS_FILE)
-    local writer = getFileWriter(path, true, false)
-    if not writer then print("[Shop] ERROR: Could not write "..path) return end
-    writer:write(_internal.jsonEncode(GLOBAL_STORES))
-    writer:close()
-end
-
-function STORE_HANDLER.loadFromFile()
-    local path = _internal.getSavePath("shopsAndTraders", SHOPS_FILE)
+local function readWholeFile(path)
     local reader = getFileReader(path, false)
     if not reader then return nil end
     local lines = {}
@@ -29,10 +21,42 @@ function STORE_HANDLER.loadFromFile()
         line = reader:readLine()
     end
     reader:close()
-    local str = table.concat(lines, "\n")
-    if str == "" then return nil end
+    return table.concat(lines, "\n")
+end
+
+---@param jsonFile string
+---@param txtFile string
+---@return table|nil data
+local function loadJsonFromFile(jsonFile, txtFile)
+    local txtPath = _internal.getSavePath("shopsAndTraders", txtFile)
+    local str = readWholeFile(txtPath)
+    local path = txtPath
+
+    if not str or str == "" then
+        local jsonPath = _internal.getSavePath("shopsAndTraders", jsonFile)
+        str = readWholeFile(jsonPath)
+        path = jsonPath
+    end
+
+    if not str or str == "" then return nil end
+
     local data, err = _internal.jsonDecode(str)
     if not data then print("[Shop] Failed to load "..path..": "..(err or "")) return nil end
+    return data
+end
+
+function STORE_HANDLER.saveToFile()
+    if isClient() and not isServer() then return end
+    local path = _internal.getSavePath("shopsAndTraders", SHOPS_FILE_TXT)
+    local writer = getFileWriter(path, true, false)
+    if not writer then print("[Shop] ERROR: Could not write "..path) return end
+    writer:write(_internal.jsonEncode(GLOBAL_STORES))
+    writer:close()
+end
+
+function STORE_HANDLER.loadFromFile()
+    local data = loadJsonFromFile(SHOPS_FILE_JSON, SHOPS_FILE_TXT)
+    if not data then return nil end
     for _, storeData in pairs(data) do
         if storeData.listings then
             for listingKey, listing in pairs(storeData.listings) do
@@ -45,7 +69,7 @@ end
 
 function WALLET_HANDLER.saveToFile()
     if isClient() and not isServer() then return end
-    local path = _internal.getSavePath("shopsAndTraders", WALLETS_FILE)
+    local path = _internal.getSavePath("shopsAndTraders", WALLETS_FILE_TXT)
     local writer = getFileWriter(path, true, false)
     if not writer then print("[Shop] ERROR: Could not write "..path) return end
     writer:write(_internal.jsonEncode(GLOBAL_WALLETS))
@@ -53,21 +77,7 @@ function WALLET_HANDLER.saveToFile()
 end
 
 function WALLET_HANDLER.loadFromFile()
-    local path = _internal.getSavePath("shopsAndTraders", WALLETS_FILE)
-    local reader = getFileReader(path, false)
-    if not reader then return nil end
-    local lines = {}
-    local line = reader:readLine()
-    while line do
-        table.insert(lines, line)
-        line = reader:readLine()
-    end
-    reader:close()
-    local str = table.concat(lines, "\n")
-    if str == "" then return nil end
-    local data, err = _internal.jsonDecode(str)
-    if not data then print("[Shop] Failed to load "..path..": "..(err or "")) return nil end
-    return data
+    return loadJsonFromFile(WALLETS_FILE_JSON, WALLETS_FILE_TXT)
 end
 
 ---@class wallet Pseudo-Object
@@ -537,7 +547,7 @@ function STORE_HANDLER.validateOrder(playerObj, playerID, storeID, buying, selli
     if moneyItemIDs and #moneyItemIDs > 0 then
         local verified = 0
         for _,entry in pairs(moneyItemIDs) do
-            local item = playerObj:getInventory():getItemWithID(entry.itemID)
+            local item = _internal.getItemByIDRecursive(playerObj:getInventory(), entry.itemID)
             if item and _internal.isMoneyType(item:getFullType()) and item:getModData().value then
                 verified = _internal.floorCurrency(verified + item:getModData().value)
                 WALLET_HANDLER.serverRemoveMoneyItem(playerObj, item)
@@ -573,7 +583,7 @@ function STORE_HANDLER.validateOrder(playerObj, playerID, storeID, buying, selli
             end
 
             if not storeObj.ownerID and data.itemID then
-                local soldItem = playerObj:getInventory():getItemWithID(data.itemID)
+                local soldItem = _internal.getItemByIDRecursive(playerObj:getInventory(), data.itemID)
                 if soldItem then WALLET_HANDLER.serverRemoveMoneyItem(playerObj, soldItem) end
             end
         else
