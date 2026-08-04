@@ -320,6 +320,37 @@ function _internal.jsonDecode(str)
 end
 
 
+---@param path string
+---@return string|nil
+function _internal.readWholeFile(path)
+    local reader = getFileReader(path, false)
+    if not reader then return nil end
+    local lines = {}
+    local line = reader:readLine()
+    while line do
+        table.insert(lines, line)
+        line = reader:readLine()
+    end
+    reader:close()
+    return table.concat(lines, "\n")
+end
+
+
+---@param path string
+---@param str string
+---@return boolean
+function _internal.writeStringToFile(path, str)
+    local writer = getFileWriter(path, true, false)
+    if not writer then
+        print("[Shop] ERROR: Could not write "..path)
+        return false
+    end
+    writer:write(str)
+    writer:close()
+    return true
+end
+
+
 ---@param inventory ItemContainer
 ---@param itemID integer
 ---@return InventoryItem|nil

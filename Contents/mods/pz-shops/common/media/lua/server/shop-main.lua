@@ -11,30 +11,18 @@ local SHOPS_FILE_TXT = "shopsAndTradersData.txt"
 local WALLETS_FILE_JSON = "shopsAndTradersWallets.json"
 local WALLETS_FILE_TXT = "shopsAndTradersWallets.txt"
 
-local function readWholeFile(path)
-    local reader = getFileReader(path, false)
-    if not reader then return nil end
-    local lines = {}
-    local line = reader:readLine()
-    while line do
-        table.insert(lines, line)
-        line = reader:readLine()
-    end
-    reader:close()
-    return table.concat(lines, "\n")
-end
-
+---.txt and falling back to the legacy .json
 ---@param jsonFile string
 ---@param txtFile string
 ---@return table|nil data
 local function loadJsonFromFile(jsonFile, txtFile)
     local txtPath = _internal.getSavePath("shopsAndTraders", txtFile)
-    local str = readWholeFile(txtPath)
+    local str = _internal.readWholeFile(txtPath)
     local path = txtPath
 
     if not str or str == "" then
         local jsonPath = _internal.getSavePath("shopsAndTraders", jsonFile)
-        str = readWholeFile(jsonPath)
+        str = _internal.readWholeFile(jsonPath)
         path = jsonPath
     end
 
@@ -48,10 +36,7 @@ end
 function STORE_HANDLER.saveToFile()
     if isClient() and not isServer() then return end
     local path = _internal.getSavePath("shopsAndTraders", SHOPS_FILE_TXT)
-    local writer = getFileWriter(path, true, false)
-    if not writer then print("[Shop] ERROR: Could not write "..path) return end
-    writer:write(_internal.jsonEncode(GLOBAL_STORES))
-    writer:close()
+    _internal.writeStringToFile(path, _internal.jsonEncode(GLOBAL_STORES))
 end
 
 function STORE_HANDLER.loadFromFile()
@@ -70,10 +55,7 @@ end
 function WALLET_HANDLER.saveToFile()
     if isClient() and not isServer() then return end
     local path = _internal.getSavePath("shopsAndTraders", WALLETS_FILE_TXT)
-    local writer = getFileWriter(path, true, false)
-    if not writer then print("[Shop] ERROR: Could not write "..path) return end
-    writer:write(_internal.jsonEncode(GLOBAL_WALLETS))
-    writer:close()
+    _internal.writeStringToFile(path, _internal.jsonEncode(GLOBAL_WALLETS))
 end
 
 function WALLET_HANDLER.loadFromFile()

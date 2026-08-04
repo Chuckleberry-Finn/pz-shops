@@ -69,11 +69,8 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
     if _command == "ExportStores" then
         if _data.stores then
             local jsonStr = _internal.jsonEncode(_data.stores)
-            local writer = getFileWriter("shopsAndTradersData.json", true, false)
-            if writer then
-                writer:write(jsonStr)
-                writer:close()
-                print("[Shop] Exported stores to local shopsAndTradersData.json")
+            if _internal.writeStringToFile("shopsAndTradersData.txt", jsonStr) then
+                print("[Shop] Exported stores to local shopsAndTradersData.txt")
             end
         end
     end

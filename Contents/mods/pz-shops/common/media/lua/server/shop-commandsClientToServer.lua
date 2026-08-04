@@ -47,11 +47,8 @@ local function onClientCommand(_module, _command, _player, _data)
             sendServerCommand(_player, "shop", "ExportStores", {stores=GLOBAL_STORES})
         else
             local jsonStr = _internal.jsonEncode(GLOBAL_STORES)
-            local writer = getFileWriter("shopsAndTradersData.json", true, false)
-            if writer then
-                writer:write(jsonStr)
-                writer:close()
-                print("[Shop] Exported stores to shopsAndTradersData.json")
+            if _internal.writeStringToFile("shopsAndTradersData.txt", jsonStr) then
+                print("[Shop] Exported stores to shopsAndTradersData.txt")
             end
         end
     end

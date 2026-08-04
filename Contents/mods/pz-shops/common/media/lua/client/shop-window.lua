@@ -660,13 +660,7 @@ end
 
 
 function storeWindow.readImportFile(name)
-    local reader = getFileReader(name, false)
-    if not reader then return nil end
-    local lines = {}
-    local line = reader:readLine()
-    while line do table.insert(lines, line) line = reader:readLine() end
-    reader:close()
-    return table.concat(lines, "\n")
+    return _internal.readWholeFile(name)
 end
 
 
@@ -1367,7 +1361,7 @@ function storeWindow:initialise()
     self.exportButton.internal = "EXPORT_TO_LOCAL"
     self.exportButton.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
     self.exportButton.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
-    self.exportButton.tooltip = "Export server shops to local shopsAndTradersData.json"
+    self.exportButton.tooltip = "Export server shops to local /Zomboid/Lua/shopsAndTradersData.txt"
     self.exportButton:initialise()
     self.exportButton:instantiate()
     self:addChild(self.exportButton)
@@ -1376,7 +1370,7 @@ function storeWindow:initialise()
     self.loadButton.internal = "LOAD_FROM_FILE"
     self.loadButton.borderColor = { r = 1, g = 1, b = 1, a = 0.7 }
     self.loadButton.textColor = { r = 1, g = 1, b = 1, a = 0.7 }
-    self.loadButton.tooltip = "Load from local shopsAndTradersData.json"
+    self.loadButton.tooltip = "Load from local /Zomboid/Lua/shopsAndTradersData.txt"
     self.loadButton:initialise()
     self.loadButton:instantiate()
     self:addChild(self.loadButton)
@@ -2480,34 +2474,33 @@ function storeWindow:onClick(button)
             sendClientCommand(self.player, "shop", "ExportStores", {})
         else
             local jsonStr = _internal.jsonEncode(GLOBAL_STORES)
-            local writer = getFileWriter("shopsAndTradersData.json", true, false)
-            if writer then
-                writer:write(jsonStr)
-                writer:close()
-                print("[Shop] Exported stores to local shopsAndTradersData.json")
+            if _internal.writeStringToFile("shopsAndTradersData.txt", jsonStr) then
+                print("[Shop] Exported stores to local shopsAndTradersData.txt")
             end
         end
     end
 
     if button.internal == "LOAD_FROM_FILE" then
-        local jsonStr = storeWindow.readImportFile("shopsAndTradersData.json")
-        local txtStr = (not jsonStr or jsonStr == "") and storeWindow.readImportFile("exportedShops.txt")
+        local txtStr = storeWindow.readImportFile("shopsAndTradersData.txt")
+        local jsonStr = (not txtStr or txtStr == "") and storeWindow.readImportFile("shopsAndTradersData.json")
+        local legacyStr = (not txtStr or txtStr == "") and (not jsonStr or jsonStr == "") and storeWindow.readImportFile("exportedShops.txt")
 
-        if (not jsonStr or jsonStr == "") and (not txtStr or txtStr == "") then
-            print("[Shop] Load failed: shopsAndTradersData.json not found in Lua cache.")
+        if (not txtStr or txtStr == "") and (not jsonStr or jsonStr == "") and (not legacyStr or legacyStr == "") then
+            print("[Shop] Load failed: shopsAndTradersData.txt not found in Lua cache.")
             return
         end
 
         local tbl, err
-        if jsonStr and jsonStr ~= "" then
+        if txtStr and txtStr ~= "" then
+            tbl, err = _internal.jsonDecode(txtStr)
+        elseif jsonStr and jsonStr ~= "" then
             tbl, err = _internal.jsonDecode(jsonStr)
-        elseif txtStr and txtStr ~= "" then
-            tbl, err = _internal.stringToTable(txtStr)
+        elseif legacyStr and legacyStr ~= "" then
+            tbl, err = _internal.stringToTable(legacyStr)
             if tbl then
-                local jsonWriter = getFileWriter("shopsAndTradersData.json", true, false)
-                jsonWriter:write(_internal.jsonEncode(tbl))
-                jsonWriter:close()
-                print("[Shop] Converted exportedShops.txt to shopsAndTradersData.json")
+                if _internal.writeStringToFile("shopsAndTradersData.txt", _internal.jsonEncode(tbl)) then
+                    print("[Shop] Converted exportedShops.txt to shopsAndTradersData.txt")
+                end
             end
         end
 
