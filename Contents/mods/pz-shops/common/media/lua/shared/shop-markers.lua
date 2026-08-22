@@ -10,6 +10,9 @@ shopMarkerSystem.markers = {}
 
 shopMarkerSystem.needDefine = true
 
+shopMarkerSystem.hoverDelayMs = 30
+shopMarkerSystem.hovered = {}
+
 function shopMarkerSystem.defineMarkers()
     if not shopMarkerSystem.needDefine then return end
 
@@ -37,6 +40,8 @@ function shopMarkerSystem.render(zza)
     shopMarkerSystem.defineMarkers()
     local pX, pY, pZ = player:getX(), player:getY(), player:getZ()
     local zoom = getCore():getZoom(0)/2
+    local mouseX, mouseY = getMouseX(), getMouseY()
+    local now = getTimestampMs()
     for shopID,locations in pairs(shopMarkerSystem.markers) do
         for locID, coord in pairs(locations) do
             local shopX, shopY, shopZ, shopZOffset = coord.x, coord.y, math.floor(coord.z), (coord.z % 1)
@@ -74,6 +79,24 @@ function shopMarkerSystem.render(zza)
                     local x3, y3 = sx1+(size/2), sy1+(size/2)
                     local x4, y4 = sx1-(size/2), sy1+(size/2)
                     getRenderer():render(shopMarkerSystem.textures["shop"..zDiff], x1, y1, x2, y2, x3, y3, x4, y4, 1, 1, 1, 0.75 * scale/2, nil)
+
+                    local markerKey = shopID.."_"..locID
+                    local mouseOverIcon = mouseX >= x1 and mouseX <= x3 and mouseY >= y1 and mouseY <= y3
+                    if mouseOverIcon then
+                        local hoverStart = shopMarkerSystem.hovered[markerKey] or now
+                        shopMarkerSystem.hovered[markerKey] = hoverStart
+                        if now - hoverStart >= shopMarkerSystem.hoverDelayMs then
+                            local storeObj = CLIENT_STORES[shopID]
+                            local shopName = storeObj and storeObj.name
+                            if shopName then
+                                local tm = getTextManager()
+                                local nameY = y1 - tm:getFontHeight(UIFont.Small) - 2
+                                tm:DrawStringCentre(UIFont.Small, sx1, nameY, shopName, 1, 1, 1, 1)
+                            end
+                        end
+                    else
+                        shopMarkerSystem.hovered[markerKey] = nil
+                    end
                 end
 
             else

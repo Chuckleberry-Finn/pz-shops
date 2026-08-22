@@ -1545,7 +1545,9 @@ function storeWindow:drawCart(y, item, alt)
         if listing or _internal.isMoneyType(itemType) then
             if type(item.item) == "string" then balanceDiff = listing.price
             else
-                if _internal.isMoneyType(itemType) then balanceDiff = 0-item.item:getModData().value
+                if _internal.isMoneyType(itemType) then
+                    if not item.item:getModData().value then _internal.generateMoneyValue(item.item) end
+                    balanceDiff = 0-item.item:getModData().value
                 else balanceDiff = 0-(listing.price*(listing.buybackRate/100))
                 end
             end
@@ -1804,6 +1806,7 @@ function storeWindow:getOrderTotal()
                     if SandboxVars.ShopsAndTraders.ShopsUseCash <= 2 then
                         itemListedInCart = true
                     end
+                    if not v.item:getModData().value then _internal.generateMoneyValue(v.item) end
                     totalForTransaction = totalForTransaction-(v.item:getModData().value)
                 else
                     local itemListing = matchedListing
@@ -2565,6 +2568,7 @@ function storeWindow:finalizeDeal()
             local itemType, _, _ = self:rtrnTypeIfValid(v.itemType or v.item)
             if itemType then
                 if _internal.isMoneyType(itemType) then
+                    if not v.item:getModData().value then _internal.generateMoneyValue(v.item) end
                     local moneyAmount = v.item:getModData().value
                     moneyItemValueUsed = moneyItemValueUsed+moneyAmount
                     table.insert(moneyItemIDs, {itemID=v.item:getID(), value=moneyAmount})

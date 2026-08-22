@@ -261,6 +261,7 @@ local function onSplitStack(item, player, x, y)
         return
     end
 
+    if item and not item:getModData().value then _internal.generateMoneyValue(item) end
     local value = item and item:getModData().value
     if item and value <= 0.01 then return end
 
@@ -360,6 +361,7 @@ function ISInventoryPane:onMouseUp(x, y)
         for _,money in pairs(moneyFound) do if money==pushToActual then return end end
 
         if pushToActual and _internal.isMoneyType(pushToActual:getFullType()) then
+            if not pushToActual:getModData().value then _internal.generateMoneyValue(pushToActual) end
             local ptValue = pushToActual:getModData().value
             local consolidatedValue = 0
             local removedIDs = {}
@@ -450,6 +452,7 @@ local function _depositMoney(money, player)
     end
 
     for _,moneyItem in pairs(monies) do
+        if not moneyItem:getModData().value then _internal.generateMoneyValue(moneyItem) end
         value = value + moneyItem:getModData().value
     end
     sendClientCommand("shop", "transferFunds", {walletID=walletID, amount=value})

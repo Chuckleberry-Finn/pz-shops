@@ -1,5 +1,3 @@
-if isServer() then return end
-
 local _internal = require "shop-shared"
 
 function shopsAndTradersGenerateMoneyValue(item) _internal.generateMoneyValue(item) end

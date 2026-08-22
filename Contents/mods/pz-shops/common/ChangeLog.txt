@@ -199,3 +199,9 @@ B42 Update and Overhaul:
 - Fix the UI for Export/Load to also use the new txt format rather than json.
  - Refactored so that both passive and manual loading/saving use the same functions.
 [ ------ ]
+
+[ 8/21/2026 ]
+- Fix: Money could spawn without a value assigned, causing errors when dragged or stacked into another pile.
+       Value is now assigned server-side and synced to clients.
+- Added: Hovering over a shop icon now shows the shop's name above it.
+[ ------ ]
