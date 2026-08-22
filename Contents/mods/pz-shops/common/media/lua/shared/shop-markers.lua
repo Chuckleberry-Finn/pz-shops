@@ -12,20 +12,39 @@ shopMarkerSystem.needDefine = true
 
 shopMarkerSystem.hoverDelayMs = 30
 shopMarkerSystem.hovered = {}
+shopMarkerSystem.pendingNameDraws = {}
+
+shopMarkerSystem.stackIncrement = 0.33
 
 function shopMarkerSystem.defineMarkers()
     if not shopMarkerSystem.needDefine then return end
 
     shopMarkerSystem.markers = {}
+    local squareOccupancy = {}
     for shopID,storeObj in pairs(CLIENT_STORES) do
         if storeObj and storeObj.locations then
             shopMarkerSystem.markers[shopID] = {}
-            for locID, locData in pairs(storeObj.locations) do
+
+            local locIDs = {}
+            for locID in pairs(storeObj.locations) do
+                table.insert(locIDs, locID)
+            end
+            table.sort(locIDs)
+
+            for i=1, #locIDs do
+                local locID = locIDs[i]
+                local locData = storeObj.locations[locID]
                 local x, y, z = locData.x, locData.y, locData.z
                 local tabelTop = locData.tabelTop
-                local zOffset = tabelTop and 0.20 or 0
+                local isWallMounted = locData.isWallMounted
+                local zOffset = tabelTop and 0.25 or (isWallMounted and 0.6 or 0.05)
+
+                local squareKey = x.."_"..y.."_"..math.floor(z)
+                local stackIndex = squareOccupancy[squareKey] or 0
+                squareOccupancy[squareKey] = stackIndex + 1
+
                 local objName = locData.objName
-                shopMarkerSystem.markers[shopID][locID] = { x=x, y=y, z=z+zOffset, objName=objName }
+                shopMarkerSystem.markers[shopID][locID] = { x=x, y=y, z=z+zOffset+(stackIndex*shopMarkerSystem.stackIncrement), objName=objName }
             end
         end
     end
@@ -33,15 +52,54 @@ function shopMarkerSystem.defineMarkers()
 end
 
 
+function shopMarkerSystem.drawMarkerQuad(zDiff, x1, y1, x2, y2, x3, y3, x4, y4, alpha)
+    getRenderer():render(shopMarkerSystem.textures["shop"..zDiff], x1, y1, x2, y2, x3, y3, x4, y4, 1, 1, 1, alpha, nil)
+end
+
+
+function shopMarkerSystem.checkHover(markerKey, shopID, worldX, worldY, projectionHeight)
+    local player = getSpecificPlayer(0)
+    if not player then return end
+
+    local pZ = player:getZ()
+    local height = projectionHeight or (pZ + 0.25)
+    local mouseX, mouseY = getMouseX(), getMouseY()
+    local mouseWorldX = screenToIsoX(0, mouseX, mouseY, height)
+    local mouseWorldY = screenToIsoY(0, mouseX, mouseY, height)
+
+    local dxWorld = mouseWorldX - worldX
+    local dyWorld = mouseWorldY - worldY
+    local hoverWorldRadius = 0.6
+    local mouseOverIcon = (dxWorld*dxWorld + dyWorld*dyWorld) <= (hoverWorldRadius*hoverWorldRadius)
+    local now = getTimestampMs()
+
+    if mouseOverIcon then
+        local hoverStart = shopMarkerSystem.hovered[markerKey] or now
+        shopMarkerSystem.hovered[markerKey] = hoverStart
+        if now - hoverStart >= shopMarkerSystem.hoverDelayMs then
+            local storeObj = CLIENT_STORES[shopID]
+            local shopName = storeObj and storeObj.name
+            if shopName then
+                local uiX = isoToScreenX(0, worldX, worldY, height)
+                local uiY = isoToScreenY(0, worldX, worldY, height) - 30
+                table.insert(shopMarkerSystem.pendingNameDraws, {x=uiX, y=uiY, name=shopName})
+            end
+        end
+    else
+        shopMarkerSystem.hovered[markerKey] = nil
+    end
+end
+
+
 function shopMarkerSystem.render(zza)
+
     local player = getSpecificPlayer(0)
     if not player then return end
 
     shopMarkerSystem.defineMarkers()
     local pX, pY, pZ = player:getX(), player:getY(), player:getZ()
     local zoom = getCore():getZoom(0)/2
-    local mouseX, mouseY = getMouseX(), getMouseY()
-    local now = getTimestampMs()
+
     for shopID,locations in pairs(shopMarkerSystem.markers) do
         for locID, coord in pairs(locations) do
             local shopX, shopY, shopZ, shopZOffset = coord.x, coord.y, math.floor(coord.z), (coord.z % 1)
@@ -66,7 +124,8 @@ function shopMarkerSystem.render(zza)
                         shopMarkerSystem.markers[shopID][locID] = nil
                     end
                 else
-                    local sx1, sy1 = ISCoordConversion.ToScreen(shopX, shopY, pZ+0.25+shopZOffset)
+                    local projectionHeight = pZ+0.25+shopZOffset
+                    local sx1, sy1 = ISCoordConversion.ToScreen(shopX, shopY, projectionHeight)
                     local zDiff = (shopZ > pZ and "_up") or (shopZ < pZ and "_down") or ""
                     local distX = math.abs(shopX - pX)
                     local distY = math.abs(shopY - pY)
@@ -78,25 +137,10 @@ function shopMarkerSystem.render(zza)
                     local x2, y2 = sx1+(size/2), sy1-(size/2)
                     local x3, y3 = sx1+(size/2), sy1+(size/2)
                     local x4, y4 = sx1-(size/2), sy1+(size/2)
-                    getRenderer():render(shopMarkerSystem.textures["shop"..zDiff], x1, y1, x2, y2, x3, y3, x4, y4, 1, 1, 1, 0.75 * scale/2, nil)
+                    shopMarkerSystem.drawMarkerQuad(zDiff, x1, y1, x2, y2, x3, y3, x4, y4, 0.75 * scale/2)
 
                     local markerKey = shopID.."_"..locID
-                    local mouseOverIcon = mouseX >= x1 and mouseX <= x3 and mouseY >= y1 and mouseY <= y3
-                    if mouseOverIcon then
-                        local hoverStart = shopMarkerSystem.hovered[markerKey] or now
-                        shopMarkerSystem.hovered[markerKey] = hoverStart
-                        if now - hoverStart >= shopMarkerSystem.hoverDelayMs then
-                            local storeObj = CLIENT_STORES[shopID]
-                            local shopName = storeObj and storeObj.name
-                            if shopName then
-                                local tm = getTextManager()
-                                local nameY = y1 - tm:getFontHeight(UIFont.Small) - 2
-                                tm:DrawStringCentre(UIFont.Small, sx1, nameY, shopName, 1, 1, 1, 1)
-                            end
-                        end
-                    else
-                        shopMarkerSystem.hovered[markerKey] = nil
-                    end
+                    shopMarkerSystem.checkHover(markerKey, shopID, shopX, shopY, projectionHeight)
                 end
 
             else
@@ -105,6 +149,16 @@ function shopMarkerSystem.render(zza)
 
         end
     end
+end
+
+
+function shopMarkerSystem.renderHoverNames()
+    for _,pending in ipairs(shopMarkerSystem.pendingNameDraws) do
+        local tm = getTextManager()
+        local nameY = pending.y - tm:getFontHeight(UIFont.Small) - 2
+        tm:DrawStringCentre(UIFont.Small, pending.x, nameY, pending.name, 1, 1, 1, 1)
+    end
+    shopMarkerSystem.pendingNameDraws = {}
 end
 
 

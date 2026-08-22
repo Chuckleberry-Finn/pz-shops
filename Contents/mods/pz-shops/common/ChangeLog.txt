@@ -204,4 +204,6 @@ B42 Update and Overhaul:
 - Fix: Money could spawn without a value assigned, causing errors when dragged or stacked into another pile.
        Value is now assigned server-side and synced to clients.
 - Added: Hovering over a shop icon now shows the shop's name above it.
+- Added: Shop marker icon and hover-name logic exposed as shared functions other mods can call into.
+- Fix: Shop markers on wall-mounted or floating containers now line up with the container instead of floating at the old fixed height.
 [ ------ ]

@@ -274,9 +274,11 @@ function STORE_HANDLER.addLocation(storeID,worldObj)
     if not storeObj then return end
     local objectName = _internal.getWorldObjectDisplayName(worldObj)
     local tabelTop = worldObj:isTableTopObject()
+    local objProps = worldObj:getProperties()
+    local isWallMounted = objProps and objProps:has(IsoFlagType.WallOverlay) or false
     local x, y, z = worldObj:getX(), worldObj:getY(), worldObj:getZ()
     storeObj.locations = storeObj.locations or {}
-    storeObj.locations[objectName.."_"..x.."_"..y.."_"..z] = {objName=objectName, x=x,y=y,z=z, tabelTop=tabelTop}
+    storeObj.locations[objectName.."_"..x.."_"..y.."_"..z] = {objName=objectName, x=x,y=y,z=z, tabelTop=tabelTop, isWallMounted=isWallMounted}
     shopMarkerSystem.needDefine = true
 end
 
