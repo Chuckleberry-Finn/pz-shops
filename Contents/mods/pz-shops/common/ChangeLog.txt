@@ -207,3 +207,7 @@ B42 Update and Overhaul:
 - Added: Shop marker icon and hover-name logic exposed as shared functions other mods can call into.
 - Fix: Shop markers on wall-mounted or floating containers now line up with the container instead of floating at the old fixed height.
 [ ------ ]
+
+[ 8/22/26 ]
+- Fix: Labels would sometimes fail to update/render wrong.
+[ ------ ]

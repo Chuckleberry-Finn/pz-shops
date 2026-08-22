@@ -13,8 +13,25 @@ shopMarkerSystem.needDefine = true
 shopMarkerSystem.hoverDelayMs = 30
 shopMarkerSystem.hovered = {}
 shopMarkerSystem.pendingNameDraws = {}
+shopMarkerSystem.movementState = {lastX=nil, lastY=nil, lastCheckTime=0, isMoving=false}
 
 shopMarkerSystem.stackIncrement = 0.33
+
+function shopMarkerSystem.isPlayerMoving(player)
+    local now = getTimestampMs()
+    local state = shopMarkerSystem.movementState
+    if now == state.lastCheckTime then return state.isMoving end
+    state.lastCheckTime = now
+
+    local pX, pY = player:getX(), player:getY()
+    if state.lastX then
+        state.isMoving = (pX ~= state.lastX) or (pY ~= state.lastY)
+    else
+        state.isMoving = false
+    end
+    state.lastX, state.lastY = pX, pY
+    return state.isMoving
+end
 
 function shopMarkerSystem.defineMarkers()
     if not shopMarkerSystem.needDefine then return end
@@ -76,13 +93,22 @@ function shopMarkerSystem.checkHover(markerKey, shopID, worldX, worldY, projecti
     if mouseOverIcon then
         local hoverStart = shopMarkerSystem.hovered[markerKey] or now
         shopMarkerSystem.hovered[markerKey] = hoverStart
-        if now - hoverStart >= shopMarkerSystem.hoverDelayMs then
             local storeObj = CLIENT_STORES[shopID]
             local shopName = storeObj and storeObj.name
+        if (not shopMarkerSystem.isPlayerMoving(player)) and now - hoverStart >= shopMarkerSystem.hoverDelayMs then
             if shopName then
-                local uiX = isoToScreenX(0, worldX, worldY, height)
-                local uiY = isoToScreenY(0, worldX, worldY, height) - 30
-                table.insert(shopMarkerSystem.pendingNameDraws, {x=uiX, y=uiY, name=shopName})
+                local alreadyQueued = false
+                for _,pending in ipairs(shopMarkerSystem.pendingNameDraws) do
+                    if pending.name == shopName then
+                        alreadyQueued = true
+                        break
+                    end
+                end
+                if not alreadyQueued then
+                    local uiX = math.floor(isoToScreenX(0, worldX, worldY, height) + 0.5)
+                    local uiY = math.floor(isoToScreenY(0, worldX, worldY, height) - 30 + 0.5)
+                    table.insert(shopMarkerSystem.pendingNameDraws, {x=uiX, y=uiY, name=shopName})
+                end
             end
         end
     else

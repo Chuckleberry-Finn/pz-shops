@@ -28,12 +28,10 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
     
     if _command == "tryShopUpdateToAll" then
         if _data.store and _data.store.ID then
+            CLIENT_STORES[_data.store.ID] = _data.store
             local window = storeWindow.instance
-            if window and window:isVisible() and window.storeObj and window.storeObj.ID then
-                if window.storeObj.ID == _data.store.ID then
-                    CLIENT_STORES[_data.store.ID] = _data.store
-                    window.storeObj = CLIENT_STORES[_data.store.ID]
-                end
+            if window and window:isVisible() and window.storeObj and window.storeObj.ID == _data.store.ID then
+                window.storeObj = CLIENT_STORES[_data.store.ID]
             end
         end
         shopMarkerSystem.needDefine = true
