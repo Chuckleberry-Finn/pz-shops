@@ -153,7 +153,9 @@ function _internal.tableToString(object,nesting)
         end
         text = s..string.rep(indent, nesting).."}"
     else
-        if type(object) == "string" then text = "\""..tostring(object).."\""
+        if type(object) == "string" then
+            local escaped = tostring(object):gsub('\\','\\\\'):gsub('"','\\"')
+            text = "\""..escaped.."\""
         else text = tostring(object)
         end
     end
@@ -161,14 +163,87 @@ function _internal.tableToString(object,nesting)
 end
 
 
-function _internal.stringToTable(inputstr)
+local sp = {}
 
-    local tblTbl, err = loadstring("return "..inputstr)
-    if not tblTbl then
-        return false, err
+function sp.skip(p)
+    while p.pos <= p.len do
+        local b = p.str:byte(p.pos)
+        if b==32 or b==9 or b==10 or b==13 then p.pos=p.pos+1 else break end
+    end
+end
+
+function sp.parseString(p)
+    p.pos = p.pos+1
+    local parts = {}
+    while p.pos <= p.len do
+        local c = p.str:sub(p.pos,p.pos)
+        if c == '"' then p.pos=p.pos+1 return table.concat(parts)
+        elseif c == '\\' then
+            p.pos = p.pos+1
+            parts[#parts+1] = p.str:sub(p.pos,p.pos)
+            p.pos = p.pos+1
+        else parts[#parts+1]=c p.pos=p.pos+1 end
+    end
+    error("unterminated string literal")
+end
+
+function sp.parseTable(p)
+    p.pos = p.pos+1
+    local t = {}
+    sp.skip(p)
+    if p.str:sub(p.pos,p.pos)=='}' then p.pos=p.pos+1 return t end
+    while p.pos <= p.len do
+        sp.skip(p)
+        if p.str:sub(p.pos,p.pos) ~= "[" then error("expected '[' to start a key at position "..p.pos) end
+        p.pos = p.pos+1
+        sp.skip(p)
+        if p.str:sub(p.pos,p.pos) ~= '"' then error("expected string key at position "..p.pos) end
+        local key = sp.parseString(p)
+        sp.skip(p)
+        if p.str:sub(p.pos,p.pos) ~= "]" then error("expected ']' at position "..p.pos) end
+        p.pos = p.pos+1
+        sp.skip(p)
+        if p.str:sub(p.pos,p.pos) ~= "=" then error("expected '=' at position "..p.pos) end
+        p.pos = p.pos+1
+        sp.skip(p)
+        t[key] = sp.parseValue(p)
+        sp.skip(p)
+        local c = p.str:sub(p.pos,p.pos)
+        p.pos = p.pos+1
+        if c=='}' then return t elseif c~=',' then error("expected ',' or '}' at position "..p.pos) end
+        sp.skip(p)
+        if p.str:sub(p.pos,p.pos)=='}' then p.pos=p.pos+1 return t end
+    end
+    error("unterminated table")
+end
+
+function sp.parseValue(p)
+    sp.skip(p)
+    local c = p.str:sub(p.pos,p.pos)
+    if c=='{' then return sp.parseTable(p)
+    elseif c=='"' then return sp.parseString(p)
+    elseif p.str:sub(p.pos,p.pos+3)=="true"  then p.pos=p.pos+4 return true
+    elseif p.str:sub(p.pos,p.pos+4)=="false" then p.pos=p.pos+5 return false
+    elseif p.str:sub(p.pos,p.pos+2)=="nil"   then p.pos=p.pos+3 return nil
+    else
+        local numStr = p.str:match("^%-?%d+%.?%d*[eE]?[%+%-]?%d*", p.pos)
+        if numStr and #numStr > 0 then
+            p.pos = p.pos+#numStr
+            local n = tonumber(numStr)
+            if not n then error("invalid number literal '"..numStr.."' at position "..p.pos) end
+            return n
+        end
+        error("unexpected token at position "..p.pos)
+    end
+end
+
+function _internal.stringToTable(inputstr)
+    if type(inputstr) ~= "string" then
+        return false, "input is not a string"
     end
 
-    local ok, data = pcall(tblTbl)
+    local p = {str=inputstr, pos=1, len=#inputstr}
+    local ok, data = pcall(sp.parseValue, p)
     if not ok then
         return false, data
     end

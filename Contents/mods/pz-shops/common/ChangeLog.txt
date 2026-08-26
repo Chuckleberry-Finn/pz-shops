@@ -211,3 +211,7 @@ B42 Update and Overhaul:
 [ 8/22/26 ]
 - Fix: Labels would sometimes fail to update/render wrong.
 [ ------ ]
+
+[ 8/26/26 ]
+- Removed legacy loadstring use.
+[ ------ ]

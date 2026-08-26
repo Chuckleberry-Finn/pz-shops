@@ -152,3 +152,7 @@ Probably the last update before B42 conversion - wish me luck! :)
 [ 1/28/26 ]
 - Made the UI scalable
 [ ------ ]
+
+[ 8/26/26 ]
+- Removed loadstring use for a manual string-to-table parsing.
+[ ------ ]
