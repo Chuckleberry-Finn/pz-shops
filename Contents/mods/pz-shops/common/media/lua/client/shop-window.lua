@@ -1,4 +1,5 @@
 require "ISUI/ISPanelJoypad"
+require "ISUI/ISToolTipInv"
 require "shop-globalModDataClient"
 require "shop-wallet"
 require "shop-itemDictionary"
@@ -12,6 +13,96 @@ storeWindow.messages = {}
 storeWindow.CoolDownMessage = 300
 storeWindow.MaxItems = 20
 storeWindow.modifiedListings = {}
+
+storeWindowToolTip = ISToolTipInv:derive("storeWindowToolTip")
+
+function storeWindowToolTip:setNote(text, color)
+    self.noteText = text
+    self.noteColor = color
+end
+
+function storeWindowToolTip:render()
+    if not ISContextMenu.instance or not ISContextMenu.instance.visibleCheck then
+
+    local mx = getMouseX() + 24;
+    local my = getMouseY() + 24;
+    if not self.followMouse then
+        mx = self:getX()
+        my = self:getY()
+        if self.anchorBottomLeft then
+            mx = self.anchorBottomLeft.x
+            my = self.anchorBottomLeft.y
+        end
+    end
+
+    local PADX = 0
+
+    self.tooltip:setX(mx + PADX);
+    self.tooltip:setY(my);
+
+    self.tooltip:setWidth(50)
+    self.tooltip:setMeasureOnly(true)
+    if self.item then self.item:DoTooltip(self.tooltip) end;
+    self.tooltip:setMeasureOnly(false)
+
+     local myCore = getCore();
+     local maxX = myCore:getScreenWidth();
+     local maxY = myCore:getScreenHeight();
+
+     local tw = self.tooltip:getWidth();
+     local th = self.tooltip:getHeight();
+
+     local font = UIFont.Small
+     local tm = getTextManager()
+     local textH = tm:getFontHeight(font)
+     local notePadX = 8
+     local notePadY = 4
+     local noteHeight = self.noteText and (textH + notePadY*2) or 0
+     if self.noteText then
+         local requiredNoteWidth = tm:MeasureStringX(font, self.noteText) + notePadX*2
+         if requiredNoteWidth > tw then tw = requiredNoteWidth end
+         self.tooltip:setWidth(tw)
+     end
+
+     self.tooltip:setX(math.max(0, math.min(mx + PADX, maxX - tw - 1)));
+    if not self.followMouse and self.anchorBottomLeft then
+        self.tooltip:setY(math.max(0, math.min(my - th, maxY - th - noteHeight - 1)));
+    else
+        self.tooltip:setY(math.max(0, math.min(my, maxY - th - noteHeight - 1)));
+    end
+
+	if self.contextMenu and self.contextMenu.joyfocus then
+		local playerNum = self.contextMenu.player
+		self.tooltip:setX(getPlayerScreenLeft(playerNum) + 60)
+		self.tooltip:setY(getPlayerScreenTop(playerNum) + 60)
+	elseif self.contextMenu and self.contextMenu.currentOptionRect then
+		if self.contextMenu.currentOptionRect.height > 32 then
+			self:setY(my + self.contextMenu.currentOptionRect.height)
+		end
+		self:adjustPositionToAvoidOverlap(self.contextMenu.currentOptionRect)
+    end
+
+     self:setX(self.tooltip:getX() - PADX);
+     self:setY(self.tooltip:getY());
+     self:setWidth(tw + PADX);
+     self:setHeight(th);
+
+	if self.followMouse and (self.contextMenu == nil) then
+		self:adjustPositionToAvoidOverlap({ x = mx - 24 * 2, y = my - 24 * 2, width = 24 * 2, height = 24 * 2 })
+	end
+
+     self:drawRect(0, 0, self.width, self.height, self.backgroundColor.a, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b);
+     self:drawRectBorder(0, 0, self.width, self.height, self.borderColor.a, self.borderColor.r, self.borderColor.g, self.borderColor.b);
+     if self.item then self.item:DoTooltip(self.tooltip) end;
+
+     if self.noteText then
+         local noteY = self.height
+         self:drawRect(0, noteY, self.width, noteHeight, self.backgroundColor.a, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
+         self:drawRectBorder(0, noteY, self.width, noteHeight, self.borderColor.a, self.borderColor.r, self.borderColor.g, self.borderColor.b)
+         self:drawTextCentre(self.noteText, self.width/2, noteY + notePadY, self.noteColor.r, self.noteColor.g, self.noteColor.b, 1, font)
+     end
+	end
+end
 
 ---@param item InventoryItem
 function storeWindow.validateItemForStock(item, name)
@@ -620,9 +711,9 @@ function storeWindow:addStockListing(listing, managed)
     local listedItem = self.storeStockData:addItem(label, listing.item)
     listedItem.listingID = listingID
 
-    local tooltipText = label
+    local tooltipText = ""
     if managed then
-        tooltipText = tooltipText.."\n"
+        tooltipText = label.."\n"
         if not string.match(listedItem.item, "category:") then
             tooltipText = tooltipText.." [restock x"..listing.stock.."]"
         end
@@ -1659,6 +1750,13 @@ function storeWindow:drawStock(y, entry, alt)
                     end
                 end
 
+                if storeWindow.getListingHighlight then
+                    local hlColor = storeWindow.getListingHighlight(item, listing, self.parent.player)
+                    if hlColor then
+                        self:drawRect(0, y, self:getWidth(), self.itemheight - 1, hlColor.a or 0.18, hlColor.r, hlColor.g, hlColor.b)
+                    end
+                end
+
                 self:drawRectBorder(0, y, self:getWidth(), self.itemheight - 1, 0.9, self.borderColor.r, self.borderColor.g, self.borderColor.b)
                 if texture then self:drawTextureScaledAspect(texture, 5, y+3, 22, 22, color.a, color.r, color.g, color.b) end
                 self:drawText(extra..text, 32, y+6, color.r, color.g, color.b, color.a, self.font)
@@ -2016,6 +2114,7 @@ function storeWindow:updateTooltip()
     local x = self:getMouseX()
     local y = self:getMouseY()
     local item
+
     if x >= self.storeStockData:getX() and x <= self.storeStockData:getX() + self.storeStockData:getWidth() and y >= self.storeStockData:getY() and y <= self.storeStockData:getY() + self.storeStockData:getHeight() then
         y = self.storeStockData:rowAt(self.storeStockData:getMouseX(), self.storeStockData:getMouseY())
         if self.storeStockData.items[y] then
@@ -2029,10 +2128,30 @@ function storeWindow:updateTooltip()
         end
     end
 
-    if item and item.item and type(item.item)~="string" then
+    local previewItem, noteText, noteColor
+    if item and item.item then
+        if type(item.item) ~= "string" then
+            previewItem = item.item
+        elseif not string.match(item.item, "category:") then
+            if self.previewItemType ~= item.item then
+                self.previewItemType = item.item
+                local script = getScriptManager():getItem(item.item)
+                self.previewItem = script and script:InstanceItem(nil)
+            end
+            previewItem = self.previewItem
+
+            if storeWindow.getListingHighlight then
+                local listing = self.storeObj and self.storeObj.listings and self.storeObj.listings[item.listingID]
+                noteColor, noteText = storeWindow.getListingHighlight(item.item, listing, self.player)
+            end
+        end
+    end
+
+    if previewItem then
 
         if self.toolRender then
-            self.toolRender:setItem(item.item)
+            self.toolRender:setItem(previewItem)
+            self.toolRender:setNote(noteText, noteColor)
             if not self:getIsVisible() then self.toolRender:setVisible(false)
             else
                 self.toolRender:setVisible(true)
@@ -2040,7 +2159,7 @@ function storeWindow:updateTooltip()
                 self.toolRender:bringToTop()
             end
         else
-            self.toolRender = ISToolTipInv:new(item.item)
+            self.toolRender = storeWindowToolTip:new(previewItem)
             self.toolRender:initialise()
             self.toolRender:addToUIManager()
             if not self:getIsVisible() then
@@ -2050,6 +2169,7 @@ function storeWindow:updateTooltip()
             self.toolRender:setCharacter(self.player)
             self.toolRender:setX(self:getMouseX())
             self.toolRender:setY(self:getMouseY())
+            self.toolRender:setNote(noteText, noteColor)
             self.toolRender.followMouse = true
         end
     else

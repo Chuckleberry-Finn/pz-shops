@@ -215,3 +215,8 @@ B42 Update and Overhaul:
 [ 8/26/26 ]
 - Removed legacy loadstring use.
 [ ------ ]
+
+[ 8/28/26 ]
+- Fix edge case for applyToCashInCont failing
+- Added support for highlighting listings (API for Last Stand or other mods).
+[ ------ ]

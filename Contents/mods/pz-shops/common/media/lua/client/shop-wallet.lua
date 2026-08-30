@@ -285,8 +285,8 @@ end
 
 
 local function applyToCashInCont(ItemContainer)
-
     if not ItemContainer then return end
+    if not instanceof(ItemContainer, "ItemContainer") then return end
     local items = ItemContainer:getItems()
     for iteration=0, items:size()-1 do
         ---@type InventoryItem

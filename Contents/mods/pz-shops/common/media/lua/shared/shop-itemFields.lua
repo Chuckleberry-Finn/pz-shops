@@ -506,6 +506,9 @@ function itemFields.gatherFields(i, purgeHidden)
         --TODO: When selling InventoryContainer make it dump the contents out?
         --fields.containerID = item:getContainer().ID
 
+        --TODO: Figure out fillcontents
+        --fields.fillContents = false
+
         fields.weightReduction = item:getWeightReduction()
 
         local bloodLevel = item:getBloodLevel()
@@ -669,6 +672,25 @@ function itemFields.specials.setFluidType(item, fluidType)
 end
 
 
+--[[
+---@param item InventoryItem
+function itemFields.specials.fillContents(item, value)
+
+    local p = getPlayer()
+
+    print("item: ", item, "  item:getType():", item:getType())
+    local cont = item:getContainer()
+    print("cont: ", cont)
+    ---@type THashMap
+    local itemPickerCont = ItemPickerJava.getItemPickerContainers().get(item:getType())
+    print("bagsType: ", itemPickerCont)
+    ItemPickerJava.rollContainerItem(cont, p, itemPickerCont)
+
+    return true
+end
+--]]
+
+
 ---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.getFieldAssociatedFunctions(item)
 
@@ -731,6 +753,7 @@ function itemFields.getFieldAssociatedFunctions(item)
     local invCont = instanceof(item, "InventoryContainer") and item
     if invCont then
         fields.weightReduction = "setWeightReduction"
+        --fields.fillContents = "fillContents"
     end
 
 
