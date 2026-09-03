@@ -220,3 +220,7 @@ B42 Update and Overhaul:
 - Fix edge case for applyToCashInCont failing
 - Added support for highlighting listings (API for Last Stand or other mods).
 [ ------ ]
+
+[ 9/3/26 ]
+- Fix money-bundle exploit: Money bundle/unbundle now preserves the money value going into making them.
+[ ------ ]

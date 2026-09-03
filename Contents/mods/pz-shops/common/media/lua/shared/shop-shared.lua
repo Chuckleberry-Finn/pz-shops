@@ -21,7 +21,9 @@ function _internal.generateMoneyValue(item, value, force)
             if (not item:getModData().value) or force then
                 local min = (SandboxVars.ShopsAndTraders.MoneySpawnMin or 1.5)*100
                 local max = (SandboxVars.ShopsAndTraders.MoneySpawnMax or 25)*100
-                value = value or ((ZombRand(min,max)/100)*100)/100
+                local random_instance = newrandom()
+                value = value or ((random_instance:random(min,max)/100)*100)/100
+
                 item:getModData().value = value
             end
             item:setActualWeight(SandboxVars.ShopsAndTraders.MoneyWeight*item:getModData().value)
