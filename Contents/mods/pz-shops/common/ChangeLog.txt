@@ -224,3 +224,7 @@ B42 Update and Overhaul:
 [ 9/3/26 ]
 - Fix money-bundle exploit: Money bundle/unbundle now preserves the money value going into making them.
 [ ------ ]
+
+[ 9/4/26 ]
+- Check nested containers when removing items.
+[ ------ ]

@@ -127,8 +127,9 @@ end
 
 function WALLET_HANDLER.serverRemoveMoneyItem(playerObj, item)
     if not playerObj or not item then return end
-    playerObj:getInventory():DoRemoveItem(item)
-    sendRemoveItemFromContainer(playerObj:getInventory(), item)
+    local container = item:getContainer() or playerObj:getInventory()
+    container:DoRemoveItem(item)
+    sendRemoveItemFromContainer(container, item)
 end
 
 
