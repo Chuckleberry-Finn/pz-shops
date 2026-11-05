@@ -228,3 +228,25 @@ B42 Update and Overhaul:
 [ 9/4/26 ]
 - Check nested containers when removing items.
 [ ------ ]
+
+[ 11/5/26 ]
+- Fix: Shop Deeds could not be activated - the deed was destroyed before the recipe could read its container.
+ - Activating a deed in MP no longer errors on the server; the shop window now opens for the player once assigned.
+- Fix: Crafting a deed failed on servers (wallet lookup was client-only).
+- Fix: Crafting a deed with a [$] cost no longer destroys a money item on top of the cost, and no longer refunds the cost from partially used money items.
+ - The money input of the deed recipe is now always mode:keep, the cost itself is taken by the recipe.
+- Fix: Drainables bought from shops came out at the wrong fill level, often nearly empty (fill was read from the wrong value).
+- Fix: Food bought from shops had cooked/burnt/frozen modifiers baked into unhappiness, boredom and thirst.
+- Fix: Weapon attachments on bought weapons no longer double up their stat bonuses.
+- Fix: Fields set to false (no clip, alarm off, toggled off in the field editor, etc.) are now applied.
+- New Item Fields:
+ - customPages: Notebook/journal page contents.
+ - learnedRecipes: Schematics/recipe clippings keep the recipes they teach (previously re-rolled, not matching the name).
+ - stashMap: Annotated/stash maps keep their stash.
+ - modelIndex: Items with model variants keep their look (only stored when listing an actual item).
+ - numberOfKey: Padlocks keep how many keys they come with.
+ - deviceHasBattery, devicePower, deviceHeadphoneType: Radios/walkies keep their battery state and installed headphones.
+ - stressChange: Food stress value.
+ - uses: Now applied for non-drainable items.
+- Note: Drainable listings made before this update may have stored a bad usedDelta - re-list or edit those listings.
+[ ------ ]

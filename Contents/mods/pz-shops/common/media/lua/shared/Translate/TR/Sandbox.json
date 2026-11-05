@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Yeniden Stoklama Mağazanın Stokunu Tamamen Sıfırlar",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Tüccarlar stoklarını yeniden doldurduğunda, yeniden satılan (başlangıçta oyuncular tarafından satılan) tüm öğeler temizlenecektir.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Oyuncu-Dükkan Tapu Tarifi",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Eylemlerin işlenmesini devre dışı bırakmak için boş bırakın.\\nÖrnek: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Eylemlerin işlenmesini devre dışı bırakmak için boş bırakın.\\nÖrnek: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Maksimum Alışveriş Yapan Kişi Sayısı",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Devre dışı bırakmak için 0'a ayarlayın.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Alışveriş Etkinliği Zaman Aşımı",

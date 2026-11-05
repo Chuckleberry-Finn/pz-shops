@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Raktárkészlet feltöltése Teljesen visszaállítja az üzlet készletét",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Amikor a kereskedők feltöltik a készletet, a továbbértékesített (eredetileg a játékosok által értékesített) tételek törlésre kerülnek.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Player-Shop Deed Recept",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Hagyja üresen az okiratok készítésének letiltásához.\\nPélda: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Hagyja üresen az okiratok készítésének letiltásához.\\nPélda: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Vásárlók maximális száma",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "A letiltáshoz állítsa 0-ra.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Vásárlási tevékenység időtúllépés",

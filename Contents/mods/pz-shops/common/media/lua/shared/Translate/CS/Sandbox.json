@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Doplnění zásob Úplně resetuje zásoby obchodu",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Když obchodníci znovu naskladní všechny položky, které se znovu prodávají (původně prodávané hráči), budou vymazány.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Player-Shop Deed Recept",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Chcete-li zakázat vytváření listin, ponechte prázdné.\\nPříklad: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Chcete-li zakázat vytváření listin, ponechte prázdné.\\nPříklad: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Maximální počet nakupujících",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Nastavením na 0 deaktivujete.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Časový limit nákupní aktivity",

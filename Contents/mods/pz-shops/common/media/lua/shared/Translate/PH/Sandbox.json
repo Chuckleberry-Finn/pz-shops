@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Ang Restocking ay Nagre-reset ng Buong Stock ng Store",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Kapag nag-restock ang mga trader ng anumang item na ibinebenta (orihinal na ibinebenta ng mga manlalaro) ay tatanggalin.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Player-Shop Deed Recipe",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Iwanang blangko upang huwag paganahin ang paggawa ng mga gawa.\\nHalimbawa: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Iwanang blangko upang huwag paganahin ang paggawa ng mga gawa.\\nHalimbawa: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Pinakamataas na Bilang ng Mga Mamimili",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Itakda sa 0 para i-disable.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Oras ng Aktibidad sa Pamimili",

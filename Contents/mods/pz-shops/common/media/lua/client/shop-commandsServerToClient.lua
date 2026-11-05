@@ -40,6 +40,20 @@ function shopCommandsServerToClient.onServerCommand(_module, _command, _data)
     if _command == "transmitItems" then
     end
 
+    if _command == "openDeedStore" then
+        local sq = getSquare(_data.x, _data.y, _data.z)
+        local objects = sq and sq:getObjects()
+        if objects then
+            for i=0, objects:size()-1 do
+                local object = objects:get(i)
+                if object and (not instanceof(object, "IsoWorldInventoryObject")) and _internal.getWorldObjectName(object)==_data.worldObjName then
+                    storeWindow:onBrowse(nil, object, getPlayer())
+                    break
+                end
+            end
+        end
+    end
+
     if _command == "updateMoneyItemName" then
         local itemID, value = _data.itemID, _data.value
         if itemID and value then

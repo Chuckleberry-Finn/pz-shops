@@ -46,7 +46,7 @@ function itemFields.gatherFields(i, purgeHidden)
     end
 
     if item:IsDrainable() then
-        local usedDelta = item:getUseDelta()
+        local usedDelta = item:getCurrentUsesFloat()
         fields.usedDelta = usedDelta
         if not (usedDelta < 1) then
             hidden_fields.usedDelta = true
@@ -178,8 +178,14 @@ function itemFields.gatherFields(i, purgeHidden)
     fields.infected = infected
     if not infected then hidden_fields.infected = true end
 
-    ---stash map has no getter
-    --if (this.stashMap != null)
+    local stashMap = item:getStashMap()
+    if stashMap then fields.stashMap = stashMap end
+
+    local modelIndex = item:getModelIndex()
+    fields.modelIndex = modelIndex
+    if modelIndex == -1 or type(i) == "string" then
+        hidden_fields.modelIndex = true
+    end
 
     local currentAmmoCount = item:getCurrentAmmoCount()
     fields.currentAmmoCount = currentAmmoCount
@@ -281,9 +287,10 @@ function itemFields.gatherFields(i, purgeHidden)
         fields.endChange = item:getEndChange()
         fields.hungChange = item:getHungChange()
         fields.baseHunger = item:getBaseHunger()
-        fields.unhappyChange = item:getUnhappyChange()
-        fields.boredomChange = item:getBoredomChange()
-        fields.thirstChange = item:getThirstChange()
+        fields.unhappyChange = item:getUnhappyChangeUnmodified()
+        fields.boredomChange = item:getBoredomChangeUnmodified()
+        fields.thirstChange = item:getThirstChangeUnmodified()
+        fields.stressChange = item:getStressChangeUnmodified()
 
         local heat = item:getHeat()
         fields.heat = heat
@@ -523,9 +530,37 @@ function itemFields.gatherFields(i, purgeHidden)
         fields.numberOfPages = item:getNumberOfPages()
         fields.alreadyReadPages = item:getAlreadyReadPages()
         fields.canBeWrite = item:canBeWrite() ---???
-        ---hashmap
-        --fields.customPages = hashmap < int, string >
+
+        local pagesTable = {}
+        if not item:isEmptyPages() then
+            local pages = item:getCustomPages()
+            for p=1, pages:size() do
+                table.insert(pagesTable, item:seePage(p) or "")
+            end
+        end
+        fields.customPages = pagesTable
+        hidden_fields.customPages = (#pagesTable == 0)
+
         fields.lockedBy = item:getLockedBy()
+
+        local recipesTable = {}
+        local learnedRecipes = item:getLearnedRecipes()
+        if learnedRecipes then
+            for r=0, learnedRecipes:size()-1 do
+                local recipe = learnedRecipes:get(r)
+                if recipe then table.insert(recipesTable, recipe) end
+            end
+        end
+        fields.learnedRecipes = recipesTable
+
+        local scriptRecipes = script:getLearnedRecipes()
+        local matchesScript = (scriptRecipes and scriptRecipes:size() or 0) == #recipesTable
+        if matchesScript then
+            for r, recipe in ipairs(recipesTable) do
+                if scriptRecipes:get(r-1) ~= recipe then matchesScript = false break end
+            end
+        end
+        hidden_fields.learnedRecipes = matchesScript
     end
 
 
@@ -547,6 +582,37 @@ function itemFields.gatherFields(i, purgeHidden)
         fields.minute = item:getMinute()
         fields.alarmSet = item:isAlarmSet()
         --fields.ringSince ---No Getter
+    end
+
+    if instanceof(item, "Key") and item:isPadlock() then
+        local numberOfKey = item:getNumberOfKey()
+        fields.numberOfKey = numberOfKey
+        if numberOfKey == 2 then
+            hidden_fields.numberOfKey = true
+        end
+    end
+
+    if instanceof(item, "Radio") then
+        local deviceData = item:getDeviceData()
+        if deviceData and deviceData:getIsBatteryPowered() then
+            local hasBattery = deviceData:getHasBattery()
+            fields.deviceHasBattery = hasBattery
+            if hasBattery then
+                hidden_fields.deviceHasBattery = true
+            end
+
+            local power = deviceData:getPower()
+            fields.devicePower = power
+            if (not hasBattery) or power >= 1 then
+                hidden_fields.devicePower = true
+            end
+        end
+
+        local headphoneType = deviceData and deviceData:getHeadphoneType() or -1
+        fields.deviceHeadphoneType = headphoneType
+        if headphoneType < 0 then
+            hidden_fields.deviceHeadphoneType = true
+        end
     end
 
     ---@type Moveable
@@ -629,11 +695,89 @@ function itemFields.specials.setWeaponParts(item, parts)
     for pType, fullType in pairs(parts) do
         local part = instanceItem(fullType)
         if part then
-            item:attachWeaponPart(part, true)
+            item:attachWeaponPart(part, false)
         else
             print("[Shop] setWeaponParts: could not spawn '"..tostring(fullType).."' for slot '"..tostring(pType).."'")
         end
     end
+    return true
+end
+
+
+---@param item Literature
+---@param pages table
+function itemFields.specials.setCustomPageTable(item, pages)
+    if type(pages) ~= "table" then return false end
+    for p, text in ipairs(pages) do
+        item:addPage(p, tostring(text))
+    end
+    return true
+end
+
+
+---@param item Literature
+---@param recipes table
+function itemFields.specials.setLearnedRecipeTable(item, recipes)
+    if type(recipes) ~= "table" then return false end
+    local learnedRecipes = ArrayList.new()
+    for _, recipe in ipairs(recipes) do learnedRecipes:add(tostring(recipe)) end
+    item:setLearnedRecipes(learnedRecipes)
+    return true
+end
+
+
+---@param item InventoryItem|HandWeapon
+---@param index number
+function itemFields.specials.setModelVariant(item, index)
+    index = tonumber(index)
+    if not index then return false end
+
+    local variantLists = { item:getStaticModelsByIndex(), item:getWorldStaticModelsByIndex() }
+    if instanceof(item, "HandWeapon") then table.insert(variantLists, item:getWeaponSpritesByIndex()) end
+
+    local hasVariants = false
+    for _, list in pairs(variantLists) do
+        hasVariants = true
+        if index < 0 or index >= list:size() then return false end
+    end
+    if not hasVariants then return false end
+
+    local icons = item:getIconsForTexture()
+    if icons and index >= icons:size() then return false end
+
+    item:setModelIndex(index)
+    return true
+end
+
+
+---@param item Radio
+---@param hasBattery boolean
+function itemFields.specials.setDeviceHasBattery(item, hasBattery)
+    local deviceData = item:getDeviceData()
+    if not deviceData then return false end
+    deviceData:setHasBattery(hasBattery == true or tostring(hasBattery) == "true")
+    return true
+end
+
+
+---@param item Radio
+---@param power number
+function itemFields.specials.setDevicePower(item, power)
+    local deviceData = item:getDeviceData()
+    power = tonumber(power)
+    if not deviceData or not power then return false end
+    deviceData:setPower(power)
+    return true
+end
+
+
+---@param item Radio
+---@param headphoneType number
+function itemFields.specials.setDeviceHeadphoneType(item, headphoneType)
+    local deviceData = item:getDeviceData()
+    headphoneType = tonumber(headphoneType)
+    if not deviceData or (headphoneType ~= 0 and headphoneType ~= 1) then return false end
+    deviceData:setHeadphoneType(headphoneType)
     return true
 end
 
@@ -697,7 +841,8 @@ function itemFields.getFieldAssociatedFunctions(item)
     local fields = {}
 
     fields.name = "setName"
-    fields.usedDelta = "setUsedDelta"
+    fields.usedDelta = "setCurrentUsesFloat"
+    if not item:IsDrainable() then fields.uses = "setCurrentUses" end
     fields.condition = "setCondition"
     fields.broken = "setBroken"
     fields.color = "setColor"
@@ -722,6 +867,22 @@ function itemFields.getFieldAssociatedFunctions(item)
     fields.sharpness      = "setSharpness"
     fields.quality        = "setQuality"
     fields.headCondition  = "setHeadCondition"
+    fields.stashMap = "setStashMap"
+    fields.modelIndex = "setModelVariant"
+
+    ---@type Key
+    local key = instanceof(item, "Key") and item
+    if key then
+        fields.numberOfKey = "setNumberOfKey"
+    end
+
+    ---@type Radio
+    local radio = instanceof(item, "Radio") and item
+    if radio then
+        fields.deviceHasBattery = "setDeviceHasBattery"
+        fields.devicePower = "setDevicePower"
+        fields.deviceHeadphoneType = "setDeviceHeadphoneType"
+    end
 
     ---@type Moveable
     local movable = instanceof(item, "Moveable") and item
@@ -763,7 +924,9 @@ function itemFields.getFieldAssociatedFunctions(item)
         fields.numberOfPages = "setNumberOfPages"
         fields.alreadyReadPages = "setAlreadyReadPages"
         fields.canBeWrite = "setCanBeWrite"
+        fields.customPages = "setCustomPageTable"
         fields.lockedBy = "setLockedBy"
+        fields.learnedRecipes = "setLearnedRecipeTable"
     end
 
 
@@ -795,6 +958,7 @@ function itemFields.getFieldAssociatedFunctions(item)
         fields.unhappyChange = "setUnhappyChange"
         fields.boredomChange = "setBoredomChange"
         fields.thirstChange = "setThirstChange"
+        fields.stressChange = "setStressChange"
         fields.heat = "setHeat"
         fields.LastCookMinute = "setLastCookMinute"
         fields.CookingTime = "setCookingTime"

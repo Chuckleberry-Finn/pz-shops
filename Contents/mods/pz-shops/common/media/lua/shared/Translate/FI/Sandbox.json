@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Varaston lisääminen nollaa myymälän varastot kokonaan",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Kun kauppiaat lisäävät varastojaan, kaikki jälleenmyytävät tuotteet (pelaajien alun perin myymät) tyhjennetään.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Player-Shop Deed -resepti",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Jätä tyhjäksi, jos haluat poistaa tekojen luomisen käytöstä.\\nEsimerkki: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Jätä tyhjäksi, jos haluat poistaa tekojen luomisen käytöstä.\\nEsimerkki: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Ostajien enimmäismäärä",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Aseta arvoksi 0 poistaaksesi käytöstä.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Ostostoiminnan aikakatkaisu",

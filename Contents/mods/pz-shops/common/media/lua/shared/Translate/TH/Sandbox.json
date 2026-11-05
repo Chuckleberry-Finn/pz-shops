@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "การเติมสต็อกจะรีเซ็ตสต็อกของร้านค้าทั้งหมด",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "เมื่อเทรดเดอร์เติมสต็อกสินค้าใดๆ ที่ถูกขายต่อ (แต่เดิมขายโดยผู้เล่น) จะถูกล้างออกไป",
     "Sandbox_ShopsAndTraders_DeedRecipe": "สูตรโฉนดของผู้เล่น-ร้านค้า",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "เว้นว่างไว้เพื่อปิดใช้งานการประดิษฐ์โฉนด\\nตัวอย่าง: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "เว้นว่างไว้เพื่อปิดใช้งานการประดิษฐ์โฉนด\\nตัวอย่าง: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "จำนวนผู้ซื้อสูงสุด",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "ตั้งค่าเป็น 0 เพื่อปิดใช้งาน",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "กิจกรรมช้อปปิ้งหมดเวลา",

@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "補貨會完全重置商店的庫存",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "當商人重新進貨時，任何轉售的物品（最初由玩家出售）都將被清除。",
     "Sandbox_ShopsAndTraders_DeedRecipe": "玩家商店契約配方",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "留空以禁用契約製作。 \\n範例：item 1 [$1000] flags[Prop2] mode: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "留空以禁用契約製作。 \\n範例：item 1 [$1000] flags[Prop2] mode: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "最大購物人數",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "設定為 0 以停用。",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "購物活動超時",

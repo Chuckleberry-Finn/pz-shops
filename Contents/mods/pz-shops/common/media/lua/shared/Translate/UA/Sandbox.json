@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Поповнення запасів повністю скидає запаси в магазині",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Коли трейдери поповнюють запаси, усі предмети, що перепродаються (спочатку продані гравцями), будуть видалені.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Рецепт дії магазину гравців",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Залиште поле порожнім, щоб вимкнути створення справ.\\nПриклад: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Залиште поле порожнім, щоб вимкнути створення справ.\\nПриклад: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Максимальна кількість покупців",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Встановіть 0, щоб вимкнути.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Тайм-аут активності покупок",

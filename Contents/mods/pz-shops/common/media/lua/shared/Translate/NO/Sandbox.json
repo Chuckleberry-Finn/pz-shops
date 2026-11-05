@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Restocking Tilbakestiller butikkens lager helt",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Når tradere fyller på lager, vil gjenstander som selges videre (opprinnelig solgt av spillere) bli slettet.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Player-Shop skjøteoppskrift",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "La feltet stå tomt for å deaktivere utforming av skjøter.\\nEksempel: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "La feltet stå tomt for å deaktivere utforming av skjøter.\\nEksempel: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Maks antall kunder",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Sett til 0 for å deaktivere.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Tidsavbrudd for shoppingaktivitet",

@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Reaprovizionarea Resetează în întregime stocul magazinului",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Când comercianții reaprovizionați, orice obiecte revândute (vândute inițial de jucători) vor fi eliminate.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Jucător-Magazin Rețetă de act",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Lăsați necompletat pentru a dezactiva crearea de fapte.\\nExemplu: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Lăsați necompletat pentru a dezactiva crearea de fapte.\\nExemplu: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Numărul maxim de cumpărători",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Setați la 0 pentru a dezactiva.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Activitate de cumpărături Time Out",

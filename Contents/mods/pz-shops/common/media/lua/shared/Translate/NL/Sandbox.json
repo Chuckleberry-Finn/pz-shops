@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Bijvullen Reset de voorraad van de winkel volledig",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Wanneer handelaars de voorraad aanvullen, worden alle items die worden doorverkocht (oorspronkelijk door spelers verkocht) verwijderd.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Recept voor spelerwinkelakte",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Laat dit leeg om het maken van daden uit te schakelen.\\nVoorbeeld: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Laat dit leeg om het maken van daden uit te schakelen.\\nVoorbeeld: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Maximaal aantal klanten",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Stel in op 0 om uit te schakelen.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Time-out voor winkelactiviteit",

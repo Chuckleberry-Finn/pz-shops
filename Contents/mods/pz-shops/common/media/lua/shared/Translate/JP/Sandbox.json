@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "再入荷するとストアの在庫が完全にリセットされます",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "トレーダーが補充すると、再販されているアイテム (元々プレイヤーが販売したもの) はすべて消去されます。",
     "Sandbox_ShopsAndTraders_DeedRecipe": "プレイヤーショップ証書のレシピ",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "証書の作成を無効にするには空白のままにします。\\n例: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "証書の作成を無効にするには空白のままにします。\\n例: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "買い物客の最大数",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "無効にするには 0 に設定します。",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "ショッピングアクティビティのタイムアウト",

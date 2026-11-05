@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Il rifornimento ripristina completamente le scorte del negozio",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Quando i commercianti riforniscono gli oggetti rivenduti (originariamente venduti dai giocatori) verranno eliminati.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Ricetta atto del negozio dei giocatori",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Lascia vuoto per disabilitare la creazione di azioni.\\nEsempio: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Lascia vuoto per disabilitare la creazione di azioni.\\nEsempio: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Numero massimo di acquirenti",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Impostare su 0 per disabilitare.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Timeout dell'attività di acquisto",

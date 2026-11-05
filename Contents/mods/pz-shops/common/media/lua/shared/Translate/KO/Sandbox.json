@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "재입고하면 매장의 재고가 완전히 재설정됩니다.",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "상인이 재입고할 때 재판매 중인 모든 품목(원래 플레이어가 판매한 품목)은 모두 지워집니다.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "플레이어 상점 증서 레시피",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "증서 제작을 비활성화하려면 비워 두세요.\\n예: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "증서 제작을 비활성화하려면 비워 두세요.\\n예: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "최대 쇼핑객 수",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "비활성화하려면 0으로 설정합니다.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "쇼핑 활동 시간 초과",

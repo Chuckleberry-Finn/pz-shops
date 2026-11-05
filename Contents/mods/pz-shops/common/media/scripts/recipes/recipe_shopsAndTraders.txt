@@ -6,14 +6,14 @@ module Base
         time = 30,
         OnCreate = shopsAndTradersRecipe.onActivateDeed,
         OnTest = shopsAndTradersRecipe.checkDeedValid,
-        Tags = CanBeDoneFromFloor;RemoveResultItems,
+        Tags = InHandCraft;CanBeDoneFromFloor;RemoveResultItems,
         category = Shops,
 
         Tooltip = Tooltip_shopDeed,
 
 		inputs
 		{
-		    item 1 [Base.ShopDeed] flags[Prop1] mode:destroy,
+		    item 1 [Base.ShopDeed] flags[Prop1] mode:keep,
 		}
 		outputs
 		{

@@ -5,6 +5,16 @@ shopsAndTradersRecipe = {}
 
 local moneyValueForDeedRecipe
 
+
+---@param playerObj IsoPlayer|IsoGameCharacter
+local function getDeedWallet(playerObj)
+    if isServer() then
+        local walletID = _internal.getWalletID(playerObj)
+        return walletID and GLOBAL_WALLETS[walletID]
+    end
+    return getWallet(playerObj)
+end
+
 ---Authentic Z
 --recipe Make a Stack of Money { Money, Result:Authentic_MoneyStack, Time:30.0, }
 --recipe Convert into Item { Authentic_MoneyStack, Result:Money, Time:30.0, }
@@ -48,7 +58,9 @@ end
 ---@param player IsoPlayer|IsoGameCharacter
 function shopsAndTradersRecipe.onActivateDeed(craftRecipeData, player) --onCreate
     -- local result = craftRecipeData:getAllCreatedItems():get(0)
-    local item = craftRecipeData:getAllConsumedItems():get(0)
+    local keptItems = craftRecipeData:getAllKeepInputItems()
+    local item = keptItems:size() > 0 and keptItems:get(0)
+    if not item then return false end
     local cont = item:getContainer()
     if not _internal.isValidContainer(cont) then return false end
 
@@ -57,14 +69,16 @@ function shopsAndTradersRecipe.onActivateDeed(craftRecipeData, player) --onCreat
     if worldObj and worldObj:getModData().storeObjID then return false end
 
     local x, y, z, worldObjName = worldObj:getX(), worldObj:getY(), worldObj:getZ(), _internal.getWorldObjectName(worldObj)
-    sendClientCommand("shop", "assignStore", { x=x, y=y, z=z, worldObjName=worldObjName, owner=player:getUsername() })
+    sendClientCommand(player, "shop", "assignStore", { x=x, y=y, z=z, worldObjName=worldObjName, owner=player:getUsername() })
 
-    storeWindow:onBrowse(nil, worldObj, player)
-
-    if isClient() then
-        cont:removeItemOnServer(item)
-    end
     cont:DoRemoveItem(item)
+
+    if isServer() then
+        sendRemoveItemFromContainer(cont, item)
+        sendServerCommand(player, "shop", "openDeedStore", { x=x, y=y, z=z, worldObjName=worldObjName })
+    else
+        storeWindow:onBrowse(nil, worldObj, player)
+    end
 end
 
 
@@ -82,7 +96,7 @@ function shopsAndTradersRecipe.canCraftDeed(craftRecipeData, playerObj) --OnTest
     --local item = craftRecipeData:getAllConsumedItems():get(0)
 
     if not moneyValueForDeedRecipe then return true end
-    local wallet, walletBalance = getWallet(playerObj), 0
+    local wallet, walletBalance = getDeedWallet(playerObj), 0
     if wallet then walletBalance = wallet.amount end
 
     local money = walletBalance
@@ -114,7 +128,7 @@ function shopsAndTradersRecipe.onCraftDeed(craftRecipeData, playerObj)
     if not moneyValueForDeedRecipe or moneyValueForDeedRecipe==0 then return true end
 
     local costNeeded = moneyValueForDeedRecipe
-    local wallet, walletBalance = getWallet(playerObj), 0
+    local wallet, walletBalance = getDeedWallet(playerObj), 0
     if wallet then walletBalance = wallet.amount end
 
     local money = walletBalance
@@ -139,7 +153,7 @@ function shopsAndTradersRecipe.onCraftDeed(craftRecipeData, playerObj)
             local walletID = _internal.getWalletID(playerObj)
             local transferValue = math.min(wallet.amount, costNeeded)
             costNeeded = costNeeded-transferValue
-            sendClientCommand("shop", "transferFunds", {walletID=walletID, amount=(0-transferValue)})
+            sendClientCommand(playerObj, "shop", "transferFunds", {walletID=walletID, amount=(0-transferValue)})
         end
 
         if costNeeded > 0 then
@@ -148,13 +162,16 @@ function shopsAndTradersRecipe.onCraftDeed(craftRecipeData, playerObj)
                 local cost = math.min(mValue, costNeeded)
                 costNeeded = costNeeded-cost
                 if mValue-cost <= 0 then
-                    safelyRemoveMoney(mItem, playerObj)
+                    if isServer() then
+                        WALLET_HANDLER.serverRemoveMoneyItem(playerObj, mItem)
+                    else
+                        safelyRemoveMoney(mItem, playerObj)
+                    end
                 else
                     _internal.generateMoneyValue(mItem, mValue-cost, true)
-                    sendClientCommand("shop", "splitMoney", {
-                        originalItemID = mItem:getID(),
-                        originalValue = mValue,
-                        splitValue = cost,
+                    sendClientCommand(playerObj, "shop", "stackMoney", {
+                        targetItemID = mItem:getID(),
+                        newValue = mValue-cost,
                     })
                 end
             end
@@ -176,7 +193,7 @@ function shopsAndTradersRecipe.addDeedRecipe()
     else
 
         if string.lower(sandboxRecipe) == "default" then
-            modified_option = "item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,"
+            modified_option = "item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,"
         else
             modified_option = tostring(sandboxRecipe)
         end
@@ -188,7 +205,9 @@ function shopsAndTradersRecipe.addDeedRecipe()
         local value = modified_option:match("%[%$(%d+)%]")
         if value then
             moneyValueForDeedRecipe = tonumber(value)
-            modified_option = modified_option:gsub("%[%$(%d+)%]", "[Base.Money]")
+            modified_option = modified_option:gsub("([^,]*)%[%$%d+%]([^,]*)", function(pre, post)
+                return pre.."[Base.Money]"..post:gsub("%s*mode:%a+", "").." mode:keep"
+            end)
             if moneyValueForDeedRecipe and moneyValueForDeedRecipe > 0 then
                 tooltip = "Tooltip = "..getText("IGUI_requires").." ".._internal.numToCurrency(moneyValueForDeedRecipe)..", "
             end

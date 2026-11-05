@@ -26,7 +26,7 @@
     "Sandbox_ShopsAndTraders_TradersResetStock": "Durch die Wiederauffüllung wird der Lagerbestand des Shops vollständig zurückgesetzt",
     "Sandbox_ShopsAndTraders_TradersResetStock_tooltip": "Wenn Händler ihre Lagerbestände wieder auffüllen, werden alle Artikel, die weiterverkauft werden (ursprünglich von Spielern verkauft), aus dem Verkehr gezogen.",
     "Sandbox_ShopsAndTraders_DeedRecipe": "Player-Shop-Deed-Rezept",
-    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Leer lassen, um das Herstellen von Taten zu deaktivieren.\\nBeispiel: item 1 [$1000] flags[Prop2] mode:destroy, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
+    "Sandbox_ShopsAndTraders_DeedRecipe_tooltip": "Leer lassen, um das Herstellen von Taten zu deaktivieren.\\nBeispiel: item 1 [$1000] flags[Prop2] mode:keep, item 1 [Base.SheetPaper2] flags[Prop1] mode:destroy,",
     "Sandbox_ShopsAndTraders_MaxUsers": "Maximale Anzahl an Käufern",
     "Sandbox_ShopsAndTraders_MaxUsers_tooltip": "Zum Deaktivieren auf 0 setzen.",
     "Sandbox_ShopsAndTraders_ActivityTimeOut": "Auszeit beim Einkaufen",
