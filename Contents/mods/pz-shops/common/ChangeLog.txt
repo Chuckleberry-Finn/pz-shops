@@ -250,3 +250,23 @@ B42 Update and Overhaul:
  - uses: Now applied for non-drainable items.
 - Note: Drainable listings made before this update may have stored a bad usedDelta - re-list or edit those listings.
 [ ------ ]
+
+[ 11/6/26 ]
+- Fix: "Neither" change policy took sold items without counting them towards the purchase - bartering now works.
+ - Sold items now pay for purchases in the same trade under every change policy, only the leftover is given as change, credit, or kept by the shop.
+- Fix: Order totals are now always checked against the money items actually handed over.
+- Reworked "Shops Change Policy" into "Shop Payment & Change" - existing settings keep their meaning:
+ - Cash + Change: Shops take cash and give change in cash.
+ - Cash + Store Credit: Shops take cash, change is kept as store credit.
+ - Barter, No Change (previously "Neither"): Shops do not take cash or wallet balance, the shop keeps the difference.
+  - Wallet balance is no longer accepted under this option.
+ - New: Barter + Store Credit: Shops do not take cash or wallet balance, change is kept as store credit.
+[ ------ ]
+
+[ 11/7/26 ]
+- Fix: Editing list/table fields (customPages, learnedRecipes, spices, weaponParts, color) in the field editor replaced them with a "table: 0x..." string.
+ - These fields now show and edit as text, e.g. ["Page 1","Page 2"] or {"Scope" : "Base.x2Scope"}.
+ - Invalid text is ignored (reason printed to the console), and clearing the text resets the field to the item's default.
+ - Listings already broken this way can be fixed by re-entering the value or clearing it.
+- JSON reading no longer throws errors on malformed text - it reports the problem and returns nothing instead.
+[ ------ ]

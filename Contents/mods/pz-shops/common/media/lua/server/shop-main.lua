@@ -529,7 +529,12 @@ function STORE_HANDLER.validateOrder(playerObj, playerID, storeID, buying, selli
     local playerWallet = WALLET_HANDLER.getOrSetWallet(playerID)
     if not playerWallet then print("ERROR: validatePurchases: No valid player wallet") return end
 
-    if moneyItemIDs and #moneyItemIDs > 0 then
+    local acceptsCash = _internal.shopsAcceptCash()
+    local changePolicy = _internal.getChangePolicy()
+    local tradeValue = 0
+
+    money = 0
+    if acceptsCash and moneyItemIDs and #moneyItemIDs > 0 then
         local verified = 0
         for _,entry in pairs(moneyItemIDs) do
             local item = _internal.getItemByIDRecursive(playerObj:getInventory(), entry.itemID)
@@ -546,15 +551,9 @@ function STORE_HANDLER.validateOrder(playerObj, playerID, storeID, buying, selli
         if listing then
 
             local adjustedPrice = listing.price*(listing.buybackRate/100)
+            tradeValue = tradeValue + adjustedPrice
 
-            if SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then
-                WALLET_HANDLER.processCreditToStore(playerWallet,playerObj,adjustedPrice,storeID)
-            elseif SandboxVars.ShopsAndTraders.ShopsUseCash == 3 then
-            else
-                WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,adjustedPrice)
-            end
-
-            if SandboxVars.ShopsAndTraders.ShopsUseCash < 2 then
+            if changePolicy < 2 then
                 storeObj.cash = _internal.floorCurrency((storeObj.cash or 0) - adjustedPrice)
             end
 
@@ -584,12 +583,16 @@ function STORE_HANDLER.validateOrder(playerObj, playerID, storeID, buying, selli
 
             local credit = playerWallet and playerWallet.credit and playerWallet.credit[storeID] or 0
 
-            local purchasePower = playerWallet.amount+money+credit
+            local walletAmount = acceptsCash and playerWallet.amount or 0
+            local purchasePower = walletAmount+money+credit+tradeValue
             if purchasePower-listing.price < 0 then break end
 
-            local moneyNeeded = math.min(listing.price, money)
+            local tradeUsed = math.min(listing.price, tradeValue)
+            tradeValue = tradeValue-tradeUsed
+
+            local moneyNeeded = math.min(listing.price-tradeUsed, money)
             money = math.max(0, money-moneyNeeded)
-            local costRemainder = math.max(0, listing.price-moneyNeeded)
+            local costRemainder = math.max(0, listing.price-tradeUsed-moneyNeeded)
 
             if listing.available > 0 then listing.available = listing.available-1 end
 
@@ -600,10 +603,10 @@ function STORE_HANDLER.validateOrder(playerObj, playerID, storeID, buying, selli
                 WALLET_HANDLER.processCreditToStore(playerWallet,playerObj,0-creditUsed,storeID)
             end
 
-            WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,0-costRemainder)
+            if costRemainder > 0 then WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,0-costRemainder) end
 
-            if SandboxVars.ShopsAndTraders.ShopsUseCash < 2 then
-                storeObj.cash = _internal.floorCurrency((storeObj.cash or 0) + costRemainder)
+            if changePolicy < 2 then
+                storeObj.cash = _internal.floorCurrency((storeObj.cash or 0) + tradeUsed + costRemainder)
             end
 
             if not storeObj.ownerID then
@@ -612,11 +615,14 @@ function STORE_HANDLER.validateOrder(playerObj, playerID, storeID, buying, selli
         end
     end
 
-    if SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then
-        WALLET_HANDLER.processCreditToStore(playerWallet,playerObj,money,storeID)
-    elseif SandboxVars.ShopsAndTraders.ShopsUseCash == 3 then
-    else
-        WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,money)
+    local leftover = money+tradeValue
+    if leftover > 0 then
+        if changePolicy == 2 then
+            WALLET_HANDLER.processCreditToStore(playerWallet,playerObj,leftover,storeID)
+        elseif changePolicy == 3 then
+        else
+            WALLET_HANDLER.validateMoneyOrWallet(playerWallet,playerObj,leftover)
+        end
     end
 
     if #itemsToTransmit > 0 then itemTransmit.doIt(itemsToTransmit, playerObj) end

@@ -618,8 +618,24 @@ function storeWindow:listingInputEntered()
             storeWindow:populateListingList(listing)
 
         else
+            local isTable = false
+            for _,row in ipairs(storeWindow.addListingList.items) do
+                if row.fieldID == field then isTable = row.isTable break end
+            end
+
             if (storeWindow.storeObj and storeWindow.storeObj.ownerID) and (listing[field]==nil) then
                 -- skip; owned-store non-listing fields read-only
+            elseif isTable then
+                if rawText == "" then
+                    storeWindow:populateListingList(listing, field, nil)
+                else
+                    local parsed, err = _internal.jsonDecode(rawText)
+                    if type(parsed) == "table" then
+                        storeWindow:populateListingList(listing, field, parsed)
+                    else
+                        print("[Shop] Could not read '"..field.."' as a list/table: "..tostring(err or "not a list/table"))
+                    end
+                end
             else
                 local value = tonumber(rawText) or rawText
                 if value == "false" then value = false end
@@ -637,6 +653,12 @@ function storeWindow:listingInputEntered()
     self:setHeight(0)
 end
 
+
+
+function storeWindow.fieldTableToText(value)
+    local text = _internal.jsonEncode(value):gsub("\n%s*", "")
+    return text
+end
 
 
 function storeWindow.clipText(text, maxW, font)
@@ -795,6 +817,9 @@ function storeWindow:drawAddListingList(y, item, alt)
                 input:setOnlyNumbers((not isBcOrMd) and (tonumber(item.item) ~= nil))
                 if item.fieldID == "__add_bc__" or item.fieldID == "__add_md__" then
                     input:setText("")
+                elseif item.isTable then
+                    input:setOnlyNumbers(false)
+                    input:setText(type(item.item) == "table" and storeWindow.fieldTableToText(item.item) or "")
                 else
                     input:setText(tostring(item.item))
                 end
@@ -1006,8 +1031,9 @@ function storeWindow:populateListingList(listing, changeToField, newValue)
                 for field, _value in pairs(total_fields) do
                     if field ~= "modData" then
                         local value = listing.fields[field] or _value
-                        local displayValue = type(value) == "table" and "{...}" or tostring(value)
+                        local displayValue = type(value) == "table" and storeWindow.fieldTableToText(value) or tostring(value)
                         local addedField = self.addListingList:addItem(field..": "..displayValue, value)
+                        addedField.isTable = type(_value) == "table"
 
                         if (not listing.fields[field]) or (self.storeObj and self.storeObj.ownerID) then
                             addedField.faded = true
@@ -1518,7 +1544,7 @@ function storeWindow:rtrnTypeIfValid(item)
         if (item:getCondition()/item:getConditionMax())<0.75 or item:isBroken() then return false, "IGUI_NOTRADE_DAMAGED" end
         itemType = item:getFullType()
         if (_internal.isMoneyType(itemType) and item:getModData().value) then
-            if SandboxVars.ShopsAndTraders.ShopsUseCash > 2 then return false,"IGUI_NOTRADE_NOCASH" end
+            if not _internal.shopsAcceptCash() then return false,"IGUI_NOTRADE_NOCASH" end
             return itemType
         end
 
@@ -1901,7 +1927,7 @@ function storeWindow:getOrderTotal()
             if reason then invalidOrder = true end
             if type(v.item) ~= "string" then
                 if _internal.isMoneyType(itemType) then
-                    if SandboxVars.ShopsAndTraders.ShopsUseCash <= 2 then
+                    if _internal.shopsAcceptCash() then
                         itemListedInCart = true
                     end
                     if not v.item:getModData().value then _internal.generateMoneyValue(v.item) end
@@ -1981,11 +2007,11 @@ function storeWindow:displayOrderTotal()
     self:drawText(textForTotal, w-xOffset+5, y+(rows*fontPadded)+(rowPadding*(rows+1))+rowPadding, tColor.r, tColor.g, tColor.b, tColor.a, self.font)
 
     local wallet, walletBalance = getWallet(self.player), 0
-    if wallet then walletBalance = wallet.amount end
+    if wallet and _internal.shopsAcceptCash() then walletBalance = wallet.amount end
 
     local walletRow, creditRow
 
-    if SandboxVars.ShopsAndTraders.PlayerWallets then
+    if SandboxVars.ShopsAndTraders.PlayerWallets and _internal.shopsAcceptCash() then
         rows = rows+1
         walletRow = rows
         self:drawRect(x, y+(rows*fontPadded)+(rowPadding*(rows+1)), w, fontPadded, 0.9, self.backgroundColor.r, self.backgroundColor.g, self.backgroundColor.b)
@@ -2027,7 +2053,7 @@ function storeWindow:displayOrderTotal()
     end
 
 
-    if totalForTransaction ~= 0 and SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then
+    if totalForTransaction ~= 0 and _internal.getChangePolicy() == 2 then
         if storeCredit and storeCredit>0 and creditRow then
             local storeCreditAfter = math.max(0, storeCredit-totalForTransaction)
             totalForTransaction = math.max(0, totalForTransaction-storeCredit)
@@ -2039,7 +2065,7 @@ function storeWindow:displayOrderTotal()
         end
     end
 
-    if totalForTransaction ~= 0 and SandboxVars.ShopsAndTraders.PlayerWallets then
+    if totalForTransaction ~= 0 and walletRow then
         local walletBalanceAfter = walletBalance-totalForTransaction
         local sign = " "
         if walletBalanceAfter < 0 then sign = "-" end
@@ -2048,7 +2074,7 @@ function storeWindow:displayOrderTotal()
         self:drawText(wbaText, w-xOffset2+5, y+(walletRow*fontPadded)+(rowPadding*(walletRow+1))+rowPadding, balanceColor.normal2.r, balanceColor.normal2.g, balanceColor.normal2.b, balanceColor.normal2.a, self.font)
     end
 
-    if totalForTransaction<0 and self.storeObj and self.storeObj.ownerID and SandboxVars.ShopsAndTraders.ShopsUseCash < 2 then
+    if totalForTransaction<0 and self.storeObj and self.storeObj.ownerID and _internal.getChangePolicy() < 2 then
         local storeCash = (self.storeObj.cash or 0)
         if storeCash < math.abs(totalForTransaction) then
             self:drawTextRight(getText("IGUI_NOTRADE_NOFUNDS"), self.purchase.x-10, self.purchase.y+rowPadding, balanceColor.red.r, balanceColor.red.g, balanceColor.red.b, balanceColor.red.a, self.font)
@@ -2326,7 +2352,7 @@ function storeWindow:render()
     local totalForTransaction, invalidOrder = self:getOrderTotal()
 
     local wallet, walletBalance = getWallet(self.player), 0
-    if wallet then walletBalance = wallet.amount end
+    if wallet and _internal.shopsAcceptCash() then walletBalance = wallet.amount end
 
     --print("tFT:"..totalForTransaction.."  sUC:"..SandboxVars.ShopsAndTraders.ShopsUseCash.."  iO:"..tostring(invalidOrder))
 
@@ -2341,7 +2367,7 @@ function storeWindow:render()
     --if validIfWallets then totalForTransaction = totalForTransaction+walletBalance end
 
     if self.storeObj and self.storeObj.ownerID then
-        if SandboxVars.ShopsAndTraders.ShopsUseCash == 1 then
+        if _internal.getChangePolicy() == 1 then
             local storeCash = (self.storeObj.cash or 0)+(credit or 0)
             if totalForTransaction < 0 and storeCash < math.abs(totalForTransaction) then invalidOrder = true end
         --elseif SandboxVars.ShopsAndTraders.ShopsUseCash == 2 then

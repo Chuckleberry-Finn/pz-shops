@@ -669,6 +669,7 @@ itemFields.specials = {}
 
 ---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.specials.setColor(item, color)
+    if type(color) ~= "table" then return true end
     local col = Color.new(color.r, color.g, color.b, color.a)
     item:setColor(col)
     return true
@@ -676,12 +677,14 @@ end
 
 ---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.specials.setModData(item, data)
+    if type(data) ~= "table" then return true end
     item:copyModData(data)
     return true
 end
 
 ---@param item InventoryItem|DrainableComboItem|Clothing|Food|AlarmClock|AlarmClockClothing|MapItem|InventoryContainer|Literature|HandWeapon
 function itemFields.specials.setSpiceTable(item, data)
+    if type(data) ~= "table" then return false end
     local spices = ArrayList.new()
     for _,spice in pairs(data) do spices:add(spice) end
     item:setSpices(spices)

@@ -63,6 +63,18 @@ function _internal.isMoneyType(itemType)
 end
 
 
+function _internal.shopsAcceptCash()
+    return (SandboxVars.ShopsAndTraders.ShopsUseCash or 1) < 3
+end
+
+
+function _internal.getChangePolicy()
+    local policy = SandboxVars.ShopsAndTraders.ShopsUseCash or 1
+    if policy == 4 then return 2 end
+    return policy
+end
+
+
 function _internal.floorCurrency(n)
     return Math.round(n*100)/100
 end
@@ -307,6 +319,10 @@ end
 
 local jp = {}
 
+function jp.fail(p, msg)
+    p.err = p.err or (msg.." at pos "..p.pos)
+end
+
 function jp.skip(p)
     while p.pos <= p.len do
         local b = p.str:byte(p.pos)
@@ -315,6 +331,7 @@ function jp.skip(p)
 end
 
 function jp.parseString(p)
+    if p.str:sub(p.pos,p.pos) ~= '"' then jp.fail(p, "expected string") return end
     p.pos = p.pos+1
     local parts = {}
     while p.pos <= p.len do
@@ -333,7 +350,7 @@ function jp.parseString(p)
             p.pos = p.pos+1
         else parts[#parts+1]=c p.pos=p.pos+1 end
     end
-    error("unterminated string")
+    jp.fail(p, "unterminated string")
 end
 
 function jp.parseObject(p)
@@ -344,16 +361,19 @@ function jp.parseObject(p)
     while p.pos <= p.len do
         jp.skip(p)
         local key = jp.parseString(p)
+        if p.err then return end
         jp.skip(p)
+        if p.str:sub(p.pos,p.pos) ~= ':' then jp.fail(p, "expected ':'") return end
         p.pos = p.pos+1
         jp.skip(p)
         t[key] = jp.parseValue(p)
+        if p.err then return end
         jp.skip(p)
         local c = p.str:sub(p.pos,p.pos)
         p.pos = p.pos+1
-        if c=='}' then return t elseif c~=',' then error("expected ',' or '}'") end
+        if c=='}' then return t elseif c~=',' then jp.fail(p, "expected ',' or '}'") return end
     end
-    error("unterminated object")
+    jp.fail(p, "unterminated object")
 end
 
 function jp.parseArray(p)
@@ -364,12 +384,13 @@ function jp.parseArray(p)
     while p.pos <= p.len do
         jp.skip(p)
         t[#t+1] = jp.parseValue(p)
+        if p.err then return end
         jp.skip(p)
         local c = p.str:sub(p.pos,p.pos)
         p.pos = p.pos+1
-        if c==']' then return t elseif c~=',' then error("expected ',' or ']'") end
+        if c==']' then return t elseif c~=',' then jp.fail(p, "expected ',' or ']'") return end
     end
-    error("unterminated array")
+    jp.fail(p, "unterminated array")
 end
 
 function jp.parseValue(p)
@@ -384,15 +405,15 @@ function jp.parseValue(p)
     else
         local numStr = p.str:match("^-?%d+%.?%d*[eE]?[+%-]?%d*", p.pos)
         if numStr then p.pos=p.pos+#numStr return tonumber(numStr) end
-        error("unexpected character '"..c.."' at pos "..p.pos)
+        jp.fail(p, "unexpected character '"..c.."'")
     end
 end
 
 function _internal.jsonDecode(str)
     if not str or str == "" then return nil, "empty input" end
     local p = {str=str, pos=1, len=#str}
-    local ok, result = pcall(jp.parseValue, p)
-    if not ok then return nil, result end
+    local result = jp.parseValue(p)
+    if p.err then return nil, p.err end
     return result
 end
 
