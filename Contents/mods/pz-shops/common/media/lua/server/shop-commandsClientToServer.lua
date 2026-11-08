@@ -258,6 +258,7 @@ local function onClientCommand(_module, _command, _player, _data)
     elseif _command == "setStoreIsBeingManaged" then
         local status, storeID, storeName, restockHrs = _data.isBeingManaged, _data.storeID, _data.storeName, _data.restockHrs
         local storeObj = STORE_HANDLER.getStoreByID(storeID)
+        if not storeObj then print("ERROR: setStoreIsBeingManaged: No storeObj for "..tostring(storeID)) return end
         storeObj.isBeingManaged = status
         if storeName then storeObj.name = storeName end
         if restockHrs then
@@ -265,7 +266,7 @@ local function onClientCommand(_module, _command, _player, _data)
             storeObj.nextRestock = storeObj.restockHrs
         end
         if _data.listingOrder then storeObj.listingOrder = _data.listingOrder end
-        STORE_HANDLER.updateStore(storeObj)
+        STORE_HANDLER.updateStore(storeObj,storeID)
 
     elseif _command == "removeListing" then
         local item, storeID = _data.item, _data.storeID

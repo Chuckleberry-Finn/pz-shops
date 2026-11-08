@@ -270,3 +270,7 @@ B42 Update and Overhaul:
  - Listings already broken this way can be fixed by re-entering the value or clearing it.
 - JSON reading no longer throws errors on malformed text - it reports the problem and returns nothing instead.
 [ ------ ]
+
+[ 11/8/26 - Hotfix ]
+- Fix: Issue with saving shops.
+[ ------ ]

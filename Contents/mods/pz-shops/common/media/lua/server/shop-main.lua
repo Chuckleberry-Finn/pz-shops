@@ -324,6 +324,8 @@ Events.EveryHours.Add(STORE_HANDLER.restocking)
 
 
 function STORE_HANDLER.updateStore(storeObj,ID)
+    ID = ID or (storeObj and storeObj.ID)
+    if not ID then print("ERROR: updateStore called without a store ID.") return end
     GLOBAL_STORES[ID] = storeObj
     if isServer() then
         sendServerCommand("shop", "tryShopUpdateToAll", {store=storeObj})
